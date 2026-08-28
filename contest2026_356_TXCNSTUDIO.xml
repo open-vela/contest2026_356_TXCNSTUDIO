@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version='1.0' encoding='UTF-8'?>
 <manifest>
   <!--
     Team repo manifest. Includes the full openvela base project set
@@ -10,7 +10,7 @@
 
   <project path="contest2026_356_TXCNSTUDIO" name="contest2026_356_TXCNSTUDIO">
     <linkfile src="app/hello_app" dest="packages/demos/contest2026_356_hello_app"/>
-    <linkfile src="quickapp/hello_quickapp" dest="packages/apps/contest2026_356_hello_quickapp"/>
+    <linkfile src="quickapp/TickIt" dest="packages/apps/contest2026_356_TickIt"/>
     <linkfile src="board/contest_board" dest="vendor/openvela/boards/contest2026_356_board"/>
   </project>
 </manifest>
