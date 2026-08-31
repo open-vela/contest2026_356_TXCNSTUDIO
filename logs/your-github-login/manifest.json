@@ -1,16 +1,16 @@
 {
   "schema_version": "1.0",
   "team_id": "contest2026_000_openvela",
-  "github_login": "your-github-login",
+  "github_login": "txcn727-code",
   "generator": "example",
   "sessions": [
     {
-      "session_id": "example-0000-0000-0000-000000000000",
-      "tool": "claude-code",
-      "started_at": "2026-01-01T08:00:00.000Z",
-      "last_event_at": "2026-01-01T08:00:10.000Z",
+      "session_id": "ses_02b730ebeffeFjoUIcjhy4urxB",
+      "tool": "mimocode",
+      "started_at": "2026-08",
+      "last_event_at": "2026-08",
       "event_count": 4,
-      "file_path": "logs/your-github-login/2026-01-01/claude-code__example.jsonl",
+      "file_path": "logs/txcn727-code/2026-08/claude-code__example.jsonl",
       "collection_mode": "cli",
       "health": "ok"
     }
