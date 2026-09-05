@@ -1,19 +1,25 @@
 {
   "schema_version": "1.0",
-  "team_id": "contest2026_000_openvela",
+  "team_id": "contest2026_365_TXCNSTUDIO",
   "github_login": "txcn727-code",
   "generator": "example",
   "sessions": [
     {
-      "session_id": "ses_02b730ebeffeFjoUIcjhy4urxB",
+      "session_id": "ses_044028f35ffeVG4pEhg6SHSCu2",
       "tool": "mimocode",
-      "started_at": "2026-08",
-      "last_event_at": "2026-08",
+      "started_at": "2026-08-02",
+      "last_event_at": "2026-08-04",
       "event_count": 4,
-      "file_path": "logs/txcn727-code/2026-08/claude-code__example.jsonl",
+      "file_path": "logs/txcn727-code/2026-08/checkpoint.md",
+      "file_path": "logs/txcn727-code/2026-08/checkpoint-cloud-history.md",
+      "file_path": "logs/txcn727-code/2026-08/checkpoint-completed-deliveries.md",
+      "file_path": "logs/txcn727-code/2026-08/checkpoint-ui-directives.md",
+      "file_path": "logs/txcn727-code/2026-08/checkpoint-ui-specs.md",
+      "file_path": "logs/txcn727-code/2026-08/notes.md",
+      "file_path": "logs/txcn727-code/2026-08/checkpoint-ui-stable.md",
       "collection_mode": "cli",
       "health": "ok"
     }
   ],
-  "updated_at": "2026-01-01T08:00:11.000000+00:00"
+  "updated_at": "2026-09-05T11:23:34.000000+00:00"
 }
