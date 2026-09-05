@@ -1,0 +1,35 @@
+# Checkpoint spillover: 云端接入历史知识（2026-08-01）
+_Sibling of checkpoint.md. Contains §7 Discovered knowledge entries extracted from the main checkpoint (historical/stable/closed topics unlikely to be revisited — network constraints, AES/challenge solving, short-code binding, web-backend protocol). The current cloud work (fmt=text sync, UI rounds, time display) lives in the main checkpoint §7._
+
+- **Vela 样式简写/动态值渲染保守用法（2026-08-02，待验证，已被主 §7"样式保守用法"定案取代）**：① `margin:14px 6px` 简写疑似不生效（viewer 高/中/低按钮挤一起）→ 改单项 margin-top/margin-left/margin-right；② home 标题/时间 `text-decoration:{{$item.done ? 'line-through':'none'}}` 动态绑定用户实测无划线 → 改固定分支（if done/!done 两份 text 固定 line-through；超 5 字跑马灯 marquee 无划线，完成项暂不划线）→ **结论：Vela 样式尽量用单项属性 + 固定值，避免简写与动态样式表达式**（color/背景动态绑定已验证生效，text-decoration/margin 简写存疑）
+- 🔴 **Vela/aiot 运行时模块级 require 问题（2026-08-01 深夜实锤）**：`var slowAES = require('./slowAES.js')`（独立 CommonJS 文件）在 aiot/Vela 打包运行时抛模块级 `TypeError: not a function`（无位置信息）→ **修复：slowAES 实现内联进 utils.js**（src/common/slowAES.js 删除；utils.js 加载正常 26 导出 + FIPS 解密验证 ✅）——**内嵌 JS 到 Vela 优先单文件内联，勿 require 独立模块**
+- 🔴 **Vela 页面销毁中断异步链（2026-08-01 实测）**：页面 onDestroyed 后，该页启动的未完成 Promise 链回调不再执行（用户从 sync 页快速返回 → request success 后的 merge/storageSet 全丢，todo_items 保持 []）→ **关键异步（拉取/合并/保存）应放 home.onShow autoSync 自动执行，勿依赖用户在中间页等待**；storageSet 必须返回 Promise 供调用方等待
+- **Vela Promise.all 支持存疑（2026-08-01）**：syncPush 原用 Promise.all(pushes) → 为保险改 Promise.resolve() 串行链（add/toggle 逐个执行，pushed 计数），已 build ✅
+- ✅ **AES 解密闭环验证（2026-08-01）**：重写版 AES-128-CBC（内联）FIPS-197（key=000102030405060708090a0b0c0d0e0f, cipher=69c4e0d86a7b0430d8cdb78070b4c55a, iv 全 0 → 00112233445566778899aabbccddeeff）+ 真实挑战（a=f655ba9d09a112d4968c63579db590b4 / b=98344c2eee86c3994890592585b49f80 / c=34bb3d77018fd35c3b80ccd7f0d78d34 → b91c8b25fe568759d00b75a21650f4dc，Node crypto 一致）双 ✅
+- **Vela JS 引擎与 Node 差异（2026-08-01 实锤，已闭环）**：旧 slowAES 库（2009 年写法）在 Vela 引擎报 `'i' is not defined`（Node 严格+非严格均正常）——内嵌第三方 JS 到 Vela 必须现代显式写法（所有变量显式 var、无隐式全局）；已用干净 AES-128-CBC 重写替代
+- **AES-128 纯 JS 实现要点（2026-08-01 调试沉淀，已闭环）**：state 列主序 state[c][r]=block[c*4+r]；SubBytes/InvSubBytes 逐元素（行列无关）、MixColumns/InvMixColumns 按列、**ShiftRows/InvShiftRows 按行**（固定 r 遍历 c）；InvShiftRows 正确写法：行1 = state[3][1]←state[2][1]←state[1][1]←state[0][1]（右移1）、行2 = 交换 state[0][2]↔state[2][2] 与 state[1][2]↔state[3][2]（右移2）、行3 = state[0][3]←state[1][3]←state[2][3]←state[3][3]（右移3=左移1）
+- **FIPS-197 密钥扩展表勿凭记忆（2026-08-01）**：w[9]=w[5]^w[8]=d2af72fa^b692cf0b=**643dbdf1**（记忆中的"643dbd1b"为误记）——验证一律以 Node crypto 为权威；调试方法论：打印 AddRoundKey(10) 后状态（ciphertext^roundKey10）快速区分"密钥扩展错"vs"轮函数错"
+- **Node crypto 端到端验证法（2026-08-01）**：Node AES-128-ECB 加密 FIPS 明文 = 69c4e0d86a7b0430d8cdb78070b4c55a ✓ 确认 FIPS 向量有效；权威对照 = createDecipheriv('aes-128-ecb'/'aes-128-cbc', key, iv) + setAutoPadding(false)
+- **InfinityFree 挑战对 UA 敏感（2026-08-01 curl 实测）**：无 UA / 非浏览器 UA → HTTP:000 连接失败或 400 openresty（不稳定）；带浏览器 UA → 挑战页 200。→ 手表 fetch 必须**强制浏览器 UA**（utils.js BROWSER_UA 常量）；http 协议下挑战同样生效（http://txcn.top/api.php 带 UA → 挑战页 200）
+- ✅ **Vela fetch https → I/O 300 已解决（2026-08-01 实测闭环）**：改 http://txcn.top + 浏览器 UA 后用户模拟器实测 `challenge html len: 843` 成功拉到挑战页 → **300 = https/TLS 层问题，http 协议 Vela fetch 正常**；通用错误码 300 = I/O 错误（vela开发文档.md grammar.html 2026 行）
+- **http://txcn.top 协议可用（2026-08-01）**：`http://txcn.top/checklist`（无 UA）→ HTTP:000；`http://txcn.top/api.php?action=get_notices`（带浏览器 UA）→ 挑战页 200 —— http 与 https 行为一致（挑战均生效），http 可作 https 不通时的备选（⚠️ token 明文传输权衡）
+- **挑战边界行为（2026-08-01 实测）**：无 UA → HTTP:000 连接失败；带浏览器 UA → 200 挑战页；部分请求 → 400 openresty（行为不稳定）；挑战 cookie __test 6 小时有效
+- **InfinityFree 挑战无法在控制面板关闭（2026-08-01 用户确认："A我试过了，我的控制面板没有这个"）** → 方案 A 死路；只能从客户端侧解决
+- ❌❌ **proxy.php 对手表彻底无效（2026-08-01 实锤，推翻"可以了"结论）**：InfinityFree WAF 挑战拦截**所有非浏览器请求**——外部访问 proxy.php 本身也返回挑战页（863B aes.js，PHP 未执行）；浏览器能过挑战（执行 JS 设 cookie）→ 用户测 proxy.php"可以了"只是浏览器假象；手环 Vela fetch 无 JS → 一直卡挑战页。**proxy.php 只能服务浏览器，服务不了手表 → 弃用**
+- **短码绑定协议（2026-08-01 实现，已验证通）**：create_device_code（POST，需登录）→ 生成 `strtoupper(substr(bin2hex(random_bytes(3)),0,6))` 6 位码存 device_codes（10 分钟有效）；device_bind{code}（POST，免登录）→ 查 device_codes（used=0 且未过期）→ 标记 used → 生成 `bin2hex(random_bytes(32))` 30 天 token 插 user_tokens → 返回 {success, token}；device_codes 表：id/user_id/code(VARCHAR10 UNIQUE)/used/created_at/expires_at
+- 网页端 showCodeDlg(code)：优先查 #scrim-code（classList.add('open') 显示 #code-val 文本），未建则动态创建遮罩 div（position fixed inset 0 z-index 999，38px 大字码 letter-spacing 8px + 关闭按钮）
+- 网页版"我的"页操作区布局：prof-hd 下"退出登录"（红 btn-filled）旁新增"手表绑定"（蓝 btn-filled，margin-left:8px）
+- 网页版后端**完整协议**（源码确认，api.php）：
+  - POST api.php?action=xxx（JSON body）：send_email_code / forgot_password / reset_password / login / register / token_login / logout / add_category / **add** / **toggle** / **update** / clear_completed / add_focus_log / add_calendar_event / update_calendar_event / change_password / delete_account
+  - DELETE api.php?action=xxx&id=xxx：**delete** / delete_category / delete_calendar_event
+  - GET：无 action = 登录后 todo 列表（ORDER BY is_pinned DESC, priority DESC, id DESC）；get_categories / get_focus_stats / get_calendar_events / get_user_profile 需登录；get_notices / get_hotboard / get_csrf / captcha 公开
+  - 数据字段：add{text, priority, category_id}；toggle{id, completed}；update{id, text, priority, is_pinned, category_id}；text ≤100 字；add 原返回无 id（api-watch.php 已改返回 lastInsertId）
+  - 认证：token_login{token} → user_tokens 表（token=bin2hex(random_bytes(32)) 64hex，30 天）→ {success, username, csrf_token}；业务接口只查 $_SESSION['user_id']（696 行）；**validateCsrf() 定义但从未调用 → 业务接口不需要 csrf**
+  - DB：InfinityFree MySQL sql111.infinityfree.com / 库 if0_41276111_todo；表 users/todos/categories/focus_logs/calendar_events/user_tokens/email_codes/login_attempts/notices
+- JS 反爬挑战不在 .htaccess（仅 RewriteEngine + 禁缓存）→ **InfinityFree 主机层 WAF**；挑战 cookie __test 6 小时有效（max-age 21600）
+- 网页版前端 API 变量 = 相对路径 `'api.php'`（同一 txcn.top 后端，非独立 Worker）→ 旧 Worker API_BASE 是历史遗留，已死
+- slowAES 测试向量易混淆：c 每次请求变化（明文随之不同；80996c 对应 c=e0f779...，a427c361 对应 c=22d63e...，均正确）——验证 slowAES 完整性应"提取段===原文件(去尾) 逐字节对比"，勿用固定 c 向量断言
+- **slowAES mode 2 = AES-128-CBC（key=a, iv=b）**（2026-08-01 Node crypto 验证：CBC 解密 22d63e... → a427c361... 匹配 slowAES 期望；ECB → 3c138f... 不匹配）→ **PHP openssl_decrypt($c,'AES-128-CBC',hex2bin($a),OPENSSL_RAW_DATA,hex2bin($b)) 可移植**，使 txcn.top 主机内 PHP 代理可行、不再依赖 Cloudflare
+- **InfinityFree WAF 挑战疑似只拦外部访客请求（2026-08-01 证据）**：proxy.php（PHP）外部访问可正常执行返回 JSON（未返回挑战页），且服务器内部 file_get_contents('/checklist') 未返回挑战 a/b/c 参数（v1 "challenge parse fail"）→ 内部直连 api.php 可能免挑战；v2 自适应代理用测试结果判别：正常 JSON=直连可行 / 挑战页=内部也被拦 / "proxy upstream fail"=内部 file_get_contents https 失败（需 cURL 版）
+- **workers.dev 本网络环境不可达**（2026-08-01 双确认：本机 Invoke-WebRequest/Node 直连均超时 socket hang up + 用户浏览器"我这里也超时了"；DNS 解析正常 A=199.59.148.89，连接层失败）→ 中国网络 workers.dev 被墙/不稳，Worker 方案在此环境失效，改 PHP 代理
+- txcn.top 的 NS = InfinityFree（ns1-2.infinityfree.com + ns1-5.byet.org）→ **不在 Cloudflare**；给 Worker 绑自定义域名需把 txcn.top NS 迁移到 Cloudflare（InfinityFree 免费主机可能有约束，风险，暂缓）
