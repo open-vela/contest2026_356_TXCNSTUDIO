@@ -1,51 +1,86 @@
 <import name="input-method" src="../../components/InputMethod/InputMethod.ux"></import>
 <template>
-  <div style="flex-direction:column;width:336px;height:480px;background-color:#000000;">
+  <div style="flex-direction:column;width:336px;height:100%;background-color:#000000;" @swipe="onSwipe">
+<!-- if true: process.env.SHAPE === "RECT" -->
 
-    <!-- 成功态背景（背景图自带：云朵+对勾卡 + 登录成功 + 标题云端账号） -->
-    <image if="{{bound}}" static src="../../common/token-success-bg.png" style="position:absolute;left:0;top:0;width:336px;height:480px;"></image>
-    <!-- 失败态背景（背景图自带：云朵+叉卡 + 登录失败） -->
-    <image if="{{loginFail}}" static src="../../common/token-fail-bg.png" style="position:absolute;left:0;top:0;width:336px;height:480px;"></image>
 
-    <!-- 点击空白收起输入法 -->
-    <div if="{{!hide}}" style="position:absolute;left:0;top:0;width:336px;height:220px;" onclick="hideKeyboard"></div>
+    <!-- ═══ 矩形屏：原布局 ═══ -->
+    <div if="{{isCircle === false}}" style="flex-direction:column;width:336px;height:100%;">
+    <!-- 成功态背景 -->
+    <image if="{{bound}}" src="../../common/token-success-bg.png" style="position:absolute;left:0;top:0;width:336px;height:100%;object-fit:cover;"></image>
+    <!-- 失败态背景 -->
+    <image if="{{loginFail}}" src="../../common/token-fail-bg.png" style="position:absolute;left:0;top:0;width:336px;height:100%;object-fit:cover;"></image>
 
     <!-- 顶部：返回 + 时间 + 标题 + 绑定/退出 -->
     <image static src="../../common/btn-back-round.png" style="position:absolute;left:6px;top:6px;width:72px;height:72px;" onclick="goBack"></image>
     <div if="{{!bound && !loginFail}}" style="position:absolute;left:258px;top:6px;width:72px;height:72px;border-radius:36px;background-color:{{binding ? '#4A6FA5' : '#3B82F6'}};justify-content:center;align-items:center;" onclick="doBind">
       <text style="font-size:36px;font-weight:700;color:#FFFFFF;">{{binding ? '…' : '✓'}}</text>
     </div>
-    <image if="{{bound}}" static src="../../common/btn-logout-red.png" style="position:absolute;left:258px;top:6px;width:72px;height:72px;" onclick="goLogout"></image>
+    <image if="{{bound}}" src="../../common/btn-logout-red.png" style="position:absolute;left:258px;top:6px;width:72px;height:72px;" onclick="goLogout"></image>
     <text style="position:absolute;left:105px;top:10px;width:126px;text-align:center;font-size:26px;color:#999999;">{{timeStr}}</text>
-    <!-- 标题（成功/失败背景自带标题，仅未绑定态显示） -->
     <text if="{{!bound && !loginFail}}" style="position:absolute;left:100px;top:40px;width:136px;text-align:center;font-size:32px;font-weight:700;color:#FFFFFF;">云端账号</text>
 
     <!-- 成功态：底部完成按钮 -->
     <div if="{{bound}}" style="position:absolute;left:18px;top:373px;width:300px;height:80px;border-radius:30px;background-color:#262626;justify-content:center;align-items:center;" onclick="goBack">
-      <text style="font-size:26px;font-weight:700;color:#FFFFFF;">完成</text>
+      <text static style="font-size:26px;font-weight:700;color:#FFFFFF;">完成</text>
     </div>
 
     <!-- 失败态：请检查网络 + 重试按钮 -->
     <text if="{{loginFail}}" style="position:absolute;left:0;top:330px;width:336px;text-align:center;font-size:20px;color:#8E8E93;">请检查网络</text>
-    <image if="{{loginFail}}" static src="../../common/btn-retry.png" style="position:absolute;left:18px;top:373px;width:300px;height:80px;" onclick="retry"></image>
+    <image if="{{loginFail}}" src="../../common/btn-retry.png" style="position:absolute;left:18px;top:373px;width:300px;height:80px;" onclick="retry"></image>
 
     <!-- 未绑定：绑定码输入框 -->
     <div if="{{!bound && !loginFail}}" style="position:absolute;left:6px;top:96px;width:324px;height:104px;border-radius:24px;background-color:#262626;flex-direction:row;align-items:center;padding-left:24px;padding-right:24px;" onclick="showKeyboard">
-      <text style="font-size:24px;color:#999999;margin-right:14px;">绑定码</text>
+      <text static style="font-size:24px;color:#999999;margin-right:14px;">绑定码</text>
       <text style="flex:1;font-size:34px;font-weight:700;color:{{code ? '#FFFFFF' : '#666666'}};letter-spacing:4px;lines:1;text-overflow:ellipsis;">{{code || '请输入'}}_</text>
     </div>
 
     <!-- 说明（未绑定） -->
     <div if="{{!bound && !loginFail}}" style="position:absolute;left:6px;top:216px;width:324px;flex-direction:column;padding-left:10px;padding-right:10px;">
-      <text style="font-size:20px;color:#999999;line-height:30px;">绑定步骤：</text>
-      <text style="font-size:20px;color:#999999;line-height:30px;margin-top:8px;">1. 网页版 txcn.top/checklist 登录后，点底部「手表绑定」按钮</text>
-      <text style="font-size:20px;color:#999999;line-height:30px;margin-top:8px;">2. 页面会显示 8 位绑定码（10 分钟内有效）</text>
-      <text style="font-size:20px;color:#999999;line-height:30px;margin-top:8px;">3. 把绑定码填到上面，点右上角 ✓</text>
+      <text static style="font-size:20px;color:#999999;line-height:30px;">绑定步骤：</text>
+      <text static style="font-size:20px;color:#999999;line-height:30px;margin-top:8px;">1. 网页版 txcn.top/checklist 登录后，点底部「手表绑定」按钮</text>
+      <text static style="font-size:20px;color:#999999;line-height:30px;margin-top:8px;">2. 页面会显示 8 位绑定码（10 分钟内有效）</text>
+      <text static style="font-size:20px;color:#999999;line-height:30px;margin-top:8px;">3. 把绑定码填到上面，点右上角 ✓</text>
+    </div>
+    </div>
+<!-- if true: process.env.SHAPE === "CIRCLE" -->
+
+
+    <!-- ═══ 圆屏：单 scroll + if/elif 切换状态（减少大图解码） ═══ -->
+    <div if="{{isCircle}}" style="position:absolute;left:0;top:0;width:336px;height:336px;">
+      <scroll scroll-y="true" bounces="false" style="width:336px;height:336px;flex-direction:column;">
+        <div static style="width:336px;height:417.2px;min-height:417.2px;flex-shrink:0;">
+          <!-- 背景：if/elif/else 同时只渲染 1 张 -->
+          <image if="{{!bound && !loginFail && !circleEditing}}" src="../../common/circle-token-bg.png" style="position:absolute;left:0;top:0;width:336px;height:417px;"></image>
+          <image elif="{{bound}}" src="../../common/circle-token-bg.png" style="position:absolute;left:0;top:0;width:336px;height:417px;"></image>
+          <image elif="{{loginFail}}" src="../../common/circle-token-bg.png" style="position:absolute;left:0;top:0;width:336px;height:417px;"></image>
+          <image else src="../../common/circle-token-bind-bg.png" style="position:absolute;left:0;top:0;width:336px;height:417px;"></image>
+
+          <!-- 未登录 -->
+          <text if="{{!bound && !loginFail && !circleEditing}}" style="position:absolute;left:39.9px;top:168px;width:256px;height:35px;text-align:left;font-size:28px;font-weight:700;color:#FFFFFF;">未登录</text>
+          <image if="{{!bound && !loginFail && !circleEditing}}" src="../../common/circle-card-8.png" style="position:absolute;left:21.7px;top:226.8px;width:291.2px;height:77px;" onclick="goLogin"></image>
+
+          <!-- 已登录 -->
+          <text if="{{bound}}" style="position:absolute;left:39.9px;top:168px;width:256px;height:35px;text-align:left;font-size:28px;font-weight:700;color:#FFFFFF;">已登录</text>
+          <image if="{{bound}}" src="../../common/circle-card-7.png" style="position:absolute;left:21.7px;top:226.8px;width:291.2px;height:77px;" onclick="goLogout"></image>
+
+          <!-- 失败 -->
+          <text if="{{loginFail}}" style="position:absolute;left:39.9px;top:164px;width:256px;height:31px;text-align:left;font-size:26px;font-weight:700;color:#FFFFFF;">登录失败</text>
+          <text if="{{loginFail}}" style="position:absolute;left:39.9px;top:195px;width:256px;height:21px;text-align:left;font-size:16px;color:#FF4444;">请检查网络</text>
+          <image if="{{loginFail}}" src="../../common/circle-card-8.png" style="position:absolute;left:22px;top:227px;width:291px;height:77px;" onclick="retry"></image>
+
+          <!-- 绑定态 -->
+          <text if="{{circleEditing && !bound && !loginFail}}" style="position:absolute;left:39.9px;top:168px;width:256px;height:35px;text-align:left;font-size:28px;font-weight:700;color:#FFFFFF;lines:1;text-overflow:ellipsis;" onclick="showKeyboard">{{code || "请输入"}}</text>
+          <div if="{{circleEditing && !bound && !loginFail}}" style="position:absolute;left:21.7px;top:119.7px;width:292.6px;height:98px;" onclick="showKeyboard"></div>
+          <image if="{{circleEditing && !bound && !loginFail}}" src="../../common/circle-card-9.png" style="position:absolute;left:22.4px;top:226.8px;width:291.2px;height:77px;" onclick="doBind"></image>
+        </div>
+      </scroll>
     </div>
 
+    <!-- 输入法 -->
     <input-method
       hide="{{hide}}"
-      screentype="rect"
+      screentype="auto"
       maxlength="8"
       @key-down="onKeyDown"
       @delete="onDelete"
@@ -53,6 +88,8 @@
     ></input-method>
 
   </div>
+<!-- endif -->
+<!-- endif -->
 </template>
 
 <script>
@@ -60,10 +97,14 @@
   import storage from '@system.storage'
   import prompt from '@system.prompt'
   import fetch from '@system.fetch'
-  import utils from '../../common/utils'
+    import adapt from '../../common/adapt'
+
+  const utils = global.utils || {}
 
   export default {
     private: {
+      isCircle: null,
+      circleEditing: false,
       timeStr: '',
       code: '',
       hide: true,
@@ -73,11 +114,19 @@
     },
 
     onInit () {
+      this.onBtnClick = function(sign, evt) { if (global.__kbd) return global.__kbd.onBtnClick(sign) }
+      this.onSelect = function(num, evt) { if (global.__kbd) return global.__kbd.onSelect(num) }
+      this.onRsSelect = function(txt) { if (global.__kbd) return global.__kbd.onRsSelect(txt) }
+      this.onSelectWaiting = function(i) { if (global.__kbd) return global.__kbd.onSelectWaiting(i) }
+      this.isCircle = adapt.isCircleSync()
       utils.init(storage, prompt, fetch)
     },
 
     onShow () {
-      var that = this
+var that = this
+      adapt.probe().then(function (info) {
+        if (that.isCircle !== info.isCircle) { that.isCircle = info.isCircle }
+      })
       that.updateTime()
       utils.storageGet('todo_token').then(function (t) {
         that.bound = !!(t && t !== 'guest_token')
@@ -86,7 +135,7 @@
     },
 
     onDestroy () {
-      if (global && global.runGC) {
+      if (typeof global.runGC === "function") {
         global.runGC()
       }
     },
@@ -98,11 +147,15 @@
       this.timeStr = h + ':' + m
     },
 
+    goLogin () {
+      this.circleEditing = true
+      this.hide = true
+    },
+
     showKeyboard () { this.hide = false },
     hideKeyboard () { this.hide = true },
 
     onKeyDown (evt) {
-      console.log('keyDown: ' + JSON.stringify(evt))
     },
 
     onDelete () {
@@ -126,6 +179,7 @@
         return
       }
       if (that.binding) { return }
+      if (that.isCircle) { that.hide = true }
       that.binding = true
       // 手环走蓝牙网络较慢，点击立即给反馈，避免看起来卡死
       utils.toast('正在绑定，请稍候...')
@@ -170,12 +224,43 @@
       this.loginFail = false
       this.binding = false
       this.hide = true
+      if (this.isCircle) { this.circleEditing = true }
     },
 
     goLogout () {
       router.push({ uri: 'pages/logout' })
     },
 
-    goBack () { router.back() }
+    goBack () { router.back() },
+
+    // 键盘展开时返回手势/返回键只收起键盘不退页；350ms 去重防同一次手势被双派发
+    handleBack () {
+      if (this._kbBackAt && (Date.now() - this._kbBackAt) < 350) { return true }
+      if (!this.hide) {
+        this.hideKeyboard()
+        this._kbBackAt = Date.now()
+        return true
+      }
+      return false
+    },
+
+    onSwipe (e) {
+      if (!e) { return }
+      if (e.direction === 'left' || e.direction === 'right') {
+        if (this.handleBack()) { return }
+      }
+      if (e.direction === 'right') {
+        if (this.isCircle && this.circleEditing && !this.bound) {
+          this.circleEditing = false
+          this.loginFail = false
+          return
+        }
+        router.back()
+      }
+    },
+
+    onBackPress () {
+      return this.handleBack()
+    }
   }
 </script>

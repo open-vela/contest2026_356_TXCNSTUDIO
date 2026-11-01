@@ -1,37 +1,64 @@
 <import name="input-method" src="../../components/InputMethod/InputMethod.ux"></import>
 <template>
-  <div style="flex-direction:column;width:336px;height:480px;background-color:#000000;">
+  <div style="flex-direction:column;width:336px;height:100%;background-color:#000000;" @swipe="onSwipe">
 
     <!-- 编辑模式：点击空白收起输入法（最先渲染，位于按钮之下层级） -->
-    <div if="{{editing && !keyboardHide}}" style="position:absolute;left:0;top:0;width:336px;height:220px;" onclick="hideKeyboard"></div>
+    <div if="{{editing && !keyboardHide}}" style="position:absolute;left:0;top:0;width:336px;height:{{isCircle ? 151 : 220}}px;" onclick="hideKeyboard"></div>
 
     <!-- 顶部：返回（原按钮图）+ 时间 + 标题 + 蓝色对勾保存（详情/编辑都显示） -->
-    <image static src="../../common/btn-back-round.png" style="position:absolute;left:6px;top:6px;width:72px;height:72px;" onclick="goBack"></image>
-    <div style="position:absolute;left:258px;top:6px;width:72px;height:72px;border-radius:36px;background-color:#3B82F6;justify-content:center;align-items:center;" onclick="saveAndBack">
-      <text style="font-size:36px;font-weight:700;color:#FFFFFF;">&#10003;</text>
+    <image if="{{isCircle === false}}" src="../../common/btn-back-round.png" style="position:absolute;left:6px;top:6px;width:72px;height:72px;" onclick="goBack"></image>
+    <div if="{{isCircle === false}}" style="position:absolute;left:258px;top:6px;width:72px;height:72px;border-radius:36px;background-color:#3B82F6;justify-content:center;align-items:center;" onclick="saveAndBack">
+      <text static style="font-size:36px;font-weight:700;color:#FFFFFF;">&#10003;</text>
     </div>
-    <text style="position:absolute;left:105px;top:10px;width:126px;text-align:center;font-size:26px;color:#999999;">{{timeStr}}</text>
-    <text style="position:absolute;left:100px;top:40px;width:136px;text-align:center;font-size:32px;font-weight:700;color:#FFFFFF;">{{editing ? '修改内容' : '清单详情'}}</text>
+    <text if="{{isCircle === false}}" style="position:absolute;left:105px;top:10px;width:126px;text-align:center;font-size:26px;color:#999999;">{{timeStr}}</text>
+    <text if="{{isCircle === false}}" style="position:absolute;left:100px;top:40px;width:136px;text-align:center;font-size:32px;font-weight:700;color:#FFFFFF;">{{editing ? '修改内容' : '清单详情'}}</text>
+<!-- if true: process.env.SHAPE === "CIRCLE" -->
 
-    <!-- 详情模式：可滑动，切图一比一复刻 -->
-    <div if="{{!editing}}" style="position:absolute;left:0;top:85px;width:336px;height:395px;">
-      <scroll scroll-y="true" style="width:336px;height:395px;flex-direction:column;">
+
+    <!-- ═══ 圆屏：清单详情背景（480×1121→336×785）+ 动态内容 + 按钮切图 ═══ -->
+    <div if="{{isCircle && !editing}}" style="position:absolute;left:0;top:0;width:336px;height:336px;">
+      <scroll scroll-y="true" bounces="false" style="width:336px;height:336px;flex-direction:column;">
+        <div static style="width:336px;height:785px;min-height:785px;flex-shrink:0;">
+          <!-- 背景：三点+标题+两张卡片骨架+按钮区 -->
+          <image src="../../common/circle-viewer-bg.png" style="position:absolute;left:0;top:0;width:336px;height:785px;"></image>
+          <!-- 卡片1：任务内容（480:31,176,418,140 → 336:22,123,293,98） -->
+          <text style="position:absolute;left:40px;top:172px;width:256px;font-size:22px;font-weight:700;color:#FFFFFF;lines:1;text-overflow:ellipsis;">{{title}}</text>
+          <!-- 卡片2：清单状态（480:31,329 → 336:22,230） -->
+          <text style="position:absolute;left:40px;top:275px;width:200px;font-size:22px;font-weight:700;color:#FFFFFF;lines:1;">{{done ? '已完成' : '未完成'}}</text>
+          <!-- 状态圆环点击区（480:314,347,94,94 → 336:220,243,66,66） -->
+          <div style="position:absolute;left:210px;top:238px;width:76px;height:76px;" onclick="toggleDone"></div>
+          <!-- 完成态对勾（叠在圆环正中心：圆心253,276） -->
+          <image if="{{done}}" src="../../common/icon-check-white.png" style="position:absolute;left:235px;top:258px;width:36px;height:36px;" onclick="toggleDone"></image>
+          <!-- 操作按钮切图：94=优先级 95=截止时间 96=修改内容 97=删除 -->
+          <image src="../../common/circle-ctr-94.png" if="{{chunkRendered}}" style="position:absolute;left:22px;top:334px;width:291px;height:77px;" onclick="openPriority"></image>
+          <image src="../../common/circle-ctr-95.png" if="{{chunkRendered}}" style="position:absolute;left:22px;top:420px;width:291px;height:77px;" onclick="openDeadline"></image>
+          <image src="../../common/circle-ctr-96.png" if="{{chunkRendered}}" style="position:absolute;left:22px;top:506px;width:291px;height:77px;" onclick="startEdit"></image>
+          <image src="../../common/circle-ctr-97.png" if="{{chunkRendered}}" style="position:absolute;left:22px;top:592px;width:291px;height:77px;" onclick="startConfirmDelete"></image>
+        </div>
+      </scroll>
+    </div>
+<!-- if true: process.env.SHAPE === "RECT" -->
+
+
+    <!-- ═══ 矩形屏详情（原逻辑）═══ -->
+    <div if="{{isCircle === false && !editing}}" style="position:absolute;left:0;top:85px;width:336px;height:395px;">
+      <scroll scroll-y="true" bounces="false" style="width:336px;height:395px;flex-direction:column;">
 
         <!-- 清单内容卡（背景切图 + 白字标题叠加） -->
-        <div style="width:324px;height:112px;margin-left:6px;margin-top:2px;">
+        <div static style="width:324px;height:112px;margin-left:6px;margin-top:2px;">
           <image static src="../../common/view-content-bg.png" style="position:absolute;left:0;top:0;width:324px;height:112px;"></image>
-          <text style="position:absolute;left:28px;top:58px;width:260px;font-size:30px;font-weight:700;color:#FFFFFF;lines:1;text-overflow:ellipsis;">{{title}}</text>
+          <text  style="position:absolute;left:28px;top:58px;width:260px;font-size:30px;font-weight:700;color:#FFFFFF;lines:1;text-overflow:ellipsis;">{{title}}</text>
         </div>
 
         <!-- 状态卡（完成/未完成切图切换） -->
-        <div style="width:324px;height:112px;margin-left:6px;margin-top:10px;" onclick="toggleDone">
+        <div static style="width:324px;height:112px;margin-left:6px;margin-top:10px;" onclick="toggleDone">
           <image if="{{done}}" src="../../common/view-status-done.png" style="position:absolute;left:0;top:0;width:324px;height:112px;"></image>
           <image else src="../../common/view-status-undo.png" style="position:absolute;left:0;top:0;width:324px;height:112px;"></image>
         </div>
 
-        <!-- 优先级（2x2：高/中/低/置顶） -->
-        <text static style="font-size:24px;color:#8E8E93;margin-top:16px;margin-left:30px;">优先级</text>
-        <div style="width:336px;flex-direction:row;flex-wrap:wrap;margin-top:10px;">
+        <!-- 优先级：矩形=2x2 直选；圆屏=点进优先级页 -->
+        <text if="{{isCircle === false}}"  style="font-size:24px;color:#8E8E93;margin-top:16px;margin-left:30px;">优先级</text>
+        <div if="{{isCircle === false}}" style="width:336px;flex-direction:row;flex-wrap:wrap;margin-top:10px;">
           <image if="{{priority===3}}" src="../../common/pri-high-sel.png" style="width:157px;height:112px;margin-left:6px;margin-right:4px;margin-bottom:12px;" onclick="setPriority(3)"></image>
           <image else src="../../common/pri-high.png" style="width:157px;height:112px;margin-left:6px;margin-right:4px;margin-bottom:12px;" onclick="setPriority(3)"></image>
           <image if="{{priority===2}}" src="../../common/pri-mid-sel.png" style="width:157px;height:112px;margin-left:6px;margin-right:4px;margin-bottom:12px;" onclick="setPriority(2)"></image>
@@ -41,10 +68,15 @@
           <image if="{{pinned}}" src="../../common/pri-pin-sel.png" style="width:157px;height:112px;margin-left:6px;margin-right:4px;margin-bottom:12px;" onclick="togglePin"></image>
           <image else src="../../common/pri-pin.png" style="width:157px;height:112px;margin-left:6px;margin-right:4px;margin-bottom:12px;" onclick="togglePin"></image>
         </div>
+        <div if="{{isCircle}}" style="width:291px;height:77px;margin-left:22px;margin-top:12px;border-radius:28px;background-color:#262626;flex-direction:row;align-items:center;padding-left:22px;padding-right:22px;" onclick="openPriority">
+          <text static style="font-size:20px;color:#8E8E93;margin-right:12px;">优先级</text>
+          <text  style="flex:1;font-size:22px;font-weight:700;color:#FFFFFF;">{{priLabel}}{{pinned ? ' · 置顶' : ''}}</text>
+          <text static style="font-size:22px;color:#666666;">›</text>
+        </div>
 
-        <!-- 截止时间（2x2：无/今天/明天/3天） -->
-        <text static style="font-size:24px;color:#8E8E93;margin-top:16px;margin-left:30px;">截止时间</text>
-        <div style="width:336px;flex-direction:row;flex-wrap:wrap;margin-top:10px;">
+        <!-- 截止时间：矩形=2x2 直选；圆屏=点击循环 -->
+        <text if="{{isCircle === false}}"  style="font-size:24px;color:#8E8E93;margin-top:16px;margin-left:30px;">截止时间</text>
+        <div if="{{isCircle === false}}" style="width:336px;flex-direction:row;flex-wrap:wrap;margin-top:10px;">
           <image if="{{dueSel===0}}" src="../../common/due-none-sel.png" style="width:157px;height:112px;margin-left:6px;margin-right:4px;margin-bottom:12px;" onclick="setDue(0)"></image>
           <image else src="../../common/due-none.png" style="width:157px;height:112px;margin-left:6px;margin-right:4px;margin-bottom:12px;" onclick="setDue(0)"></image>
           <image if="{{dueSel===1}}" src="../../common/due-today-sel.png" style="width:157px;height:112px;margin-left:6px;margin-right:4px;margin-bottom:12px;" onclick="setDue(1)"></image>
@@ -60,22 +92,28 @@
         <image static src="../../common/view-share.png" style="width:324px;height:112px;margin-left:6px;margin-top:10px;" onclick="shareItem"></image>
         <image static src="../../common/view-del.png" style="width:324px;height:112px;margin-left:6px;margin-top:10px;" onclick="startConfirmDelete"></image>
 
-        <div style="height:12px;"></div>
-      </scroll>
+        <div static style="height:12px;"></div>
+            </scroll>
     </div>
 
     <!-- 编辑模式：输入框在上（点击弹出键盘），输入法独立于页面底部 -->
-    <div if="{{editing}}" style="position:absolute;left:0;top:90px;width:336px;height:130px;">
-      <div style="position:absolute;left:6px;top:6px;width:324px;height:80px;border-radius:24px;background-color:#262626;flex-direction:row;align-items:center;padding-left:24px;padding-right:24px;" onclick="showKeyboard">
-        <text style="flex:1;font-size:30px;font-weight:700;color:#FFFFFF;lines:1;text-overflow:ellipsis;">{{editTitle || '请输入'}}_</text>
+    <!-- ═══ 圆屏编辑模式：纯代码渲染（三点+标题+输入卡片）+ 键盘 ═══ -->
+    <!-- 三点图标：容器82切图（58x58@480 → 41x41@336，居中 y≈32） -->
+    <image if="{{editing && isCircle}}" src="../../common/circle-ctr-82.png" style="position:absolute;left:148px;top:15px;width:41px;height:41px;"></image>
+    <!-- 页面标题：纯文字，居中、白、粗体 -->
+    <text if="{{editing && isCircle}}" style="position:absolute;left:36px;top:67px;width:264px;text-align:center;font-size:28px;font-weight:700;color:#FFFFFF;lines:1;">修改内容</text>
+    <!-- 文字输入卡片：深灰胶囊 -->
+    <div if="{{editing}}" style="position:absolute;left:0;top:130px;width:336px;height:77px;">
+      <div style="position:absolute;left:22px;top:0;width:291px;height:77px;border-radius:28px;background-color:#262626;flex-direction:row;align-items:center;padding-left:26px;padding-right:24px;" onclick="showKeyboard">
+        <text style="flex:1;font-size:26px;font-weight:700;color:#FFFFFF;lines:1;text-overflow:ellipsis;">{{editTitle || '请输入'}}_</text>
       </div>
     </div>
 
     <!-- 输入法（页面底部，仅编辑模式渲染，避免每次进入卡顿） -->
+    <!-- InputMethod 始终在 DOM 中（避免条件渲染销毁/重建导致 watcher 泄漏和 crash） -->
     <input-method
-      if="{{editing}}"
-      hide="{{keyboardHide}}"
-      screentype="rect"
+      hide="{{!editing || keyboardHide}}"
+      screentype="auto"
       maxlength="5"
       @key-down="onKeyDown"
       @delete="onDelete"
@@ -83,6 +121,8 @@
     ></input-method>
 
   </div>
+<!-- endif -->
+<!-- endif -->
 </template>
 
 <script>
@@ -90,7 +130,9 @@
   import storage from '@system.storage'
   import prompt from '@system.prompt'
   import fetch from '@system.fetch'
-  import utils from '../../common/utils'
+    import adapt from '../../common/adapt'
+
+  const utils = global.utils || {}
 
   export default {
     public: {
@@ -98,6 +140,8 @@
     },
 
     private: {
+      isCircle: null,
+      chunkRendered: false,
       timeStr: '',
       title: '',
       editTitle: '',
@@ -108,21 +152,65 @@
       due: 0,
       editing: false,
       keyboardHide: true,
-      cloudId: null
+      cloudId: null,
+      priLabel: '中'
     },
 
     onInit () {
+      this.onBtnClick = function(sign, evt) { if (global.__kbd) return global.__kbd.onBtnClick(sign) }
+      this.onSelect = function(num, evt) { if (global.__kbd) return global.__kbd.onSelect(num) }
+      this.onRsSelect = function(txt) { if (global.__kbd) return global.__kbd.onRsSelect(txt) }
+      this.onSelectWaiting = function(i) { if (global.__kbd) return global.__kbd.onSelectWaiting(i) }
+      this.isCircle = adapt.isCircleSync()
       utils.init(storage, prompt, fetch)
     },
 
     onShow () {
+      var that = this
+      adapt.probe().then(function (info) {
+        if (that.isCircle !== info.isCircle) { that.isCircle = info.isCircle }
+      })
       this.updateTime()
+      this.refreshPriLabel()
       this.loadItem()
+      var that = this
+      if (!that.chunkRendered) {
+        setTimeout(function () { that.chunkRendered = true }, 100)
+      }
+      // deadline 返回时读取截止时间
+      utils.storageGet('todo_due_sel').then(function (ds) {
+        if (ds) {
+          try {
+            var dd = JSON.parse(ds)
+            if (dd && typeof dd.due === 'number') {
+              that.due = dd.due > 0 ? dd.due : 0
+              that.dueSel = 0
+              that.saveToCloud()
+            }
+          } catch (e) {}
+          utils.storageSet('todo_due_sel', '')
+        }
+      })
+      // 优先级页返回时读取选择
+      utils.storageGet('todo_priority_sel').then(function (s) {
+        if (s) {
+          try {
+            var o = JSON.parse(s)
+            that.priority = o.priority
+            that.pinned = !!o.pinned
+            that.refreshPriLabel()
+            that.saveToCloud()
+          } catch (e) {}
+        }
+      })
     },
 
     onDestroy () {
+      if (this._circleAddTimer) { clearTimeout(this._circleAddTimer); this._circleAddTimer = null }
+      if (this._syncTimer) { clearTimeout(this._syncTimer); this._syncTimer = null }
+      if (this._chunkTimer) { clearTimeout(this._chunkTimer); this._chunkTimer = null }
       // 页面销毁时及时垃圾回收（含 InputMethod 组件的重页，避免内存堆积）
-      if (global && global.runGC) {
+      if (typeof global.runGC === "function") {
         global.runGC()
       }
     },
@@ -138,7 +226,6 @@
       var that = this
       utils.storageGet('todo_items').then(function (data) {
         if (!data) {
-          router.back()
           return
         }
         var found = false
@@ -159,7 +246,6 @@
             }
           }
         } catch (e) {
-          console.log('loadItem error: ' + e)
         }
         // 项已被删除（从 confirm 页返回）时直接回首页
         if (!found) {
@@ -182,13 +268,26 @@
 
     setPriority (p) {
       this.priority = p
+      this.refreshPriLabel()
       // 点击立即保存本地 + 同步云端（不依赖对勾）
       this.saveToCloud()
     },
 
     togglePin () {
       this.pinned = !this.pinned
+      this.refreshPriLabel()
       this.saveToCloud()
+    },
+
+    refreshPriLabel () {
+      this.priLabel = this.priority === 3 ? '高' : this.priority === 2 ? '中' : '低'
+    },
+
+    openPriority () {
+      var that = this
+      utils.storageSet('todo_priority_sel', JSON.stringify({ priority: that.priority, pinned: that.pinned })).then(function () {
+        router.push({ uri: 'pages/priority' })
+      })
     },
 
     setDue (idx) {
@@ -203,8 +302,17 @@
 
     toggleDone () {
       this.done = !this.done
-      // 在线：同步云端完成状态（token 从 storage 读）
       var that = this
+      // 先写本地 storage，防止 loadItem 覆盖
+      utils.storageGet('todo_items').then(function (data) {
+        var items = []
+        if (data) { try { items = JSON.parse(data) } catch (e) {} }
+        for (var i = 0; i < items.length; i++) {
+          if (items[i].id === that.itemId) { items[i].done = that.done; break }
+        }
+        utils.storageSet('todo_items', JSON.stringify(items))
+      })
+      // 同步云端
       utils.storageGet('todo_token').then(function (token) {
         utils.setToken(token || '')
         utils.loadOffline().then(function (off) {
@@ -217,7 +325,7 @@
 
     startEdit () {
       this.editing = true
-      this.keyboardHide = false
+      this.keyboardHide = true
     },
 
     showKeyboard () {
@@ -229,7 +337,6 @@
     },
 
     onKeyDown (evt) {
-      console.log('keyDown: ' + JSON.stringify(evt))
     },
 
     onDelete () {
@@ -302,10 +409,8 @@
             return utils.loadOffline().then(function (off) {
               if (!off && token && token !== 'guest_token' && that.cloudId) {
                 return utils.cloudUpdateTodo(token, that.cloudId, that.editTitle || that.title, that.priority, that.due || 0, that.pinned ? 1 : 0).then(function (res) {
-                  console.log('cloud update res:', JSON.stringify(res), 'priority:', that.priority)
                   return res
                 }).catch(function (e) {
-                  console.log('cloud update fail:', e && e.message)
                   return null
                 })
               }
@@ -317,6 +422,10 @@
     },
 
     saveState () {
+      if (this._saveLock) { return }
+      this._saveLock = true
+      var lockRef = this
+      setTimeout(function () { lockRef._saveLock = false }, 500)
       var that = this
       that.saveToCloud().then(function () {
         utils.toast('已保存')
@@ -332,6 +441,28 @@
       }
     },
 
+    // 键盘展开时返回手势/返回键只收起键盘不退页；350ms 去重防同一次手势被双派发
+    handleBack () {
+      if (this._kbBackAt && (Date.now() - this._kbBackAt) < 350) { return true }
+      if (this.editing && !this.keyboardHide) {
+        this.hideKeyboard()
+        this._kbBackAt = Date.now()
+        return true
+      }
+      return false
+    },
+
+    onBackPress () {
+      if (this.handleBack()) { return true }
+      if (this.editing) {
+        this.editing = false
+        this.keyboardHide = true
+        this.editTitle = this.title
+        return true
+      }
+      return false
+    },
+
     goBack () {
       if (this.editing) {
         this.editing = false
@@ -339,6 +470,21 @@
         this.editTitle = this.title
       } else {
         router.back()
+      }
+    },
+
+    // 圆屏：截止时间循环切换 无→今天→明天→3天→无
+    openDeadline () {
+      router.push({ uri: 'pages/deadline', params: { currentDue: this.due || 0 } })
+    },
+
+    onSwipe (e) {
+      if (!e) { return }
+      if (e.direction === 'left' || e.direction === 'right') {
+        if (this.handleBack()) { return }
+      }
+      if (e.direction === 'right') {
+        this.goBack()
       }
     }
   }

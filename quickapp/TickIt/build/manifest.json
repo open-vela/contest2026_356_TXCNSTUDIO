@@ -1,8 +1,8 @@
 {
   "package": "com.txcnstudio.todo",
   "name": "TickIt",
-  "versionName": "2.5.2",
-  "versionCode": 5,
+  "versionName": "2.5.3",
+  "versionCode": 6,
   "minPlatformVersion": 1001,
   "minAPILevel": 2,
   "icon": "/common/logo.png",
@@ -74,12 +74,21 @@
       },
       "pages/noteedit": {
         "component": "noteedit"
+      },
+      "pages/deadline": {
+        "component": "deadline"
+      },
+      "pages/priority": {
+        "component": "priority"
+      },
+      "pages/mode": {
+        "component": "mode"
       }
     }
   },
   "packageInfo": {
     "toolkit": "2.0.5",
-    "timeStamp": "2026-08-16T04:50:08.290Z",
+    "timeStamp": "2026-11-01T14:58:22.516Z",
     "node": "v24.16.0",
     "platform": "win32",
     "arch": "x64",

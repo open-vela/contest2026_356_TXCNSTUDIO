@@ -1,18 +1,41 @@
 <import name="input-method" src="../../components/InputMethod/InputMethod.ux"></import>
 <template>
-  <div style="flex-direction:column;width:336px;height:480px;background-color:#000000;">
+  <div style="flex-direction:column;width:336px;height:100%;background-color:#000000;" @swipe="onSwipe">
 
-    <!-- 顶部：返回 + 时间 + 标题 + 确认 -->    <div static style="position:absolute;left:6px;top:6px;width:72px;height:72px;border-radius:36px;background-color:#262626;border-width:3px;border-color:rgba(255,255,255,0.06);justify-content:center;align-items:center;" onclick="goBack">
+    <!-- ═══ 圆屏：创建清单（照 创建清单.png：三点+标题+内容卡+优先级/截止行）═══ -->
+    <div if="{{isCircle}}" style="position:absolute;left:0;top:0;width:336px;height:336px;">
+      <!-- 三点 → 设置 -->
+      <image src="../../common/circle-ctr-82.png" style="position:absolute;left:148px;top:15px;width:41px;height:41px;" onclick="showMenu"></image>
+      <!-- 标题 -->
+      <text static style="position:absolute;left:36px;top:67px;width:264px;text-align:center;font-size:28px;font-weight:700;color:#FFFFFF;lines:1;">创建清单</text>
+      <!-- 内容卡（min-height 自适应）+ 优先级/截止切图行 -->
+      <scroll scroll-y="true" bounces="false" style="position:absolute;left:0;top:{{hide ? 120 : 40}}px;width:336px;height:{{hide ? 216 : 111}}px;flex-direction:column;">
+        <div style="width:293px;min-height:98px;margin-left:22px;border-radius:30px;background-color:#262626;flex-direction:column;padding:16px 22px 20px 22px;" onclick="showKeyboard">
+          <text static style="font-size:24px;color:#8E8E93;">内容</text>
+          <text style="font-size:28px;font-weight:700;color:{{title ? '#FFFFFF' : '#8E8E93'}};margin-top:9px;">{{title || '请输入'}}_</text>
+        </div>
+        <image src="../../common/circle-ctr-94.png" style="width:291px;height:77px;margin-left:22px;margin-top:10px;" onclick="openPriority"></image>
+        <image src="../../common/circle-ctr-95.png" style="width:291px;height:77px;margin-left:22px;margin-top:10px;" onclick="openDeadline"></image>
+        <!-- 创建按钮（胶囊，同 deadline.ux 确认键样式） -->
+        <div style="width:291px;height:77px;margin-left:22px;margin-top:16px;border-radius:38px;background-color:#448AFF;flex-direction:row;align-items:center;padding-left:26px;padding-right:26px;" onclick="confirm">
+          <text static style="flex:1;font-size:24px;font-weight:700;color:#FFFFFF;lines:1;">创建</text>
+          <text static style="font-size:24px;color:#FFFFFF;">✓</text>
+        </div>
+        <div static style="height:40px;"></div>
+      </scroll>
+    </div>
+
+    <!-- 顶部：返回 + 时间 + 标题 + 确认 -->    <div if="{{isCircle === false}}" style="position:absolute;left:6px;top:6px;width:72px;height:72px;border-radius:36px;background-color:#262626;border-width:3px;border-color:rgba(255,255,255,0.06);justify-content:center;align-items:center;" onclick="goBack">
       <image static src="../../common/icon-back.png" style="width:16px;height:27px;"></image>
     </div>
-    <div static style="position:absolute;left:258px;top:6px;width:72px;height:72px;border-radius:36px;background-color:#3B82F6;justify-content:center;align-items:center;" onclick="confirm">
+    <div if="{{isCircle === false}}" style="position:absolute;left:258px;top:6px;width:72px;height:72px;border-radius:36px;background-color:#3B82F6;justify-content:center;align-items:center;" onclick="confirm">
       <text static style="font-size:36px;font-weight:700;color:#FFFFFF;">&#10003;</text>
     </div>
-    <text style="position:absolute;left:105px;top:10px;width:126px;text-align:center;font-size:26px;color:#999999;">{{timeStr}}</text>
-    <text static style="position:absolute;left:100px;top:40px;width:136px;text-align:center;font-size:32px;font-weight:700;color:#FFFFFF;">创建清单</text>
+    <text if="{{isCircle === false}}" style="position:absolute;left:105px;top:10px;width:126px;text-align:center;font-size:26px;color:#999999;">{{timeStr}}</text>
+    <text if="{{isCircle === false}}" style="position:absolute;left:100px;top:40px;width:136px;text-align:center;font-size:32px;font-weight:700;color:#FFFFFF;">创建清单</text>
 
     <!-- 内容区（可滚动：名称 + 优先级 2x2 + 截止时间 2x2，卡片与设计稿同尺寸占满全宽） -->
-    <scroll scroll-y="true" style="position:absolute;left:0;top:85px;width:336px;height:{{hide ? 395 : 140}}px;flex-direction:column;">
+    <scroll if="{{isCircle === false}}" scroll-y="true" style="position:absolute;left:0;top:85px;width:336px;height:{{hide ? 395 : 140}}px;flex-direction:column;">
 
       <!-- 名称输入（点击弹出输入法，设计稿 324x112 全宽大圆角 ~30） -->
       <div style="width:324px;height:112px;border-radius:30px;background-color:#262626;flex-direction:row;align-items:center;padding-left:26px;padding-right:20px;margin-left:6px;" onclick="showKeyboard">
@@ -20,9 +43,9 @@
         <text style="flex:1;font-size:28px;font-weight:700;color:{{title ? '#FFFFFF' : '#8E8E93'}};lines:1;text-overflow:ellipsis;">{{title || '请输入'}}_</text>
       </div>
 
-      <!-- 优先级（2x2：高/中/低/置顶；if/else 链切换选中态切图，动态 src 在 Vela 不渲染） -->
-      <text static style="font-size:24px;color:#6B6B6B;margin-top:16px;margin-left:30px;">优先级</text>
-      <div style="width:336px;flex-direction:row;flex-wrap:wrap;margin-top:10px;">
+      <!-- 优先级：矩形=2x2 直选；圆屏=点进优先级页 -->
+      <text if="{{isCircle === false}}"  style="font-size:24px;color:#6B6B6B;margin-top:16px;margin-left:30px;">优先级</text>
+      <div if="{{isCircle === false}}" style="width:336px;flex-direction:row;flex-wrap:wrap;margin-top:10px;">
         <image if="{{priority===3}}" src="../../common/pri-high-sel.png" style="width:157px;height:112px;margin-left:6px;margin-right:4px;margin-bottom:12px;" onclick="setPriority(3)"></image>
         <image else src="../../common/pri-high.png" style="width:157px;height:112px;margin-left:6px;margin-right:4px;margin-bottom:12px;" onclick="setPriority(3)"></image>
         <image if="{{priority===2}}" src="../../common/pri-mid-sel.png" style="width:157px;height:112px;margin-left:6px;margin-right:4px;margin-bottom:12px;" onclick="setPriority(2)"></image>
@@ -32,10 +55,16 @@
         <image if="{{pinned}}" src="../../common/pri-pin-sel.png" style="width:157px;height:112px;margin-left:6px;margin-right:4px;margin-bottom:12px;" onclick="togglePin"></image>
         <image else src="../../common/pri-pin.png" style="width:157px;height:112px;margin-left:6px;margin-right:4px;margin-bottom:12px;" onclick="togglePin"></image>
       </div>
+      <!-- 圆屏：优先级摘要行，点击进优先级页 -->
+      <div if="{{isCircle}}" style="width:291px;height:77px;margin-left:22px;margin-top:12px;border-radius:24px;background-color:#262626;flex-direction:row;align-items:center;padding-left:22px;padding-right:22px;" onclick="openPriority">
+        <text static style="font-size:20px;color:#8E8E93;margin-right:12px;">优先级</text>
+        <text  style="flex:1;font-size:22px;font-weight:700;color:#FFFFFF;">{{priLabel}}{{pinned ? ' · 置顶' : ''}}</text>
+        <text static style="font-size:22px;color:#666666;">›</text>
+      </div>
 
       <!-- 截止时间（2x2：无/今天/明天/3天） -->
       <text static style="font-size:24px;color:#6B6B6B;margin-top:16px;margin-left:30px;">截止时间</text>
-      <div style="width:336px;flex-direction:row;flex-wrap:wrap;margin-top:10px;">
+      <div static style="width:336px;flex-direction:row;flex-wrap:wrap;margin-top:10px;">
         <image if="{{dueSel===0}}" src="../../common/due-none-sel.png" style="width:157px;height:112px;margin-left:6px;margin-right:4px;margin-bottom:12px;" onclick="setDue(0)"></image>
         <image else src="../../common/due-none.png" style="width:157px;height:112px;margin-left:6px;margin-right:4px;margin-bottom:12px;" onclick="setDue(0)"></image>
         <image if="{{dueSel===1}}" src="../../common/due-today-sel.png" style="width:157px;height:112px;margin-left:6px;margin-right:4px;margin-bottom:12px;" onclick="setDue(1)"></image>
@@ -47,13 +76,9 @@
       </div>
     </scroll>
 
-    <!-- 点击空白收起输入法（键盘显示时生效，DOM 最顶层：点顶部/任意处都收键盘） -->
-    <div if="{{!hide}}" style="position:absolute;left:0;top:0;width:336px;height:220px;" onclick="hideKeyboard"></div>
-
-    <input-method
-      if="{{editing}}"
-      hide="{{hide}}"
-      screentype="rect"
+        <input-method
+      hide="{{!editing || hide}}"
+      screentype="auto"
       maxlength="5"
       @key-down="onKeyDown"
       @delete="onDelete"
@@ -61,6 +86,8 @@
     ></input-method>
 
   </div>
+<!-- endif -->
+<!-- endif -->
 </template>
 
 <script>
@@ -68,29 +95,71 @@
   import storage from '@system.storage'
   import prompt from '@system.prompt'
   import fetch from '@system.fetch'
-  import utils from '../../common/utils'
+    import adapt from '../../common/adapt'
+
+  const utils = global.utils || {}
 
   export default {
     private: {
+      isCircle: null,
       timeStr: '',
       title: '',
       hide: true,
       editing: false,
       priority: 2,
       pinned: false,
-      dueSel: 0
+      dueSel: 0,
+      due: 0,
+      priLabel: '中'
     },
 
     onInit () {
+      this.onBtnClick = function(sign, evt) { if (global.__kbd) return global.__kbd.onBtnClick(sign) }
+      this.onSelect = function(num, evt) { if (global.__kbd) return global.__kbd.onSelect(num) }
+      this.onRsSelect = function(txt) { if (global.__kbd) return global.__kbd.onRsSelect(txt) }
+      this.onSelectWaiting = function(i) { if (global.__kbd) return global.__kbd.onSelectWaiting(i) }
+      this.isCircle = adapt.isCircleSync()
       utils.init(storage, prompt, fetch)
     },
 
     onShow () {
+      var that = this
+      adapt.probe().then(function (info) {
+        if (that.isCircle !== info.isCircle) { that.isCircle = info.isCircle }
+      })
       this.updateTime()
+      this.refreshPriLabel()
+      // 从优先级页返回时读取选择
+      utils.storageGet('todo_priority_sel').then(function (s) {
+        if (s) {
+          try {
+            var o = JSON.parse(s)
+            that.priority = o.priority
+            that.pinned = !!o.pinned
+            that.refreshPriLabel()
+          } catch (e) {}
+        }
+      })
+      // 从截止时间页返回时读取选择
+      utils.storageGet('todo_due_sel').then(function (ds) {
+        if (ds) {
+          try {
+            var dd = JSON.parse(ds)
+            if (dd && typeof dd.due === 'number') {
+              that.due = dd.due > 0 ? dd.due : 0
+              that.dueSel = 0
+            }
+          } catch (e) {}
+          utils.storageSet('todo_due_sel', '')
+        }
+      })
     },
 
     onDestroy () {
-      if (global && global.runGC) {
+      if (this._circleAddTimer) { clearTimeout(this._circleAddTimer); this._circleAddTimer = null }
+      if (this._syncTimer) { clearTimeout(this._syncTimer); this._syncTimer = null }
+      if (this._chunkTimer) { clearTimeout(this._chunkTimer); this._chunkTimer = null }
+      if (typeof global.runGC === "function") {
         global.runGC()
       }
     },
@@ -104,10 +173,32 @@
 
     setPriority (p) {
       this.priority = p
+      this.refreshPriLabel()
     },
 
     togglePin () {
       this.pinned = !this.pinned
+      this.refreshPriLabel()
+    },
+
+    refreshPriLabel () {
+      this.priLabel = this.priority === 3 ? '高' : this.priority === 2 ? '中' : '低'
+    },
+
+    openPriority () {
+      // 先写入当前选择，供优先级页读取
+      var that = this
+      utils.storageSet('todo_priority_sel', JSON.stringify({ priority: that.priority, pinned: that.pinned })).then(function () {
+        router.push({ uri: 'pages/priority' })
+      })
+    },
+
+    openDeadline () {
+      router.push({ uri: 'pages/deadline', params: { currentDue: this.due || 0 } })
+    },
+
+    showMenu () {
+      router.push({ uri: 'pages/list' })
     },
 
     setDue (idx) {
@@ -133,7 +224,6 @@
     },
 
     onKeyDown (evt) {
-      console.log('keyDown: ' + JSON.stringify(evt))
     },
 
     onDelete () {
@@ -148,11 +238,14 @@
 
     confirm () {
       var that = this
+      if (that._saving) { return }
       if (!that.title) {
         utils.toast('请输入名称')
         return
       }
-      var due = that.getDueTs()
+      that._saving = true
+      setTimeout(function () { that._saving = false }, 3000)
+      var due = that.due > 0 ? that.due : that.getDueTs()
       var newItem = {
         id: Date.now().toString(),
         text: that.title,
@@ -177,6 +270,31 @@
       })
     },
 
-    goBack () { router.back() }
+    goBack () { router.back() },
+
+    // 键盘展开时返回手势/返回键只收起键盘不退页；350ms 去重防同一次手势被双派发
+    handleBack () {
+      if (this._kbBackAt && (Date.now() - this._kbBackAt) < 350) { return true }
+      if (this.editing && !this.hide) {
+        this.hideKeyboard()
+        this._kbBackAt = Date.now()
+        return true
+      }
+      return false
+    },
+
+    onSwipe (e) {
+      if (!e) { return }
+      if (e.direction === 'left' || e.direction === 'right') {
+        if (this.handleBack()) { return }
+      }
+      if (e.direction === 'right') {
+        router.back()
+      }
+    },
+
+    onBackPress () {
+      return this.handleBack()
+    }
   }
 </script>

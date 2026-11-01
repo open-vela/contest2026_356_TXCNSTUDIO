@@ -1,0 +1,217 @@
+<template>
+  <div style="width:336px;height:100%;background-color:#000000;" @swipe="onSwipe">
+
+    <!-- 三点图标 -->
+    <image if="{{isCircle}}" src="../../common/circle-ctr-82.png" style="position:absolute;left:148px;top:15px;width:41px;height:41px;" onclick="showMenu"></image>
+    <!-- 标题 -->
+    <text if="{{isCircle}}" style="position:absolute;left:36px;top:67px;width:264px;text-align:center;font-size:28px;font-weight:700;color:#FFFFFF;lines:1;">截止时间</text>
+
+    <!-- 中段内容纵向滚动：滚轮 + 确认钮，内容超高滚着看，按钮不缩小 -->
+    <scroll if="{{isCircle}}" scroll-y="true" bounces="false" style="position:absolute;left:0;top:105px;width:336px;height:231px;flex-direction:column;">
+      <div static style="width:336px;height:12px;flex-shrink:0;"></div>
+      <!-- 两个滚轮：左=日期（首行「无」= 不设截止） 右=时间；行高固定 div 40px（text 自身 height 不可靠会塌缩），点选自动居中，滚动停止按最近行选中 -->
+      <div style="position:relative;width:291px;height:120px;margin-left:22px;flex-shrink:0;">
+        <!-- 高亮指示条：必须放在滚轮底层（放上层会吃掉中间行的触摸，划不动） -->
+        <div static style="position:absolute;left:0;top:40px;width:291px;height:40px;border-top-width:1px;border-bottom-width:1px;border-color:#333333;"></div>
+        <div style="width:291px;height:120px;flex-direction:row;justify-content:space-around;">
+          <!-- 日期滚轮 -->
+          <scroll id="dateWheel" scroll-y="true" bounces="false" scroll-top="{{dateTop}}" onscroll="onDateScroll" style="width:130px;height:120px;flex-direction:column;">
+            <div static style="width:130px;height:40px;flex-shrink:0;"></div>
+            <div for="{{dates}}" class="wh-row" onclick="setDate($idx)">
+              <text class="{{$idx===dateIdx ? 'wh-sel' : 'wh-nor'}}">{{$item}}</text>
+            </div>
+            <div static style="width:130px;height:40px;flex-shrink:0;"></div>
+          </scroll>
+          <!-- 时间滚轮（选「无」时置灰，时间不生效） -->
+          <scroll id="timeWheel" scroll-y="true" bounces="false" scroll-top="{{timeTop}}" onscroll="onTimeScroll" style="width:130px;height:120px;flex-direction:column;opacity:{{dateIdx === 0 ? 0.35 : 1}};">
+            <div static style="width:130px;height:40px;flex-shrink:0;"></div>
+            <div for="{{times}}" class="wh-row" onclick="setTime($idx)">
+              <text class="{{$idx===timeIdx ? 'wh-sel' : 'wh-nor'}}">{{$item}}</text>
+            </div>
+            <div static style="width:130px;height:40px;flex-shrink:0;"></div>
+          </scroll>
+        </div>
+      </div>
+      <div static style="width:336px;height:24px;flex-shrink:0;"></div>
+      <!-- 确认按钮（原尺寸 291×77，不再缩小） -->
+      <div style="width:291px;height:77px;margin-left:22px;flex-shrink:0;border-radius:38px;background-color:#448AFF;flex-direction:row;align-items:center;padding-left:26px;padding-right:26px;" onclick="confirmDue">
+        <text static style="flex:1;font-size:24px;font-weight:700;color:#FFFFFF;lines:1;">确认</text>
+        <text static style="font-size:24px;color:#FFFFFF;">✓</text>
+      </div>
+      <!-- 底部留白加大：滚到底时按钮整体进入圆屏安全区（291 宽胶囊中心需 y≤252） -->
+      <div static style="width:336px;height:84px;flex-shrink:0;"></div>
+    </scroll>
+
+  </div>
+</template>
+
+<script>
+  import router from '@system.router'
+  import adapt from '../../common/adapt'
+
+  const utils = global.utils || {}
+
+  export default {
+    public: {
+      currentDue: 0
+    },
+    private: {
+      isCircle: null,
+      dates: [],
+      times: [],
+      dateIdx: 0,
+      timeIdx: 0,
+      dateTop: 0,
+      timeTop: 0
+    },
+
+    onInit () {
+      this.isCircle = adapt.isCircleSync()
+      this.initPicker()
+    },
+
+    onShow () {
+      var that = this
+      adapt.probe().then(function (info) {
+        if (that.isCircle !== info.isCircle) { that.isCircle = info.isCircle }
+      })
+    },
+
+    onDestroy () {
+      if (this._dtTimer) { clearTimeout(this._dtTimer); this._dtTimer = null }
+      if (this._ttTimer) { clearTimeout(this._ttTimer); this._ttTimer = null }
+      if (typeof global.runGC === 'function') { global.runGC() }
+    },
+
+    initPicker () {
+      var now = new Date()
+      // 日期滚轮：第一行「无」= 不设截止；之后今天起 30 天
+      var dates = ['无']
+      for (var d = 0; d < 30; d++) {
+        var dt = new Date(now.getFullYear(), now.getMonth(), now.getDate() + d)
+        var label = (dt.getMonth() + 1) + '.' + dt.getDate()
+        if (d === 0) label = '今天 ' + label
+        else if (d === 1) label = '明天 ' + label
+        dates.push(label)
+      }
+      this.dates = dates
+      // 时间滚轮：每 30 分钟一格，共 48 格
+      var times = []
+      for (var h = 0; h < 24; h++) {
+        var hh = (h < 10 ? '0' : '') + h
+        times.push(hh + ':00')
+        times.push(hh + ':30')
+      }
+      this.times = times
+      // 回显选中：基准日必须是今天（不能用截止日当基准，否则确认时日期会算丢）
+      if (this.currentDue > 0) {
+        var dueDate = new Date(this.currentDue)
+        var day0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+        var dueDay = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate()).getTime()
+        var diffDays = Math.round((dueDay - day0) / 86400000)
+        if (diffDays < 0) diffDays = 0
+        if (diffDays > 29) diffDays = 29
+        this.dateIdx = 1 + diffDays
+        var ti = dueDate.getHours() * 2 + Math.floor(dueDate.getMinutes() / 30)
+        if (ti < 0) ti = 0
+        if (ti > 47) ti = 47
+        this.timeIdx = ti
+      } else {
+        this.dateIdx = 0
+        var t0 = now.getHours() * 2 + Math.floor(now.getMinutes() / 30)
+        if (t0 > 47) t0 = 47
+        this.timeIdx = t0
+      }
+      this.dateTop = this.dateIdx * 40
+      this.timeTop = this.timeIdx * 40
+    },
+
+    setDate (i) {
+      this.dateIdx = i
+      this.centerWheel('dateWheel', i)
+    },
+
+    setTime (i) {
+      this.timeIdx = i
+      this.centerWheel('timeWheel', i)
+    },
+
+    centerWheel (id, i) {
+      var el = this.$element(id)
+      if (el && el.scrollTo) { el.scrollTo({ top: i * 40 }) }
+    },
+
+    // 滚动停止后按最近行更新选中（150ms 合并连续滚动，避免逐帧计算）
+    onDateScroll (e) {
+      var that = this
+      this._lastDateY = (e && e.scrollY) || 0
+      if (this._dtTimer) { return }
+      this._dtTimer = setTimeout(function () {
+        that._dtTimer = null
+        var idx = Math.round((that._lastDateY || 0) / 40)
+        if (idx < 0) idx = 0
+        if (idx > that.dates.length - 1) idx = that.dates.length - 1
+        if (idx !== that.dateIdx) { that.dateIdx = idx }
+      }, 150)
+    },
+
+    onTimeScroll (e) {
+      var that = this
+      this._lastTimeY = (e && e.scrollY) || 0
+      if (this._ttTimer) { return }
+      this._ttTimer = setTimeout(function () {
+        that._ttTimer = null
+        var idx = Math.round((that._lastTimeY || 0) / 40)
+        if (idx < 0) idx = 0
+        if (idx > that.times.length - 1) idx = that.times.length - 1
+        if (idx !== that.timeIdx) { that.timeIdx = idx }
+      }, 150)
+    },
+
+    confirmDue () {
+      var due = 0
+      if (this.dateIdx > 0) {
+        var now = new Date()
+        var target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + this.dateIdx - 1)
+        var hour = Math.floor(this.timeIdx / 2)
+        var min = (this.timeIdx % 2) * 30
+        due = new Date(target.getFullYear(), target.getMonth(), target.getDate(), hour, min, 59).getTime()
+      }
+      utils.storageSet('todo_due_sel', JSON.stringify({ due: due }))
+      router.back()
+    },
+
+    showMenu () {
+      router.push({ uri: 'pages/list' })
+    },
+
+    onSwipe (e) {
+      if (e && e.direction === 'right') {
+        router.back()
+      }
+    }
+  }
+</script>
+
+<style>
+  /* 滚轮行样式进样式表：行内动态样式 3 个/行 → 1 个 class 绑定，减观察者（文档「减少动态样式」） */
+  .wh-row {
+    width: 130px;
+    height: 40px;
+    flex-shrink: 0;
+    justify-content: center;
+    align-items: center;
+  }
+  .wh-sel {
+    font-size: 24px;
+    font-weight: 700;
+    color: #FFFFFF;
+    lines: 1;
+  }
+  .wh-nor {
+    font-size: 18px;
+    font-weight: 400;
+    color: #666666;
+    lines: 1;
+  }
+</style>

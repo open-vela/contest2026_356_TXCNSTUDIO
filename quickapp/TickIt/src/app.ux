@@ -1,10 +1,16 @@
 <script>
+import adapt from './common/adapt'
+import utils from './common/utils'
+
 export default {
   onCreate() {
-    console.log("app created")
+    global.utils = utils
+    // 启动即预探测屏幕形状，页面 onInit 同步读缓存，消除圆屏首帧闪烁
+    adapt.probe()
+  },
+  onError() {
   },
   onDestroy() {
-    console.log("app destroyed")
   }
 }
 </script>

@@ -1,0 +1,94 @@
+{
+  "schema_version": "1.0",
+  "team_id": "contest2026_356_TXCNSTUDIO",
+  "github_login": "txcn727-coder",
+  "generator": "mimocode-trajectory-export",
+  "note": "mimocode 会话轨迹原样导出（text/thinking/tool 三类事件），未经删改；工作目录 F:/新建文件夹/tickit",
+  "sessions": [
+    {
+      "session_id": "ses_ff744e7e3ffeYiteV7HVVdRQR8",
+      "tool": "mimocode",
+      "title": "询问记忆与对话丢失问题",
+      "started_at": "2026-08-16",
+      "event_count": 1532,
+      "tool_call_count": 687,
+      "file_path": "logs/txcn727-coder/2026-08-16/mimocode__ses_ff744e7e3ffeYiteV7HVVdRQR8.jsonl",
+      "size_bytes": 1970588,
+      "collection_mode": "export",
+      "health": "ok"
+    },
+    {
+      "session_id": "ses_ffe5f1ee759c3ffeA9I25aVjLF",
+      "tool": "mimocode",
+      "title": "你好",
+      "started_at": "2026-09-27",
+      "event_count": 9,
+      "tool_call_count": 0,
+      "file_path": "logs/txcn727-coder/2026-09-27/mimocode__ses_ffe5f1ee759c3ffeA9I25aVjLF.jsonl",
+      "size_bytes": 61260,
+      "collection_mode": "export",
+      "health": "ok"
+    },
+    {
+      "session_id": "ses_ffe5f1ee370c0ffevBPQyRxNRr",
+      "tool": "mimocode",
+      "title": "查看你的记忆以及@vela开发文档.md 后告诉我",
+      "started_at": "2026-09-27",
+      "event_count": 7,
+      "tool_call_count": 0,
+      "file_path": "logs/txcn727-coder/2026-09-27/mimocode__ses_ffe5f1ee370c0ffevBPQyRxNRr.jsonl",
+      "size_bytes": 1831,
+      "collection_mode": "export",
+      "health": "ok"
+    },
+    {
+      "session_id": "ses_ffe5f1ec0abccffew0epgJtEvF",
+      "tool": "mimocode",
+      "title": "你好（问候）",
+      "started_at": "2026-09-27",
+      "event_count": 360,
+      "tool_call_count": 161,
+      "file_path": "logs/txcn727-coder/2026-09-27/mimocode__ses_ffe5f1ec0abccffew0epgJtEvF.jsonl",
+      "size_bytes": 489807,
+      "collection_mode": "export",
+      "health": "ok"
+    },
+    {
+      "session_id": "ses_ffe5ed6be4240ffeY2vwe0dfNw",
+      "tool": "mimocode",
+      "title": "查阅vela开发文档.md继续项目开发",
+      "started_at": "2026-10-11",
+      "event_count": 4680,
+      "tool_call_count": 1568,
+      "file_path": "logs/txcn727-coder/2026-10-11/mimocode__ses_ffe5ed6be4240ffeY2vwe0dfNw.jsonl",
+      "size_bytes": 4669211,
+      "collection_mode": "export",
+      "health": "ok"
+    },
+    {
+      "session_id": "ses_ffe5ebaee2b52ffeFRDsFwX6KK",
+      "tool": "mimocode",
+      "title": "简单问候：你好",
+      "started_at": "2026-10-16",
+      "event_count": 58,
+      "tool_call_count": 25,
+      "file_path": "logs/txcn727-coder/2026-10-16/mimocode__ses_ffe5ebaee2b52ffeFRDsFwX6KK.jsonl",
+      "size_bytes": 31704,
+      "collection_mode": "export",
+      "health": "ok"
+    },
+    {
+      "session_id": "ses_ffe5e6fd5a302ffeZJMvx73ohW",
+      "tool": "mimocode",
+      "title": "查看上一对话并阅读vela开发文档.md",
+      "started_at": "2026-10-31",
+      "event_count": 1600,
+      "tool_call_count": 607,
+      "file_path": "logs/txcn727-coder/2026-10-31/mimocode__ses_ffe5e6fd5a302ffeZJMvx73ohW.jsonl",
+      "size_bytes": 6104210,
+      "collection_mode": "export",
+      "health": "ok"
+    }
+  ],
+  "updated_at": "2026-11-01T15:06:35.482Z"
+}

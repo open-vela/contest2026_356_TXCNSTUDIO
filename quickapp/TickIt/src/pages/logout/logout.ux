@@ -1,38 +1,76 @@
 <template>
-  <div style="flex-direction:column;width:336px;height:480px;background-color:#000000;">
+  <div style="flex-direction:column;width:336px;height:100%;background-color:#000000;" @swipe="onSwipe">
 
-    <!-- 退出登录页背景（设计稿：标题 + 盾牌人形卡 + 确定退出吗/退出后无法使用在线模式/请谨慎操作） -->
-    <image static src="../../common/logout-bg.png" style="position:absolute;left:0;top:0;width:336px;height:480px;"></image>
+    <!-- ═══ 矩形屏：原布局 ═══ -->
+    <div if="{{isCircle === false}}" style="flex-direction:column;width:336px;height:100%;">
+    <!-- 退出登录页背景 -->
+    <image static src="../../common/logout-bg.png" style="position:absolute;left:0;top:0;width:336px;height:100%;object-fit:cover;"></image>
 
-    <!-- 顶部：返回 + 时间 + 红色退出按钮（标题背景自带） -->
+    <!-- 顶部：返回 + 时间 + 红色退出按钮 -->
     <image static src="../../common/btn-back-round.png" style="position:absolute;left:6px;top:6px;width:72px;height:72px;" onclick="goBack"></image>
     <image static src="../../common/btn-exit-red.png" style="position:absolute;left:258px;top:6px;width:72px;height:72px;" onclick="doLogout"></image>
     <text style="position:absolute;left:105px;top:10px;width:126px;text-align:center;font-size:26px;color:#999999;">{{timeStr}}</text>
+    </div>
+<!-- if true: process.env.SHAPE === "CIRCLE" -->
+
+
+    <!-- ═══ 圆屏：纯代码渲染（三点+标题+卡片+按钮）+ 右划返回 ═══ -->
+    <div if="{{isCircle}}" style="position:absolute;left:0;top:0;width:336px;height:336px;">
+      <scroll scroll-y="true" bounces="false" style="width:336px;height:336px;flex-direction:column;">
+        <div static style="width:336px;height:417px;min-height:417px;flex-shrink:0;">
+          <!-- 三点图标 -->
+      <image src="../../common/circle-ctr-82.png" style="position:absolute;left:148px;top:15px;width:41px;height:41px;"></image>
+      <!-- 标题 -->
+      <text static style="position:absolute;left:36px;top:67px;width:264px;text-align:center;font-size:28px;font-weight:700;color:#FFFFFF;lines:1;">退出登录</text>
+      <!-- 确认卡片 -->
+      <div style="position:absolute;left:22px;top:120px;width:291px;height:106px;border-radius:30px;background-color:#262626;flex-direction:column;justify-content:center;align-items:center;">
+        <text static style="font-size:24px;font-weight:700;color:#FFFFFF;lines:1;">确认退出登录?</text>
+        <text static style="font-size:16px;color:#FF4444;margin-top:8px;lines:1;">退出后将无法使用在线功能</text>
+      </div>
+      <!-- 红色退出按钮 -->
+      <div style="position:absolute;left:22px;top:241px;width:291px;height:77px;border-radius:28px;background-color:#FF4444;flex-direction:row;align-items:center;padding-left:26px;padding-right:26px;" onclick="doLogout">
+        <text static style="flex:1;font-size:24px;font-weight:700;color:#FFFFFF;lines:1;">退出登录</text>
+            <text static style="font-size:24px;color:#FFFFFF;">✓</text>
+          </div>
+        </div>
+      </scroll>
+    </div>
 
   </div>
+<!-- endif -->
+<!-- endif -->
 </template>
+
 
 <script>
   import router from '@system.router'
   import storage from '@system.storage'
   import prompt from '@system.prompt'
-  import utils from '../../common/utils'
+    import adapt from '../../common/adapt'
+
+  const utils = global.utils || {}
 
   export default {
     private: {
+      isCircle: null,
       timeStr: ''
     },
 
     onInit () {
+      this.isCircle = adapt.isCircleSync()
       utils.init(storage, prompt)
     },
 
     onShow () {
-      this.updateTime()
+      var that = this
+      adapt.probe().then(function (info) {
+        if (that.isCircle !== info.isCircle) { that.isCircle = info.isCircle }
+      })
+this.updateTime()
     },
 
     onDestroy () {
-      if (global && global.runGC) {
+      if (typeof global.runGC === "function") {
         global.runGC()
       }
     },
@@ -55,6 +93,12 @@
       })
     },
 
-    goBack () { router.back() }
+    goBack () { router.back() },
+
+    onSwipe (e) {
+      if (e && e.direction === 'right') {
+        router.back()
+      }
+    }
   }
 </script>

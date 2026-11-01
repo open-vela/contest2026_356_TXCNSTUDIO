@@ -1,0 +1,10 @@
+import fs from 'fs'
+const s = fs.readFileSync('src/pages/sync/sync.ux', 'utf8')
+const t = s.substring(s.indexOf('圆屏背景'), s.indexOf('</template>'))
+console.log('=== bg images ===')
+for (const m of t.matchAll(/src="([^"]+)"/g)) console.log('  ' + m[1])
+console.log('=== dynamic text ===')
+for (const m of t.matchAll(/>(\{\{[^}]+\}\})/g)) console.log('  ' + m[1])
+console.log('=== rect unchanged ===')
+const r = s.match(/if="\{\{isCircle === false\}\}"/g)
+console.log('  rect guards:', r?.length)
