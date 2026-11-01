@@ -1,9 +1,52 @@
 <import name="input-method" src="../../components/InputMethod/InputMethod.ux"></import>
 <template>
-  <div style="flex-direction:column;width:336px;height:480px;background-color:#000000;">
+  <div style="flex-direction:column;width:336px;height:100%;background-color:#000000;">
+
+    <!-- ═══ 圆屏详情：三点+标题+内容卡+操作按钮 ═══ -->
+    <div if="{{isCircle && !editing}}" style="position:absolute;left:0;top:0;width:336px;height:336px;">
+      <scroll scroll-y="true" bounces="false" style="width:336px;height:336px;flex-direction:column;">
+        <!-- 流式容器：min-height 撑开，内容长高按钮自动下移 -->
+        <div style="width:336px;min-height:520px;flex-shrink:0;flex-direction:column;">
+          <!-- 三点 -->
+          <image src="../../common/circle-ctr-82.png" style="position:absolute;left:148px;top:15px;width:41px;height:41px;"></image>
+          <!-- 标题 -->
+          <text static style="position:absolute;left:36px;top:67px;width:264px;text-align:center;font-size:28px;font-weight:700;color:#FFFFFF;lines:1;">便签详情</text>
+          <!-- 内容卡片：min-height 120 随内容长高，换行显示全部 -->
+          <div style="width:291px;min-height:120px;margin-left:22px;margin-top:115px;border-radius:24px;background-color:#262626;flex-direction:column;padding:22px;">
+            <text static style="font-size:20px;color:#8E8E93;">便签内容</text>
+            <text style="font-size:26px;font-weight:400;color:#FFFFFF;margin-top:10px;">{{content}}</text>
+          </div>
+          <!-- 操作按钮：修改内容 / 删除（流式，间距 10px） -->
+          <image src="../../common/circle-ctr-96.png" style="width:291px;height:77px;margin-left:22px;margin-top:20px;" onclick="startEdit"></image>
+          <image src="../../common/circle-ctr-97.png" style="width:291px;height:77px;margin-left:22px;margin-top:10px;" onclick="delNote"></image>
+          <div static style="height:30px;"></div>
+        </div>
+      </scroll>
+    </div>
+
+    <!-- ═══ 圆屏编辑：三点+标题「修改内容」+文字输入+保存 ═══ -->
+    <div if="{{isCircle && editing}}" style="position:absolute;left:0;top:0;width:336px;height:336px;">
+      <!-- 三点 -->
+      <image src="../../common/circle-ctr-82.png" style="position:absolute;left:148px;top:15px;width:41px;height:41px;"></image>
+      <!-- 标题 -->
+      <text static style="position:absolute;left:36px;top:67px;width:264px;text-align:center;font-size:28px;font-weight:700;color:#FFFFFF;lines:1;">修改内容</text>
+      <!-- 输入卡片+保存按钮：键盘弹起时内容区缩到键盘上沿（y=151），滚动可达保存 -->
+      <scroll scroll-y="true" bounces="false" style="position:absolute;left:0;top:105px;width:336px;height:{{hide ? 231 : 46}}px;flex-direction:column;">
+        <!-- 输入卡片：min-height 77 随内容长高，换行显示全部 -->
+        <div style="width:291px;min-height:77px;margin-left:22px;margin-top:15px;border-radius:24px;background-color:#262626;flex-direction:row;align-items:center;padding-left:22px;padding-right:22px;padding-top:12px;padding-bottom:12px;" onclick="showKeyboard">
+          <text style="flex:1;font-size:24px;font-weight:700;color:{{content ? '#FFFFFF' : '#8E8E93'}};">{{content || '请输入内容'}}{{cursorStr}}</text>
+        </div>
+        <!-- 保存按钮（胶囊 291×77） -->
+        <div style="width:291px;height:77px;margin-left:22px;margin-top:16px;border-radius:38px;background-color:#448AFF;flex-direction:row;align-items:center;padding-left:26px;padding-right:26px;" onclick="save">
+          <text static style="flex:1;font-size:24px;font-weight:700;color:#FFFFFF;lines:1;">保存</text>
+          <text static style="font-size:24px;color:#FFFFFF;">✓</text>
+        </div>
+        <div static style="height:40px;"></div>
+      </scroll>
+    </div>
 
     <!-- ═══ 编辑模式：黑框输入 + ✓ 保存 + 键盘 ═══ -->
-    <div if="{{editing}}" style="width:336px;height:480px;">
+    <div if="{{isCircle === false && editing}}" style="width:336px;height:100%;">
       <div static style="position:absolute;left:6px;top:6px;width:72px;height:72px;border-radius:36px;background-color:#262626;border-width:3px;border-color:rgba(255,255,255,0.06);justify-content:center;align-items:center;" onclick="goBack">
         <image static src="../../common/icon-back.png" style="width:16px;height:27px;"></image>
       </div>
@@ -14,18 +57,15 @@
       <text static style="position:absolute;left:100px;top:40px;width:136px;text-align:center;font-size:32px;font-weight:700;color:#FFFFFF;">修改内容</text>
 
       <!-- 黑框：高度随文字自动衍生（内容撑开，min-height 112），不限行数不省略 -->
-      <div style="position:absolute;left:6px;top:90px;width:324px;min-height:112px;border-radius:36px;background-color:#262626;flex-direction:column;padding:20px;" onclick="showKeyboard">
+      <div style="position:absolute;left:6px;top:{{isCircle ? (hide ? 100 : 40) : 90}}px;width:324px;min-height:112px;border-radius:36px;background-color:#262626;flex-direction:column;padding:20px;" onclick="showKeyboard">
         <text static style="font-size:26px;color:#8E8E93;">内容</text>
         <text style="font-size:32px;font-weight:400;color:{{content ? '#FFFFFF' : '#8E8E93'}};margin-top:12px;">{{content || '请输入内容'}}{{cursorStr}}</text>
       </div>
 
-      <!-- 点击空白收起输入法 -->
-      <div if="{{!hide}}" style="position:absolute;left:0;top:0;width:336px;height:220px;" onclick="hideKeyboard"></div>
-
-    </div>
+          </div>
 
     <!-- ═══ 详情模式（默认态，首帧即详情不闪 ✓）：右上 ✓ 进编辑 + 内容卡 + 三按钮 ═══ -->
-    <div else style="width:336px;height:480px;">
+    <div elif="{{isCircle === false}}" style="width:336px;height:100%;">
       <div static style="position:absolute;left:6px;top:6px;width:72px;height:72px;border-radius:36px;background-color:#262626;border-width:3px;border-color:rgba(255,255,255,0.06);justify-content:center;align-items:center;" onclick="goBack">
         <image static src="../../common/icon-back.png" style="width:16px;height:27px;"></image>
       </div>
@@ -45,14 +85,14 @@
         <image static src="../../common/btn-note-edit.png" style="width:324px;height:112px;margin-left:6px;margin-right:6px;margin-bottom:8px;" onclick="startEdit"></image>
         <image static src="../../common/btn-note-share.png" style="width:324px;height:112px;margin-left:6px;margin-right:6px;margin-bottom:8px;" onclick="shareNote"></image>
         <image static src="../../common/btn-note-del.png" style="width:324px;height:112px;margin-left:6px;margin-right:6px;margin-bottom:8px;" onclick="delNote"></image>
-        <div style="height:12px;"></div>
+        <div static style="height:12px;"></div>
       </scroll>
     </div>
 
     <!-- InputMethod 始终在 DOM 中（避免 Vela 5.0 条件渲染 crash） -->
     <input-method
       hide="{{!editing || hide}}"
-      screentype="rect"
+      screentype="auto"
       maxlength="10"
       @key-down="onKeyDown"
       @delete="onDelete"
@@ -67,10 +107,13 @@
   import storage from '@system.storage'
   import prompt from '@system.prompt'
   import fetch from '@system.fetch'
-  import utils from '../../common/utils'
+    import adapt from '../../common/adapt'
+
+  const utils = global.utils || {}
 
   export default {
     private: {
+      isCircle: null,
       timeStr: '',
       noteId: '',
       content: '',
@@ -80,11 +123,19 @@
     },
 
     onInit () {
+      this.onBtnClick = function(sign, evt) { if (global.__kbd) return global.__kbd.onBtnClick(sign) }
+      this.onSelect = function(num, evt) { if (global.__kbd) return global.__kbd.onSelect(num) }
+      this.onRsSelect = function(txt) { if (global.__kbd) return global.__kbd.onRsSelect(txt) }
+      this.onSelectWaiting = function(i) { if (global.__kbd) return global.__kbd.onSelectWaiting(i) }
+      this.isCircle = adapt.isCircleSync()
       utils.init(storage, prompt, fetch)
     },
 
     onShow () {
-      var that = this
+var that = this
+      adapt.probe().then(function (info) {
+        if (that.isCircle !== info.isCircle) { that.isCircle = info.isCircle }
+      })
       that.updateTime()
       // 详情页默认非编辑态（首帧即详情，避免 ✓ 按钮闪烁）
       that.editing = false
@@ -112,7 +163,7 @@
     },
 
     onDestroy () {
-      if (global && global.runGC) {
+      if (typeof global.runGC === "function") {
         global.runGC()
       }
     },
@@ -147,7 +198,6 @@
     },
 
     onKeyDown (evt) {
-      console.log('keyDown: ' + JSON.stringify(evt))
     },
 
     onDelete () {
@@ -166,11 +216,14 @@
 
     save () {
       var that = this
+      if (that._saving) { return }
       var text = that.content.trim()
       if (!text) {
         utils.toast('请输入内容')
         return
       }
+      that._saving = true
+      setTimeout(function () { that._saving = false }, 3000)
       that.content = text
       utils.storageGet('todo_notes').then(function (data) {
         var list = []
@@ -189,6 +242,15 @@
         }
         // 本地立即保存完成即回详情（不阻塞蓝牙网络）；云端同步由 notes 页 onShow pending 统一处理
         that.saveLocal(list).then(function () {
+          // 仅删云端保留的本地项（localOnly）：永不再上传/更新云端
+          if (item.localOnly) {
+            utils.toast('已保存')
+            that._saving = false
+            that.editing = false
+            that.hide = true
+            that.cursorStr = ''
+            return
+          }
           // 已绑定云端 → 记待更新；未绑定 → 记待上传（云 add 后回写 cloudId）
           var pendKey = item.cloudId ? 'todo_notes_pending_update' : 'todo_notes_pending_add'
           var pendVal = item.cloudId ? { cloudId: item.cloudId, content: text } : { localId: item.id, content: text }
@@ -200,6 +262,7 @@
             pending.push(pendVal)
             utils.storageSet(pendKey, JSON.stringify(pending)).then(function () {
               utils.toast('已保存')
+              that._saving = false
               // 编辑保存：回详情态
               that.editing = false
               that.hide = true
@@ -210,6 +273,15 @@
       })
     },
 
-    goBack () { router.back() }
+    goBack () { router.back() },
+
+    // 键盘展开时返回手势/返回键只收起键盘不退页
+    onBackPress () {
+      if (this.editing && !this.hide) {
+        this.hideKeyboard()
+        return true
+      }
+      return false
+    }
   }
 </script>

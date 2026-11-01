@@ -1,0 +1,28 @@
+import fs from 'fs'
+let s = fs.readFileSync('src/pages/home/home.ux', 'utf8')
+const circleStart = s.indexOf('圆屏')
+const start = s.indexOf('for="{{items}}"', circleStart)
+const end = s.indexOf('</scroll>', start)
+let old = s.substring(start, end)
+
+let nw = old
+  .replace(/width:293px/g, 'width:270px')
+  .replace(/height:98px/g, 'height:90px')
+  .replace(/margin-left:22px/g, 'margin-left:33px')
+  .replace(/margin-bottom:10px/g, 'margin-bottom:14px')
+  .replace(/font-size:22px/g, 'font-size:26px')
+  .replace(/font-size:15px/g, 'font-size:18px')
+  .replace(/top:14px/g, 'top:15px')
+  .replace(/width:155px/g, 'width:140px')
+  .replace(/height:24px/g, 'height:28px')
+  .replace(/top:46px/g, 'top:52px')
+  .replace(/top:25px/g, 'top:28px')
+  .replace(/top:54px/g, 'top:61px')
+  .replace(/left:33px;top:31px/g, 'left:28px;top:27px')
+  .replace(/left:126px/g, 'left:116px')
+  .replace(/title\.length <= 5/g, 'title.length <= 6')
+  .replace(/scrollamount="20"/g, 'scrollamount="15"')
+
+s = s.substring(0, start) + nw + s.substring(end)
+fs.writeFileSync('src/pages/home/home.ux', s, 'utf8')
+console.log('done, changed', old !== nw)

@@ -1,23 +1,46 @@
 <template>
-  <div style="flex-direction:column;width:336px;height:480px;background-color:#000000;">
+  <div style="flex-direction:column;width:336px;height:100%;background-color:#000000;" @swipe="onSwipe">
 
+    <!-- ═══ 矩形屏：原布局 ═══ -->
+    <div if="{{isCircle === false}}" style="flex-direction:column;width:336px;height:100%;">
     <!-- 顶部：返回 + 时间 + 标题 -->
     <div static style="position:absolute;left:6px;top:6px;width:72px;height:72px;border-radius:36px;background-color:#262626;border-width:3px;border-color:rgba(255,255,255,0.06);justify-content:center;align-items:center;" onclick="goBack">
       <image src="../../common/icon-back.png" style="width:16px;height:27px;"></image>
     </div>
     <text style="position:absolute;left:105px;top:10px;width:126px;text-align:center;font-size:26px;color:#999999;">{{timeStr}}</text>
-    <text style="position:absolute;left:100px;top:40px;width:136px;text-align:center;font-size:32px;font-weight:700;color:#FFFFFF;">设置</text>
+    <text static style="position:absolute;left:100px;top:40px;width:136px;text-align:center;font-size:32px;font-weight:700;color:#FFFFFF;">设置</text>
 
     <!-- 设置项列表：324x112 卡片 -->
-    <scroll scroll-y="true" style="position:absolute;left:6px;top:90px;width:324px;height:380px;flex-direction:column;">
+    <scroll scroll-y="true" bounces="false" style="position:absolute;left:6px;top:90px;width:324px;height:380px;flex-direction:column;">
       <div for="{{settings}}" style="height:112px;margin-bottom:8px;border-radius:24px;background-color:#262626;flex-direction:column;justify-content:center;padding-left:28px;padding-right:28px;" onclick="onTap($item.action)">
         <text style="font-size:32px;font-weight:700;color:#FFFFFF;">{{$item.title}}</text>
         <text style="font-size:22px;color:{{$item.action==='offline' ? (offline ? '#FF9800' : '#999999') : '#999999'}};margin-top:10px;">{{$item.action==='offline' ? (offline ? '当前离线模式' : '当前在线模式') : $item.desc}}</text>
       </div>
-      <div style="height:10px;"></div>
+      <div static style="height:10px;"></div>
+    </scroll>
+    </div>
+
+    <!-- ═══ 圆屏：设计稿 UI ═══ -->
+    <image if="{{isCircle}}" src="../../common/circle-blank-bg.png" style="position:absolute;left:0;top:0;width:336px;height:100%;"></image>
+    <!-- 标题（设计稿顶部，480 y≈90-140 → 336 y≈63-98） -->
+    <text if="{{isCircle}}" style="position:absolute;left:100px;top:64px;width:136px;text-align:center;font-size:28px;font-weight:700;color:#FFFFFF;">设置</text>
+
+    <!-- 6 个设置按钮：87=便签 88=云端同步 93=云端账号 89=关于应用 90=模式选择 91=清空所有内容(⚠) -->
+    <scroll if="{{isCircle}}" scroll-y="true" style="position:absolute;left:0;top:110px;width:336px;height:300px;flex-direction:column;">
+      <image src="../../common/circle-ctr-87.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;" onclick="onTap('notes')"></image>
+      <image src="../../common/circle-ctr-88.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;" onclick="onTap('sync')"></image>
+      <image src="../../common/circle-ctr-93.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;" onclick="onTap('token')"></image>
+      <image src="../../common/circle-ctr-89.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;" onclick="onTap('about')"></image>
+      <image src="../../common/circle-ctr-90.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;" onclick="onTap('mode')"></image>
+      <image src="../../common/circle-ctr-91.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;" onclick="onTap('clearAll')"></image>
+      <div static style="height:12px;"></div>
     </scroll>
 
+    <!-- 清空确认已改为跳 pages/confirm 删除确认页（与清单同款），不再用弹窗 -->
+
   </div>
+<!-- endif -->
+<!-- endif -->
 </template>
 
 <script>
@@ -25,12 +48,15 @@
   import storage from '@system.storage'
   import prompt from '@system.prompt'
   import fetch from '@system.fetch'
-  import utils from '../../common/utils'
+    import adapt from '../../common/adapt'
+
+  const utils = global.utils || {}
 
   export default {
     private: {
       timeStr: '',
       offline: false,
+      isCircle: null,
       settings: [
         { title: '便签', desc: '随手记录想法', action: 'notes' },
         { title: '同步数据', desc: '与服务器同步内容', action: 'sync' },
@@ -40,9 +66,16 @@
       ]
     },
 
+    onInit () {
+      this.isCircle = adapt.isCircleSync()
+    },
+
     onShow () {
       var that = this
       that.updateTime()
+      adapt.probe().then(function (info) {
+        if (that.isCircle !== info.isCircle) { that.isCircle = info.isCircle }
+      })
       utils.init(storage, prompt, fetch)
       utils.loadOffline().then(function (off) {
         that.offline = off
@@ -50,7 +83,7 @@
     },
 
     onDestroy () {
-      if (global && global.runGC) {
+      if (typeof global.runGC === "function") {
         global.runGC()
       }
     },
@@ -64,12 +97,34 @@
 
     goBack () { router.back() },
 
+    // 圆屏右划返回
+    onSwipe (e) {
+      if (e && e.direction === 'right') {
+        router.back()
+      }
+    },
+
     onTap (action) {
       if (action === 'notes') router.push({ uri: 'pages/notes' })
       else if (action === 'sync') router.push({ uri: 'pages/sync' })
       else if (action === 'token') router.push({ uri: 'pages/token' })
-      else if (action === 'offline') this.toggleOffline()
       else if (action === 'about') router.push({ uri: 'pages/about' })
+      // 矩形：离线直接切换
+      else if (action === 'offline') {
+        if (this.isCircle) {
+          router.push({ uri: 'pages/mode' })
+        } else {
+          this.toggleOffline()
+        }
+      }
+      // 圆屏新模式选择页
+      else if (action === 'mode') {
+        router.push({ uri: 'pages/mode' })
+      }
+      // 清空所有内容：进确认删除页（与清单删除页同款，范围选择后点确认才清）
+      else if (action === 'clearAll') {
+        router.push({ uri: 'pages/confirm', params: { type: 'clearAll' } })
+      }
     },
 
     toggleOffline () {

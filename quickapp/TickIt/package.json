@@ -9,7 +9,9 @@
     "start": "aiot start --watch",
     "build": "aiot build",
     "release": "aiot release",
-    "lint": "eslint --format codeframe --fix --ext .ux,.js src/"
+    "lint": "eslint --format codeframe --fix --ext .ux,.js src/",
+    "build:circle": "cross-env SHAPE=CIRCLE aiot build --enable-custom-component",
+    "build:rect": "cross-env SHAPE=RECT aiot build --enable-custom-component"
   },
   "lint-staged": {
     "*.{ux,js}": [
@@ -25,6 +27,8 @@
   },
   "devDependencies": {
     "@aiot-toolkit/jsc": "^1.0.3",
-    "aiot-toolkit": "^2.0.5"
+    "aiot-toolkit": "^2.0.5",
+    "conditional-compilation-webpack-plugin": "^1.0.0",
+    "cross-env": "^10.1.0"
   }
 }

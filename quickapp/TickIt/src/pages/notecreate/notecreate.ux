@@ -1,6 +1,23 @@
 <import name="input-method" src="../../components/InputMethod/InputMethod.ux"></import>
 <template>
-  <div style="flex-direction:column;width:336px;height:480px;background-color:#000000;">
+  <div style="flex-direction:column;width:336px;height:100%;background-color:#000000;">
+
+    <!-- ═══ 圆屏：三点+标题+输入卡片+键盘 ═══ -->
+    <div if="{{isCircle}}" style="position:absolute;left:0;top:0;width:336px;height:336px;">
+      <!-- 三点 -->
+      <image if.static="{{isCircle}}" src="../../common/circle-ctr-82.png" style="position:absolute;left:148px;top:15px;width:41px;height:41px;"></image>
+      <!-- 标题 -->
+      <text if="{{isCircle}}" style="position:absolute;left:36px;top:67px;width:264px;text-align:center;font-size:28px;font-weight:700;color:#FFFFFF;lines:1;">创建便签</text>
+      <!-- 输入卡片：min-height 77 随内容撑开，不限行数不省略；scroll 三元视口——键盘弹起(hide=false)上移 top:40 并缩至 111px（40..151 贴键盘顶边 y=151），收起时 120..336 全高完整展示 -->
+      <scroll scroll-y="true" style="position:absolute;left:22px;top:{{hide ? 120 : 40}}px;width:291px;height:{{hide ? 216 : 111}}px;flex-direction:column;">
+        <div style="width:291px;min-height:77px;border-radius:24px;background-color:#262626;flex-direction:row;align-items:center;padding-left:22px;padding-right:22px;" onclick="showKeyboard">
+          <text style="flex:1;font-size:24px;font-weight:700;color:{{content ? '#FFFFFF' : '#8E8E93'}};">{{content || '请输入内容'}}{{cursorStr}}</text>
+        </div>
+      </scroll>
+    </div>
+
+    <!-- ═══ 方屏原布局 ═══ -->
+    <div if="{{isCircle === false}}">
 
     <!-- 创建便签：黑框输入 + ✓ 保存 + 键盘 -->
     <div static style="position:absolute;left:6px;top:6px;width:72px;height:72px;border-radius:36px;background-color:#262626;border-width:3px;border-color:rgba(255,255,255,0.06);justify-content:center;align-items:center;" onclick="goBack">
@@ -13,18 +30,16 @@
     <text static style="position:absolute;left:100px;top:40px;width:136px;text-align:center;font-size:32px;font-weight:700;color:#FFFFFF;">创建便签</text>
 
     <!-- 黑框：高度随文字自动衍生（内容撑开，min-height 112），不限行数不省略 -->
-    <div style="position:absolute;left:6px;top:90px;width:324px;min-height:112px;border-radius:36px;background-color:#262626;flex-direction:column;padding:20px;" onclick="showKeyboard">
+    <div style="position:absolute;left:6px;top:{{isCircle ? (hide ? 100 : 40) : 90}}px;width:324px;min-height:112px;border-radius:36px;background-color:#262626;flex-direction:column;padding:20px;" onclick="showKeyboard">
       <text static style="font-size:26px;color:#8E8E93;">内容</text>
       <text style="font-size:32px;font-weight:400;color:{{content ? '#FFFFFF' : '#8E8E93'}};margin-top:12px;">{{content || '请输入内容'}}{{cursorStr}}</text>
     </div>
 
-    <!-- 点击空白收起输入法 -->
-    <div if="{{!hide}}" style="position:absolute;left:0;top:0;width:336px;height:220px;" onclick="hideKeyboard"></div>
+    </div>
 
-    <input-method
-      if="{{editing}}"
-      hide="{{hide}}"
-      screentype="rect"
+        <input-method
+      hide="{{!editing || hide}}"
+      screentype="auto"
       maxlength="10"
       @key-down="onKeyDown"
       @delete="onDelete"
@@ -39,10 +54,13 @@
   import storage from '@system.storage'
   import prompt from '@system.prompt'
   import fetch from '@system.fetch'
-  import utils from '../../common/utils'
+    import adapt from '../../common/adapt'
+
+  const utils = global.utils || {}
 
   export default {
     private: {
+      isCircle: null,
       timeStr: '',
       content: '',
       hide: true,
@@ -50,15 +68,24 @@
       cursorStr: ''
     },
     onInit () {
+      this.onBtnClick = function(sign, evt) { if (global.__kbd) return global.__kbd.onBtnClick(sign) }
+      this.onSelect = function(num, evt) { if (global.__kbd) return global.__kbd.onSelect(num) }
+      this.onRsSelect = function(txt) { if (global.__kbd) return global.__kbd.onRsSelect(txt) }
+      this.onSelectWaiting = function(i) { if (global.__kbd) return global.__kbd.onSelectWaiting(i) }
+      this.isCircle = adapt.isCircleSync()
       utils.init(storage, prompt, fetch)
     },
 
     onShow () {
-      this.updateTime()
+      var that = this
+      adapt.probe().then(function (info) {
+        if (that.isCircle !== info.isCircle) { that.isCircle = info.isCircle }
+      })
+this.updateTime()
     },
 
     onDestroy () {
-      if (global && global.runGC) {
+      if (typeof global.runGC === "function") {
         global.runGC()
       }
     },
@@ -82,7 +109,6 @@
     },
 
     onKeyDown (evt) {
-      console.log('keyDown: ' + JSON.stringify(evt))
     },
 
     onDelete () {
@@ -101,11 +127,14 @@
 
     save () {
       var that = this
+      if (that._saving) { return }
       var text = that.content.trim()
       if (!text) {
         utils.toast('请输入内容')
         return
       }
+      that._saving = true
+      setTimeout(function () { that._saving = false }, 3000)
       that.content = text
       utils.storageGet('todo_notes').then(function (data) {
         var list = []
@@ -132,6 +161,15 @@
       })
     },
 
-    goBack () { router.back() }
+    goBack () { router.back() },
+
+    // 键盘展开时返回手势/返回键只收起键盘不退页
+    onBackPress () {
+      if (this.editing && !this.hide) {
+        this.hideKeyboard()
+        return true
+      }
+      return false
+    }
   }
 </script>

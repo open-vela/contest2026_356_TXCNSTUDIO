@@ -1,37 +1,69 @@
 <template>
-  <div style="flex-direction:column;width:336px;height:480px;background-color:#000000;">
+  <div style="flex-direction:column;width:336px;height:100%;background-color:#000000;" @swipe="onSwipe">
+<!-- if true: process.env.SHAPE === "RECT" -->
 
-    <!-- 背景（按状态切换：背景图自带标题/中央图标/状态文字） -->
-    <image if="{{status==='syncing'}}" src="../../common/sync-bg.png" style="position:absolute;left:0;top:0;width:336px;height:480px;"></image>
-    <image elif="{{status==='success'}}" src="../../common/sync-success-bg.png" style="position:absolute;left:0;top:0;width:336px;height:480px;"></image>
-    <image else src="../../common/sync-fail-bg.png" style="position:absolute;left:0;top:0;width:336px;height:480px;"></image>
 
-    <!-- 顶部：返回 + 时间（标题由背景图自带） -->
-    <div static style="position:absolute;left:6px;top:6px;width:72px;height:72px;border-radius:36px;background-color:#262626;border-width:3px;border-color:rgba(255,255,255,0.06);justify-content:center;align-items:center;" onclick="goBack">
+    <!-- ═══ 矩形屏背景（336 主力，路径零变化）═══ -->
+    <image if="{{isCircle === false && status==='syncing'}}" src="../../common/sync-bg.png" style="position:absolute;left:0;top:0;width:336px;height:100%;object-fit:cover;"></image>
+    <image elif="{{isCircle === false && status==='success'}}" src="../../common/sync-success-bg.png" style="position:absolute;left:0;top:0;width:336px;height:100%;object-fit:cover;"></image>
+    <image elif="{{isCircle === false}}" src="../../common/sync-fail-bg.png" style="position:absolute;left:0;top:0;width:336px;height:100%;object-fit:cover;"></image>
+<!-- if true: process.env.SHAPE === "CIRCLE" -->
+
+
+    <!-- ═══ 圆屏背景（480x480 切图）：独立 if，避免与矩形 if/elif 链串台 ═══ -->
+    <!-- 全部用 -bg 背景图，状态/进度文字由代码实时叠上 -->
+    <image if="{{isCircle && status==='waiting'}}" src="../../common/circle-sync-wait-bg.png" style="position:absolute;left:0;top:0;width:336px;height:336px;"></image>
+    <image if="{{isCircle && status==='connected'}}" src="../../common/circle-sync-ok-bg.png" style="position:absolute;left:0;top:0;width:336px;height:336px;"></image>
+    <image if="{{isCircle && status==='syncing'}}" src="../../common/circle-sync-ing-bg.png" style="position:absolute;left:0;top:0;width:336px;height:336px;"></image>
+    <image if="{{isCircle && status==='success'}}" src="../../common/circle-sync-done-bg.png" style="position:absolute;left:0;top:0;width:336px;height:336px;"></image>
+    <image if="{{isCircle && status==='fail'}}" src="../../common/circle-sync-fail-bg.png" style="position:absolute;left:0;top:0;width:336px;height:336px;"></image>
+    <image if="{{isCircle && (status==='nobind' || status==='offline')}}" src="../../common/circle-sync-wait-bg.png" style="position:absolute;left:0;top:0;width:336px;height:336px;"></image>
+
+    <!-- 顶部：返回 + 时间（仅矩形屏，设计稿圆屏没有这两个元素） -->
+    <div if="{{isCircle === false}}"  style="position:absolute;left:6px;top:6px;width:72px;height:72px;border-radius:36px;background-color:#262626;border-width:3px;border-color:rgba(255,255,255,0.06);justify-content:center;align-items:center;" onclick="goBack">
       <image static src="../../common/icon-back.png" style="width:16px;height:27px;"></image>
     </div>
-    <text style="position:absolute;left:105px;top:10px;width:126px;text-align:center;font-size:26px;color:#999999;">{{timeStr}}</text>
+    <text if="{{isCircle === false}}" style="position:absolute;left:105px;top:10px;width:126px;text-align:center;font-size:26px;color:#999999;">{{timeStr}}</text>
 
-    <!-- 说明文字（覆盖层，按状态动态；成功背景自带"所有数据已同步"不重复显示） -->
-    <text if="{{status==='syncing' || status==='fail' || status==='offline' || status==='nobind'}}" style="position:absolute;left:20px;top:316px;width:296px;text-align:center;font-size:20px;color:{{descColor}};lines:2;line-height:28px;">{{descText}}</text>
+    <!-- ═══ 矩形屏：说明文字 + 底部按钮（原逻辑不变）═══ -->
+    <text if="{{isCircle === false && (status==='syncing' || status==='fail' || status==='offline' || status==='nobind')}}" style="position:absolute;left:20px;top:316px;width:296px;text-align:center;font-size:20px;color:{{descColor}};lines:2;line-height:28px;">{{descText}}</text>
 
-    <!-- 同步中：取消 -->
-    <div if="{{status==='syncing'}}" style="position:absolute;left:18px;top:392px;width:300px;height:80px;" onclick="goBack">
-      <image src="../../common/btn-cancel.png" style="width:300px;height:80px;"></image>
+    <div if="{{isCircle === false && status==='syncing'}}" style="position:absolute;left:18px;top:392px;width:300px;height:80px;" onclick="goBack">
+      <image src="../../common/btn-cancel.png" style="width:100%;height:100%;"></image>
     </div>
-    <!-- 成功：完成 -->
-    <div if="{{status==='success'}}" style="position:absolute;left:18px;top:392px;width:300px;height:80px;" onclick="goBack">
-      <image src="../../common/btn-done.png" style="width:300px;height:80px;"></image>
+    <div if="{{isCircle === false && status==='success'}}" style="position:absolute;left:18px;top:392px;width:300px;height:80px;" onclick="goBack">
+      <image src="../../common/btn-done.png" style="width:100%;height:100%;"></image>
     </div>
-    <!-- 失败/离线/未绑定：离线模式 + 去绑定 -->
-    <div if="{{status==='fail' || status==='offline' || status==='nobind'}}" style="position:absolute;left:18px;top:392px;width:150px;height:80px;" onclick="switchOffline">
-      <image src="../../common/btn-offline.png" style="width:150px;height:80px;"></image>
+    <div if="{{isCircle === false && (status==='fail' || status==='offline' || status==='nobind')}}" style="position:absolute;left:18px;top:392px;width:150px;height:80px;" onclick="switchOffline">
+      <image src="../../common/btn-offline.png" style="width:100%;height:100%;"></image>
     </div>
-    <div if="{{status==='fail' || status==='offline' || status==='nobind'}}" style="position:absolute;left:168px;top:392px;width:150px;height:80px;" onclick="goBind">
-      <image src="../../common/btn-bind.png" style="width:150px;height:80px;"></image>
+    <div if="{{isCircle === false && (status==='fail' || status==='offline' || status==='nobind')}}" style="position:absolute;left:168px;top:392px;width:150px;height:80px;" onclick="goBind">
+      <image src="../../common/btn-bind.png" style="width:100%;height:100%;"></image>
+    </div>
+
+    <!-- ═══ 圆屏：背景图打底 + 胶囊内实时状态/进度（flex 自适应居中）；右划返回 ═══ -->
+    <!-- 胶囊 480:32,185,416,109 → 336:22,130,291,76；文字用 flex 垂直水平居中 -->
+    <!-- 等待/连接成功：胶囊内居中状态文字 -->
+    <div if="{{isCircle && (status==='waiting' || status==='connected')}}" style="position:absolute;left:22px;top:130px;width:291px;height:76px;justify-content:center;align-items:center;">
+      <text style="font-size:24px;font-weight:700;color:#FFFFFF;lines:1;">{{pillText}}</text>
+    </div>
+    <!-- 同步中/完成/失败：胶囊内左流程 + 右进度 -->
+    <div if="{{isCircle && (status==='syncing' || status==='success' || status==='fail')}}" style="position:absolute;left:22px;top:130px;width:291px;height:76px;flex-direction:row;align-items:center;justify-content:space-between;padding-left:26px;padding-right:26px;">
+      <text style="font-size:20px;color:{{pillColor}};lines:1;text-overflow:ellipsis;">{{pillLeft}}</text>
+      <text style="font-size:24px;font-weight:700;color:{{pillColor}};lines:1;">{{pillRight}}</text>
+    </div>
+    <!-- 胶囊下方描述文字（flex 居中，仅等待/连接成功/离线/未绑定） -->
+    <div if="{{isCircle && descText && (status==='waiting' || status==='connected' || status==='offline' || status==='nobind')}}" style="position:absolute;left:28px;top:230px;width:280px;justify-content:center;align-items:center;">
+      <text style="font-size:16px;color:{{descColor}};lines:3;line-height:22px;text-align:center;">{{descText}}</text>
+    </div>
+    <!-- 离线/未绑定：叠加标题 -->
+    <div if="{{isCircle && circleTitle}}" style="position:absolute;left:28px;top:225px;width:280px;justify-content:center;align-items:center;">
+      <text style="font-size:20px;font-weight:700;color:#FFFFFF;lines:1;">{{circleTitle}}</text>
     </div>
 
   </div>
+<!-- endif -->
+<!-- endif -->
 </template>
 
 <script>
@@ -39,19 +71,38 @@
   import storage from '@system.storage'
   import prompt from '@system.prompt'
   import fetch from '@system.fetch'
-  import utils from '../../common/utils'
+    import adapt from '../../common/adapt'
+
+  const utils = global.utils || {}
 
   export default {
     private: {
       timeStr: '',
       status: 'waiting',
       descText: '',
-      descColor: '#AAAAAA'
+      descColor: '#AAAAAA',
+      isCircle: null,
+      circleTitle: '',
+      pillText: '',
+      pillLeft: '',
+      pillRight: '',
+      pillColor: '#FFFFFF',
+      syncProgress: '',
+      syncStep: ''
+    },
+
+    onInit () {
+      this.isCircle = adapt.isCircleSync()
+      this.refreshCircleBg()
     },
 
     onShow () {
       var that = this
       that.updateTime()
+      adapt.probe().then(function (info) {
+        if (that.isCircle !== info.isCircle) { that.isCircle = info.isCircle }
+        that.refreshCircleBg()
+      })
       utils.init(storage, prompt, fetch)
       utils.loadOffline().then(function (off) {
         if (off) {
@@ -70,8 +121,41 @@
     },
 
     onDestroy () {
-      if (global && global.runGC) {
+      if (this._circleAddTimer) { clearTimeout(this._circleAddTimer); this._circleAddTimer = null }
+      if (this._syncTimer) { clearTimeout(this._syncTimer); this._syncTimer = null }
+      if (this._chunkTimer) { clearTimeout(this._chunkTimer); this._chunkTimer = null }
+      if (typeof global.runGC === "function") {
         global.runGC()
+      }
+    },
+
+    // 圆屏动态内容：背景图打底后，胶囊文字/进度/描述由代码实时叠上
+    refreshCircleBg () {
+      var st = this.status
+      // 离线/未绑定时背景无标题字，需要叠加
+      var title = ''
+      if (st === 'offline') title = '离线模式'
+      else if (st === 'nobind') title = '未绑定账号'
+      this.circleTitle = title
+      // 胶囊内文字
+      if (st === 'waiting') {
+        this.pillText = '等待连接'
+        this.pillLeft = ''; this.pillRight = ''
+      } else if (st === 'connected') {
+        this.pillText = '已连接,准备同步'
+        this.pillLeft = ''; this.pillRight = ''
+      } else if (st === 'syncing') {
+        this.pillLeft = this.syncStep || '同步中'
+        this.pillRight = this.syncProgress || '...'
+        this.pillColor = '#C9CBCE'
+      } else if (st === 'success') {
+        this.pillLeft = '同步完成'
+        this.pillRight = '100%'
+        this.pillColor = '#1DCC72'
+      } else if (st === 'fail') {
+        this.pillLeft = '同步失败'
+        this.pillRight = this.syncProgress || '...'
+        this.pillColor = '#FF4D4F'
       }
     },
 
@@ -83,14 +167,22 @@
           that.showNoBind()
           return
         }
-        that.startSync()
+        // 连接成功 → 稍候进入同步（圆屏展示连接成功图）
+        that.status = 'connected'
+        that.descText = ''
+        that.refreshCircleBg()
+        setTimeout(function () {
+          that.startSync()
+        }, 600)
       })
     },
 
     startSync () {
       this.status = 'syncing'
-      this.descText = '正在拉取云数据'
-      this.descColor = '#AAAAAA'
+      this.descText = ''
+      this.syncStep = '拉取云端'
+      this.syncProgress = '0%'
+      this.refreshCircleBg()
       this.pullAndMerge()
     },
 
@@ -102,10 +194,8 @@
           return
         }
         utils.setToken(token)
-        console.log('sync token:', (token || '').substring(0, 10))
         utils.syncPull().then(function (cloudTodos) {
           var isArr = Object.prototype.toString.call(cloudTodos) === '[object Array]'
-          console.log('cloud todos:', isArr ? '数组长度=' + cloudTodos.length : '非数组', isArr ? '' : JSON.stringify(cloudTodos))
           if (!isArr) {
             // 401/错误响应（如 token 已被撤销）→ 提示失效
             that.showFail(cloudTodos && cloudTodos.error ? '云端账号已失效，请重新绑定' : '无法连接服务器')
@@ -113,7 +203,6 @@
           }
           that.mergeAndSave(cloudTodos)
         }).catch(function (err) {
-          console.log('pull fail:', err && err.message)
           that.showFail('无法连接服务器')
         })
       })
@@ -121,27 +210,45 @@
 
     mergeAndSave (cloudItems) {
       var that = this
+      that.syncStep = '合并数据'
+      that.syncProgress = '50%'
+      that.refreshCircleBg()
       utils.storageGet('todo_items').then(function (data) {
         var localItems = []
         if (data) {
           try { localItems = JSON.parse(data) } catch (e) { localItems = [] }
         }
-        var merged = utils.mergeCloudItems(localItems, cloudItems)
-        console.log('merged count:', merged.length, 'cloud count:', (cloudItems || []).length)
-        utils.storageSet('todo_items', JSON.stringify(merged)).then(function (ok) {
-          console.log('storageSet done, ok:', ok)
-          that.push(merged)
+        // 忽略名单（仅删除本地）+ 待删云端队列 → 合并时永不拉回，防复活
+        utils.storageGet('todo_ignore_ids').then(function (ig) {
+          var ignores = []
+          if (ig) {
+            try { ignores = JSON.parse(ig) } catch (e) { ignores = [] }
+          }
+          utils.storageGet('todo_pending_delete').then(function (pd) {
+            var pendingDel = []
+            if (pd) {
+              try { pendingDel = JSON.parse(pd) } catch (e) { pendingDel = [] }
+            }
+            var merged = utils.mergeCloudItems(localItems, cloudItems, ignores.concat(pendingDel))
+            utils.storageSet('todo_items', JSON.stringify(merged)).then(function (ok) {
+              that.push(merged)
+            })
+          })
         })
       })
     },
 
     push (items) {
       var that = this
+      that.syncStep = '推送本地'
+      that.syncProgress = '80%'
+      that.refreshCircleBg()
       utils.syncPush(items).then(function () {
+        that.syncProgress = '100%'
         that.status = 'success'
         that.descText = ''
+        that.refreshCircleBg()
       }).catch(function (err) {
-        console.log('push fail:', err)
         that.showFail('推送失败，数据已保留在本地')
       })
     },
@@ -149,19 +256,22 @@
     showFail (msg) {
       this.status = 'fail'
       this.descText = msg || '无法连接服务器，请重试'
-      this.descColor = '#999999'
+      this.descColor = '#FF6B6B'
+      this.refreshCircleBg()
     },
 
     showOffline () {
       this.status = 'offline'
-      this.descText = '当前处于离线模式，可前往设置切换在线模式'
+      this.descText = '可前往设置切换在线模式'
       this.descColor = '#999999'
+      this.refreshCircleBg()
     },
 
     showNoBind () {
       this.status = 'nobind'
-      this.descText = '请到「设置 → 云端账号」绑定后重试'
+      this.descText = '请到「设置→云端账号」绑定'
       this.descColor = '#999999'
+      this.refreshCircleBg()
     },
 
     switchOffline () {
@@ -174,6 +284,12 @@
       router.push({ uri: 'pages/token' })
     },
 
-    goBack () { router.back() }
+    goBack () { router.back() },
+
+    onSwipe (e) {
+      if (e && e.direction === 'right') {
+        router.back()
+      }
+    }
   }
 </script>

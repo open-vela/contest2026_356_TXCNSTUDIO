@@ -1,6 +1,10 @@
 <template>
-  <div style="flex-direction:column;width:336px;height:480px;background-color:#000000;">
+  <div style="flex-direction:column;width:336px;height:100%;background-color:#000000;" @swipe="onSwipe">
+<!-- if true: process.env.SHAPE === "RECT" -->
 
+
+    <!-- ═══ 矩形屏：原布局（336 零变化）═══ -->
+    <div if="{{isCircle === false}}" style="flex-direction:column;width:336px;height:100%;">
     <!-- 顶部区域：左右圆形按钮（原图标 72x72 完整按钮图）+ 时间 + 标题 -->
     <div style="height:86px;">
       <!-- 左按钮：返回（原图标：三条竖线 72x72 完整按钮） -->
@@ -16,16 +20,16 @@
     <!-- 清单列表区 -->
     <div style="flex:1;flex-direction:column;">
       <div if="{{!loaded}}" style="flex:1;justify-content:center;align-items:center;">
-        <text style="font-size:22px;color:#999999;">加载中...</text>
+        <text static style="font-size:22px;color:#999999;">加载中...</text>
       </div>
       <!-- 空状态（用户背景图：深灰卡片 + 卡片内信封 + 卡片下文字，流式布局避免 absolute 偏移） -->
       <div if="{{loaded && items.length===0}}" style="flex:1;flex-direction:column;align-items:center;">
         <div style="width:128px;height:124px;border-radius:42px;background-color:#262626;justify-content:center;align-items:center;margin-top:60px;">
           <image src="../../common/empty-ico.png" style="width:68px;height:56px;"></image>
         </div>
-        <text style="font-size:28px;color:#FFFFFF;margin-top:36px;">没有内容</text>
+        <text static style="font-size:28px;color:#FFFFFF;margin-top:36px;">没有内容</text>
       </div>
-      <scroll if="{{loaded && items.length>0}}" scroll-y="true" style="flex:1;flex-direction:column;">
+      <scroll if="{{loaded && items.length>0}}" scroll-y="true" onscrollbottom="loadMore" style="flex:1;flex-direction:column;">
         <div for="{{items}}" style="width:324px;height:112px;margin-left:6px;margin-right:6px;margin-bottom:8px;" onclick="viewItem($item.id)">
           <!-- 卡片背景切图（一比一复刻：6 张按优先级+置顶，JS 预处理 bgIdx；动态 src 不渲染用 if/elif/else 链） -->
           <image if="{{$item.bgIdx===0}}" src="../../common/card-hi-pin.png" style="position:absolute;left:0;top:0;width:324px;height:112px;"></image>
@@ -46,11 +50,50 @@
           <text style="position:absolute;left:118px;top:66px;width:190px;font-size:18px;color:{{$item.timeColor}};lines:1;text-overflow:ellipsis;">{{$item.dueStr}}</text>
           <div if="{{$item.done}}" style="position:absolute;left:118px;top:76px;width:190px;height:3px;border-radius:2px;background-color:#444444;"></div>
         </div>
-        <div style="height:12px;"></div>
-      </scroll>
+        <div static style="height:12px;"></div>
+    </scroll>
     </div>
+    </div>
+<!-- if true: process.env.SHAPE === "CIRCLE" -->
+
+
+    <!-- ═══ 圆屏：设计稿 UI（480 基准 ×0.7 到 336）═══ -->
+    <!-- 背景图：if/elif/else 确保同一时刻只渲染一张，避免反复解码 -->
+    <image if="{{isCircle && loaded && items.length===0}}" src="../../common/circle-home-empty-bg.png" style="position:absolute;left:0;top:0;width:336px;height:336px;"></image>
+    <image elif="{{isCircle && loaded}}" src="../../common/circle-home-bg.png" style="position:absolute;left:0;top:0;width:336px;height:336px;"></image>
+    <image elif.static="{{isCircle}}" src="../../common/circle-blank-bg.png" style="position:absolute;left:0;top:0;width:336px;height:336px;"></image>
+
+    <!-- 顶部三点图标 → 设置（480设计 x211 y22 w58 h58 → 336 x148 y15 w41 h41） -->
+    <image if.static="{{isCircle}}" src="../../common/circle-ctr-82.png" style="position:absolute;left:148px;top:15px;width:41px;height:41px;" onclick="showMenu"></image>
+
+    <!-- 任务卡片列表（480 基准卡 418x140 → 336 约 293x98） -->
+    <list if="{{isCircle && loaded && items.length>0}}" scroll-y="true" onscroll="onCircleScroll" onscrollbottom="loadMore" style="position:absolute;left:0;top:110px;width:336px;height:226px;flex-direction:column;">
+      <list-item type="card" for="{{items}}" style="width:293px;height:98px;min-height:98px;flex-shrink:0;margin-left:22px;margin-bottom:14px;" onclick="viewItem($item.id)">
+        <!-- 干净卡片底图：76=hi 77=mid 78=lo 79=hi-pin 80=mid-pin 81=lo-pin -->
+        <image if="{{$item.bgIdx===0}}" src="../../common/circle-ctr-79.png" style="position:absolute;left:0;top:0;width:293px;height:98px;"></image>
+        <image elif="{{$item.bgIdx===1}}" src="../../common/circle-ctr-76.png" style="position:absolute;left:0;top:0;width:293px;height:98px;"></image>
+        <image elif="{{$item.bgIdx===2}}" src="../../common/circle-ctr-80.png" style="position:absolute;left:0;top:0;width:293px;height:98px;"></image>
+        <image elif="{{$item.bgIdx===3}}" src="../../common/circle-ctr-77.png" style="position:absolute;left:0;top:0;width:293px;height:98px;"></image>
+        <image elif="{{$item.bgIdx===4}}" src="../../common/circle-ctr-81.png" style="position:absolute;left:0;top:0;width:293px;height:98px;"></image>
+        <image else src="../../common/circle-ctr-78.png" style="position:absolute;left:0;top:0;width:293px;height:98px;"></image>
+        <!-- 完成对勾 -->
+        <image if="{{$item.done}}" src="../../common/icon-check.png" style="position:absolute;left:32px;top:31px;width:36px;height:36px;"></image>
+        <!-- 动态文字叠在卡片右半（480 文字区约 x180+ → 336 x126+） -->
+        <text if="{{$item.done}}" style="position:absolute;left:110px;top:15px;width:140px;font-size:26px;font-weight:700;color:#666666;lines:1;text-overflow:ellipsis;">{{$item.title}}</text>
+        <text elif="{{$item.title.length <= 6}}" style="position:absolute;left:110px;top:15px;width:140px;font-size:26px;font-weight:700;color:#FFFFFF;lines:1;text-overflow:ellipsis;">{{$item.title}}</text>
+        <marquee else style="position:absolute;left:110px;top:15px;width:140px;height:28px;font-size:26px;font-weight:700;color:#FFFFFF;" scrollamount="15">{{$item.title}}</marquee>
+        <div if="{{$item.done}}" style="position:absolute;left:110px;top:28px;width:140px;height:3px;border-radius:2px;background-color:#666666;"></div>
+        <text style="position:absolute;left:110px;top:52px;width:140px;font-size:18px;color:{{$item.timeColor}};lines:1;text-overflow:ellipsis;">{{$item.dueStr}}</text>
+        <div if="{{$item.done}}" style="position:absolute;left:110px;top:61px;width:140px;height:2px;border-radius:1px;background-color:#444444;"></div>
+      </list-item>
+      <list-item type="spacer" style="height:84px;min-height:84px;flex-shrink:0;"></list-item>
+    </list>
+    <!-- 容器92：圆屏底部新建入口，上划出现；不覆盖其他屏型入口。 -->
+    <image if="{{isCircle}}" show="{{circleAddVisible}}" src="../../common/circle-ctr-92.png" style="position:absolute;left:112px;top:252px;width:112px;height:66.5px;" onclick="addItem"></image>
 
   </div>
+<!-- endif -->
+<!-- endif -->
 </template>
 
 <script>
@@ -58,33 +101,59 @@
   import storage from '@system.storage'
   import prompt from '@system.prompt'
   import fetch from '@system.fetch'
-  import utils from '../../common/utils'
+    import adapt from '../../common/adapt'
+
+  const utils = global.utils || {}
 
   export default {
     private: {
+      isCircle: null,
+      circleAddVisible: false,
+      renderedCount: 8,
       timeStr: '',
       items: [],
       loaded: false
     },
 
     onInit () {
+      this.isCircle = adapt.isCircleSync()
       utils.init(storage, prompt, fetch)
     },
 
     onShow () {
-      this.updateTime()
-      this.loadItems()
+      this.hideCircleAdd()
+      this._circleScrollY = 0
       var that = this
-      // 先执行待办（上传新建 / 删除云端项），完成后再拉取云端——
-      // 否则 autoSync 拉到的云端旧数据会把刚删的项重新写回本地（删除不灵敏的根因）
-      that.syncPending().then(function () {
-        that.autoSync()
+      adapt.probe().then(function (info) {
+        if (that.isCircle !== info.isCircle) { that.isCircle = info.isCircle }
       })
+this.updateTime()
+      this.loadItems()
+      // 延迟启动网络同步，让首屏先渲染完，避免蓝牙请求阻塞 UI
+      // 并发防护：上一轮同步未结束时跳过，防止重复上传/合并（文档：onShow 亮屏会重复触发，慎用并发请求）
+      var that = this
+      if (that._syncing) { return }
+      that._syncing = true
+      var syncFailsafe = setTimeout(function () { that._syncing = false }, 45000)
+      setTimeout(function () {
+        that.syncPending().then(function () {
+          return that.autoSync()
+        }).catch(function () {
+        }).then(function () {
+          clearTimeout(syncFailsafe)
+          that._syncing = false
+        })
+      }, 600)
+    },
+
+    onHide () {
+      this.hideCircleAdd()
     },
 
     onDestroy () {
+      this.hideCircleAdd()
       // 页面销毁时及时垃圾回收
-      if (global && global.runGC) {
+      if (typeof global.runGC === "function") {
         global.runGC()
       }
     },
@@ -92,27 +161,38 @@
     // 在线且有 token 时，进主页自动拉取云端合并本地（每次 onShow 都拉，保证网页端的外部改动及时同步）
     autoSync () {
       var that = this
-      utils.loadOffline().then(function (off) {
+      return utils.loadOffline().then(function (off) {
         if (off) { return }
-        utils.storageGet('todo_token').then(function (token) {
+        return utils.storageGet('todo_token').then(function (token) {
           if (!token || token === 'guest_token') { return }
           utils.setToken(token)
-          utils.syncPull().then(function (cloudTodos) {
+          return utils.syncPull().then(function (cloudTodos) {
             var isArr = Object.prototype.toString.call(cloudTodos) === '[object Array]'
-            console.log('autoSync cloud:', isArr ? '数组长度=' + cloudTodos.length : JSON.stringify(cloudTodos))
             if (!isArr) { return }
             utils.storageGet('todo_items').then(function (data) {
               var local = []
               if (data) {
                 try { local = JSON.parse(data) } catch (e) { local = [] }
               }
-              var merged = utils.mergeCloudItems(local, cloudTodos)
-              utils.storageSet('todo_items', JSON.stringify(merged)).then(function () {
-                that.loadItems()
+              // 忽略名单（仅删除本地）+ 待删云端队列 → 合并时永不拉回，防复活
+              utils.storageGet('todo_ignore_ids').then(function (ig) {
+                var ignores = []
+                if (ig) {
+                  try { ignores = JSON.parse(ig) } catch (e) { ignores = [] }
+                }
+                utils.storageGet('todo_pending_delete').then(function (pd) {
+                  var pendingDel = []
+                  if (pd) {
+                    try { pendingDel = JSON.parse(pd) } catch (e) { pendingDel = [] }
+                  }
+                  var merged = utils.mergeCloudItems(local, cloudTodos, ignores.concat(pendingDel))
+                  utils.storageSet('todo_items', JSON.stringify(merged)).then(function () {
+                    that.loadItems()
+                  })
+                })
               })
             })
           }).catch(function (err) {
-            console.log('autoSync fail:', err && err.message)
           })
         })
       })
@@ -137,7 +217,7 @@
               }
               var pending = []
               for (var i = 0; i < items.length; i++) {
-                if (items[i] && !items[i].cloudId) { pending.push(items[i]) }
+                if (items[i] && !items[i].cloudId && !items[i].localOnly) { pending.push(items[i]) }
               }
               var chain = Promise.resolve()
               var count = 0
@@ -224,6 +304,7 @@
     },
 
     loadItems () {
+      // loadItems safety: 防止解析异常导致闪退
       var that = this
       utils.storageGet('todo_items').then(function (data) {
         that.loaded = true
@@ -231,7 +312,37 @@
           try {
             var rawItems = JSON.parse(data)
             var now = Date.now()
-            that.items = rawItems.map(function (item) {
+            var sliced = rawItems.length > 20 ? rawItems.slice(0, 20) : rawItems
+            that._allItems = sliced
+            var initial = sliced.slice(0, that.renderedCount)
+            var raw = (initial || sliced || rawItems)
+            if (that.items.length === raw.length) {
+              // 原地更新：按 id 匹配（items 已排序，raw 未排序，不能按索引对应）
+              for (var ii = 0; ii < raw.length; ii++) {
+                var item = raw[ii]
+                var target = null
+                for (var fi = 0; fi < that.items.length; fi++) {
+                  if (that.items[fi].id === item.id) { target = that.items[fi]; break }
+                }
+                if (!target) { continue }
+                var p = parseInt(item.priority, 10)
+                if (isNaN(p)) { p = 2 }
+                var done = item.done || false
+                var due = parseInt(item.due, 10) || 0
+                var now2 = Date.now()
+                var overdue = !done && due > 0 && due < now2
+                var pinned = item.is_pinned === 1
+                var bgIdx = p === 3 ? (pinned ? 0 : 1) : (p === 1 ? (pinned ? 4 : 5) : (pinned ? 2 : 3))
+                target.title = item.text || item.title || '未命名'
+                target.done = done
+                target.priority = p
+                target.pinned = pinned
+                target.bgIdx = bgIdx
+                target.dueStr = due > 0 ? (overdue ? '已逾期' : '截止 ' + that.fmtItemTime(due)) : that.fmtItemTime(item.createdAt)
+                target.timeColor = done ? '#555555' : (overdue ? '#FF3B30' : '#C9C9C9')
+              }
+            } else {
+              that.items = raw.map(function (item) {
               var p = parseInt(item.priority, 10)
               if (isNaN(p)) { p = 2 }
               var done = item.done || false
@@ -253,7 +364,9 @@
                   : that.fmtItemTime(item.createdAt),
                 timeColor: done ? '#555555' : (overdue ? '#FF3B30' : '#C9C9C9')
               }
-            }).sort(function (a, b) {
+            })
+            }
+            that.items.sort(function (a, b) {
               if (a.done !== b.done) return a.done ? 1 : -1
               if (b.pinned !== a.pinned) return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)
               return b.priority - a.priority
@@ -270,6 +383,14 @@
       })
     },
 
+    // 触底加载下一批（文档：列表分页渲染，每次 8 条）
+    loadMore () {
+      var that = this
+      if (!that._allItems || that.renderedCount >= that._allItems.length) { return }
+      that.renderedCount += 8
+      that.loadItems()
+    },
+
     viewItem (id) {
       router.push({ uri: 'pages/viewer', params: { itemId: id } })
     },
@@ -280,6 +401,54 @@
 
     showMenu () {
       router.push({ uri: 'pages/list' })
+    },
+
+    showCircleAdd () {
+      if (!this.isCircle) { return }
+      this.circleAddVisible = true
+      if (this._circleAddTimer) { clearTimeout(this._circleAddTimer) }
+      var that = this
+      this._circleAddTimer = setTimeout(function () {
+        
+        that.circleAddVisible = false
+        that._circleAddTimer = null
+      }, 3000)
+    },
+
+    hideCircleAdd () {
+      if (this._circleAddTimer) { clearTimeout(this._circleAddTimer) }
+      this._circleAddTimer = null
+      this.circleAddVisible = false
+    },
+
+    onCircleTouchStart (e) {
+      if (!this.isCircle || !e || !e.touches || !e.touches.length) { return }
+      this._circleTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+    },
+
+    onCircleTouchEnd (e) {
+      var start = this._circleTouch
+      this._circleTouch = null
+      if (!this.isCircle || !start || !e || !e.changedTouches || !e.changedTouches.length) { return }
+      var touch = e.changedTouches[0]
+      var dy = touch.clientY - start.y
+      if (Math.abs(dy) < 24 || Math.abs(dy) <= Math.abs(touch.clientX - start.x)) { return }
+      if (dy < 0) { this.showCircleAdd() } else { this.hideCircleAdd() }
+    },
+
+    onCircleScroll (e) {
+      if (!this.isCircle || !e || typeof e.scrollY !== 'number') { return }
+      var now = Date.now(); if (this._scrollThrottle && now - this._scrollThrottle < 150) { return }; this._scrollThrottle = now
+      var previous = this._circleScrollY || 0
+      this._circleScrollY = e.scrollY
+      if (e.scrollY > previous) { this.showCircleAdd() }
+    },
+
+    // 首页右划不返回；无滚动内容时也能上划唤出新建按钮。
+    onSwipe (e) {
+      if (!this.isCircle || !e) { return }
+      if (e.direction === 'up') { this.showCircleAdd() }
+      if (e.direction === 'down') { this.hideCircleAdd() }
     }
   }
 </script>

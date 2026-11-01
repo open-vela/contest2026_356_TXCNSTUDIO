@@ -1,28 +1,81 @@
 <template>
-  <div style="width:336px;height:480px;background-color:#000000;">
+  <div style="width:336px;height:100%;background-color:#000000;" @swipe="onSwipe">
 
-    <!-- 删除页背景（sanc.png：自带标题/卡片/文字，无顶部按钮） -->
-    <image static src="../../common/confirm-bg.png" style="position:absolute;left:0;top:0;width:336px;height:480px;"></image>
+    <!-- ═══ 方屏：仿稿（黑底/白粗主文案/灰副文案）+ 顶部固定件；右上垃圾桶 = 确认键 ═══ -->
+    <image if="{{isCircle === false}}" src="../../common/btn-back-round.png" style="position:absolute;left:6px;top:6px;width:72px;height:72px;" onclick="goBack"></image>
+    <text if="{{isCircle === false}}" style="position:absolute;left:105px;top:10px;width:126px;text-align:center;font-size:26px;color:#999999;">{{timeStr}}</text>
+    <text if="{{isCircle === false}}" style="position:absolute;left:48px;top:42px;width:240px;text-align:center;font-size:28px;font-weight:700;color:#FFFFFF;lines:1;">{{type === 'clearAll' ? '清空所有内容' : '删除该内容'}}</text>
+    <image if="{{isCircle === false}}" src="../../common/icon-del-top.png" style="position:absolute;left:258px;top:6px;width:72px;height:72px;" onclick="doDelete"></image>
 
-    <!-- 时间 -->
-    <text style="position:absolute;left:105px;top:10px;width:126px;text-align:center;font-size:26px;color:#999999;">{{timeStr}}</text>
+    <!-- 正文滚动区：文案留正常行距，324x112 按钮不缩，放不下往下滚 -->
+    <scroll if="{{isCircle === false}}" scroll-y="true" bounces="false" style="position:absolute;left:0;top:88px;width:336px;height:392px;flex-direction:column;">
+      <div style="width:336px;flex-direction:column;">
+        <div style="width:324px;margin-left:6px;margin-top:10px;border-radius:30px;background-color:#262626;flex-direction:column;justify-content:center;align-items:center;padding-top:18px;padding-bottom:18px;flex-shrink:0;">
+          <text static style="font-size:30px;font-weight:700;color:#FFFFFF;lines:1;">确认删除吗</text>
+          <text static style="font-size:24px;color:#6B6B6B;lines:1;margin-top:10px;">删除后不可恢复</text>
+        </div>
+        <!-- 删除范围：0=全部删除（默认）1=仅删除本地 2=仅删除云端 -->
+        <div style="width:324px;height:112px;margin-left:6px;margin-top:16px;border-radius:36px;background-color:{{scope === 0 ? '#448AFF' : '#262626'}};flex-direction:row;align-items:center;padding-left:28px;padding-right:24px;flex-shrink:0;" onclick="setScope(0)">
+          <text static style="flex:1;font-size:24px;font-weight:700;color:#FFFFFF;lines:1;">全部删除</text>
+        </div>
+        <div style="width:324px;height:112px;margin-left:6px;margin-top:8px;border-radius:36px;background-color:{{scope === 1 ? '#448AFF' : '#262626'}};flex-direction:row;align-items:center;padding-left:28px;padding-right:24px;flex-shrink:0;" onclick="setScope(1)">
+          <text static style="flex:1;font-size:24px;font-weight:700;color:#FFFFFF;lines:1;">仅删除本地</text>
+        </div>
+        <div style="width:324px;height:112px;margin-left:6px;margin-top:8px;border-radius:36px;background-color:{{scope === 2 ? '#448AFF' : '#262626'}};flex-direction:row;align-items:center;padding-left:28px;padding-right:24px;flex-shrink:0;" onclick="setScope(2)">
+          <text static style="flex:1;font-size:24px;font-weight:700;color:#FFFFFF;lines:1;">仅删除云端</text>
+        </div>
+        <div style="width:336px;height:32px;flex-shrink:0;"></div>
+      </div>
+    </scroll>
 
-    <!-- 左返回按钮（sanc 无自带按钮，需可见按钮） -->
-    <div static style="position:absolute;left:6px;top:6px;width:72px;height:72px;border-radius:36px;background-color:#262626;border-width:3px;border-color:rgba(255,255,255,0.06);justify-content:center;align-items:center;" onclick="goBack">
-      <image src="../../common/icon-back.png" style="width:16px;height:27px;"></image>
+<!-- if true: process.env.SHAPE === "CIRCLE" -->
+
+    <!-- ═══ 圆屏：纯代码渲染（三点+标题+卡片+范围胶囊+确认胶囊） ═══ -->
+    <div if="{{isCircle}}" style="position:absolute;left:0;top:0;width:336px;height:336px;">
+      <image src="../../common/circle-ctr-82.png" style="position:absolute;left:148px;top:15px;width:41px;height:41px;"></image>
+      <text style="position:absolute;left:36px;top:67px;width:264px;text-align:center;font-size:28px;font-weight:700;color:#FFFFFF;lines:1;">{{type === 'clearAll' ? '清空' : '删除'}}</text>
+      <scroll scroll-y="true" bounces="false" style="position:absolute;left:0;top:105px;width:336px;height:231px;flex-direction:column;">
+        <div static style="width:336px;height:8px;flex-shrink:0;"></div>
+        <div style="width:291px;height:106px;margin-left:22px;border-radius:30px;background-color:#262626;flex-direction:column;justify-content:center;align-items:center;flex-shrink:0;">
+          <text static style="font-size:24px;font-weight:700;color:#FFFFFF;lines:1;">确认删除吗</text>
+          <text static style="font-size:16px;color:#FF4444;margin-top:8px;lines:1;">删除后将无法恢复</text>
+        </div>
+        <!-- 删除范围：0=全部删除（默认）1=仅删除本地 2=仅删除云端 -->
+        <div style="width:291px;height:77px;margin-left:22px;margin-top:10px;border-radius:38px;background-color:{{scope === 0 ? '#448AFF' : '#262626'}};flex-direction:row;align-items:center;padding-left:24px;padding-right:24px;flex-shrink:0;" onclick="setScope(0)">
+          <text static style="flex:1;font-size:22px;font-weight:700;color:#FFFFFF;lines:1;">全部删除</text>
+          <text if="{{scope === 0}}" style="font-size:22px;color:#FFFFFF;">✓</text>
+        </div>
+        <div style="width:291px;height:77px;margin-left:22px;margin-top:10px;border-radius:38px;background-color:{{scope === 1 ? '#448AFF' : '#262626'}};flex-direction:row;align-items:center;padding-left:24px;padding-right:24px;flex-shrink:0;" onclick="setScope(1)">
+          <text static style="flex:1;font-size:22px;font-weight:700;color:#FFFFFF;lines:1;">仅删除本地</text>
+          <text if="{{scope === 1}}" style="font-size:22px;color:#FFFFFF;">✓</text>
+        </div>
+        <div style="width:291px;height:77px;margin-left:22px;margin-top:10px;border-radius:38px;background-color:{{scope === 2 ? '#448AFF' : '#262626'}};flex-direction:row;align-items:center;padding-left:24px;padding-right:24px;flex-shrink:0;" onclick="setScope(2)">
+          <text static style="flex:1;font-size:22px;font-weight:700;color:#FFFFFF;lines:1;">仅删除云端</text>
+          <text if="{{scope === 2}}" style="font-size:22px;color:#FFFFFF;">✓</text>
+        </div>
+        <!-- 确认按钮（点完确认才删） -->
+        <div style="width:291px;height:77px;margin-left:22px;margin-top:14px;border-radius:38px;background-color:#FF4444;flex-direction:row;align-items:center;padding-left:26px;padding-right:26px;flex-shrink:0;" onclick="doDelete">
+          <text static style="flex:1;font-size:24px;font-weight:700;color:#FFFFFF;lines:1;">确认删除</text>
+          <text static style="font-size:24px;color:#FFFFFF;">✓</text>
+        </div>
+        <div static style="width:336px;height:84px;flex-shrink:0;"></div>
+      </scroll>
     </div>
-    <!-- 右上角：容器 16.png 红垃圾桶按钮 -->
-    <image static src="../../common/icon-del-top.png" style="position:absolute;left:258px;top:6px;width:72px;height:72px;" onclick="doDelete"></image>
 
   </div>
+<!-- endif -->
+<!-- endif -->
 </template>
+
 
 <script>
   import router from '@system.router'
   import storage from '@system.storage'
   import prompt from '@system.prompt'
   import fetch from '@system.fetch'
-  import utils from '../../common/utils'
+    import adapt from '../../common/adapt'
+
+  const utils = global.utils || {}
 
   export default {
     public: {
@@ -31,19 +84,26 @@
     },
 
     private: {
-      timeStr: ''
+      isCircle: null,
+      timeStr: '',
+      scope: 0 // 0=全部删除 1=仅删除本地 2=仅删除云端
     },
 
     onInit () {
+      this.isCircle = adapt.isCircleSync()
       utils.init(storage, prompt, fetch)
     },
 
     onShow () {
-      this.updateTime()
+      var that = this
+      adapt.probe().then(function (info) {
+        if (that.isCircle !== info.isCircle) { that.isCircle = info.isCircle }
+      })
+this.updateTime()
     },
 
     onDestroy () {
-      if (global && global.runGC) {
+      if (typeof global.runGC === "function") {
         global.runGC()
       }
     },
@@ -55,21 +115,108 @@
       this.timeStr = h + ':' + m
     },
 
+    setScope (s) {
+      this.scope = s
+    },
+
     doDelete () {
       var that = this
-      if (that.type === 'note') {
+      if (that._deleting) { return }
+      that._deleting = true
+      setTimeout(function () { that._deleting = false }, 3000)
+      if (that.type === 'clearAll') {
+        that.doClearAll()
+      } else if (that.type === 'note') {
         that.doDeleteNote()
       } else {
         that.doDeleteTodo()
       }
     },
 
-    // 便签删除：本地删除 + 作废待上传记录 + cloudId 记入待删列表（notes 页 onShow 执行云端删除）
+    // 清空所有内容（设置页入口，替代原弹窗）：scope 0=全部（本地+云端） 1=仅本地 2=仅云端
+    doClearAll () {
+      var that = this
+      var scope = that.scope
+      utils.storageGet('todo_items').then(function (d1) {
+        var items = []
+        if (d1) { try { items = JSON.parse(d1) } catch (e) { items = [] } }
+        utils.storageGet('todo_notes').then(function (d2) {
+          var notes = []
+          if (d2) { try { notes = JSON.parse(d2) } catch (e) { notes = [] } }
+          var todoCids = []
+          var noteCids = []
+          for (var i = 0; i < items.length; i++) {
+            if (items[i] && items[i].cloudId) { todoCids.push(items[i].cloudId) }
+          }
+          for (var j = 0; j < notes.length; j++) {
+            if (notes[j] && notes[j].cloudId) { noteCids.push(notes[j].cloudId) }
+          }
+          // 云端 id 记入待删列表（home/notes 页 onShow 执行云端删除；失败保留下次重试）
+          var queueCloudDel = function (next) {
+            if (!todoCids.length && !noteCids.length) { next(); return }
+            utils.storageGet('todo_pending_delete').then(function (pd) {
+              var pending = []
+              if (pd) { try { pending = JSON.parse(pd) } catch (e) { pending = [] } }
+              for (var a = 0; a < todoCids.length; a++) {
+                if (pending.indexOf(todoCids[a]) < 0) { pending.push(todoCids[a]) }
+              }
+              utils.storageSet('todo_pending_delete', JSON.stringify(pending)).then(function () {
+                utils.storageGet('todo_pending_delete_notes').then(function (pd2) {
+                  var pending2 = []
+                  if (pd2) { try { pending2 = JSON.parse(pd2) } catch (e) { pending2 = [] } }
+                  for (var b = 0; b < noteCids.length; b++) {
+                    if (pending2.indexOf(noteCids[b]) < 0) { pending2.push(noteCids[b]) }
+                  }
+                  utils.storageSet('todo_pending_delete_notes', JSON.stringify(pending2)).then(next)
+                })
+              })
+            })
+          }
+          var finish = function (msg) {
+            utils.toast(msg)
+            router.back()
+          }
+          // 仅删除云端：本地保留标 localOnly（永不再上传），云端进待删
+          if (scope === 2) {
+            if (!todoCids.length && !noteCids.length) { utils.toast('云端无此内容'); return }
+            for (var m = 0; m < items.length; m++) {
+              if (items[m] && items[m].cloudId) { items[m].localOnly = true; items[m].cloudId = null }
+            }
+            for (var n = 0; n < notes.length; n++) {
+              if (notes[n] && notes[n].cloudId) { notes[n].localOnly = true; notes[n].cloudId = null }
+            }
+            queueCloudDel(function () {
+              utils.storageSet('todo_items', JSON.stringify(items)).then(function () {
+                utils.storageSet('todo_notes', JSON.stringify(notes)).then(function () {
+                  finish('已清空云端内容')
+                })
+              })
+            })
+            return
+          }
+          // 仅删除本地：本地清空，云端不动（现有行为）
+          var writeEmpty = function () {
+            utils.storageSet('todo_items', '[]').then(function () {
+              utils.storageSet('todo_notes', '[]').then(function () {
+                finish(scope === 1 ? '已清空本地内容' : '已清空所有内容')
+              })
+            })
+          }
+          if (scope === 1) { writeEmpty(); return }
+          // 全部删除：云端进待删 + 本地清空
+          queueCloudDel(writeEmpty)
+        })
+      })
+    },
+
+    // 便签删除：scope 0=全部（本地删+云端删）1=仅本地（本地删+云端忽略名单）2=仅云端（本地保留标 localOnly）
     doDeleteNote () {
       var that = this
+      var scope = that.scope
       utils.storageGet('todo_notes').then(function (data) {
         var list = []
         var cloudId = null
+        var keepItem = null
         if (data) {
           try { list = JSON.parse(data) } catch (e) { list = [] }
         }
@@ -77,6 +224,7 @@
         for (var i = 0; i < list.length; i++) {
           if (list[i].id === that.itemId) {
             cloudId = list[i].cloudId || null
+            keepItem = list[i]
             continue
           }
           newList.push(list[i])
@@ -84,6 +232,23 @@
         var afterSave = function () {
           utils.toast('已删除')
           router.back()
+        }
+        // 仅删除云端：本地保留（标 localOnly 永不再上传），cloudId 记入待删列表
+        if (scope === 2) {
+          if (!cloudId) { utils.toast('云端无此内容'); return }
+          utils.storageGet('todo_pending_delete_notes').then(function (pd) {
+            var pending = []
+            if (pd) {
+              try { pending = JSON.parse(pd) } catch (e) { pending = [] }
+            }
+            if (pending.indexOf(cloudId) < 0) { pending.push(cloudId) }
+            keepItem.localOnly = true
+            keepItem.cloudId = null
+            utils.storageSet('todo_pending_delete_notes', JSON.stringify(pending)).then(function () {
+              utils.storageSet('todo_notes', JSON.stringify(list)).then(afterSave)
+            })
+          })
+          return
         }
         // 作废待上传记录：本地新建尚未上传的便签被删除时，防止 onShow 的 pending add 把它重新传到云端（删不掉的根因）
         var voidAdd = function (next) {
@@ -109,6 +274,28 @@
             })
           })
         }
+        // 仅删除本地：本地删 + 云端 id 进忽略名单（云端保留、永不拉回），不动云端
+        if (scope === 1) {
+          var ignoreAndSave = function () {
+            if (!cloudId) {
+              utils.storageSet('todo_notes', JSON.stringify(newList)).then(afterSave)
+              return
+            }
+            utils.storageGet('todo_notes_ignore_ids').then(function (ig) {
+              var ignores = []
+              if (ig) {
+                try { ignores = JSON.parse(ig) } catch (e) { ignores = [] }
+              }
+              if (ignores.indexOf(cloudId) < 0) { ignores.push(cloudId) }
+              utils.storageSet('todo_notes_ignore_ids', JSON.stringify(ignores)).then(function () {
+                utils.storageSet('todo_notes', JSON.stringify(newList)).then(afterSave)
+              })
+            })
+          }
+          voidAdd(ignoreAndSave)
+          return
+        }
+        // 全部删除：本地删除 + 作废待上传 + cloudId 记入待删列表（notes 页 onShow 执行云端删除）
         var doCloudDelete = function () {
           if (cloudId) {
             utils.storageGet('todo_pending_delete_notes').then(function (pd) {
@@ -129,12 +316,14 @@
       })
     },
 
-    // 清单删除：本地删除 + cloudId 记入待删列表（home 页 onShow 执行云端删除）
+    // 清单删除：scope 0=全部（本地删+云端删）1=仅本地（本地删+云端忽略名单）2=仅云端（本地保留标 localOnly）
     doDeleteTodo () {
       var that = this
+      var scope = that.scope
       utils.storageGet('todo_items').then(function (data) {
         var items = []
         var cloudId = null
+        var keepItem = null
         if (data) {
           try { items = JSON.parse(data) } catch (e) { items = [] }
         }
@@ -142,16 +331,51 @@
         for (var i = 0; i < items.length; i++) {
           if (items[i].id === that.itemId) {
             cloudId = items[i].cloudId || null
+            keepItem = items[i]
             continue
           }
           newItems.push(items[i])
         }
-        // 云端删除由 home.onShow 自动处理（页面销毁会中断这里的网络链）
-        // 先把 cloudId 记入待删列表，本地删除写入完成后再返回
         var afterSave = function () {
           utils.toast('已删除')
           router.back()
         }
+        // 仅删除云端：本地保留（标 localOnly 永不再上传），cloudId 记入待删列表
+        if (scope === 2) {
+          if (!cloudId) { utils.toast('云端无此内容'); return }
+          utils.storageGet('todo_pending_delete').then(function (pd) {
+            var pending = []
+            if (pd) {
+              try { pending = JSON.parse(pd) } catch (e) { pending = [] }
+            }
+            if (pending.indexOf(cloudId) < 0) { pending.push(cloudId) }
+            keepItem.localOnly = true
+            keepItem.cloudId = null
+            utils.storageSet('todo_pending_delete', JSON.stringify(pending)).then(function () {
+              utils.storageSet('todo_items', JSON.stringify(items)).then(afterSave)
+            })
+          })
+          return
+        }
+        // 仅删除本地：本地删 + 云端 id 进忽略名单（云端保留、永不拉回），不动云端
+        if (scope === 1) {
+          if (!cloudId) {
+            utils.storageSet('todo_items', JSON.stringify(newItems)).then(afterSave)
+            return
+          }
+          utils.storageGet('todo_ignore_ids').then(function (ig) {
+            var ignores = []
+            if (ig) {
+              try { ignores = JSON.parse(ig) } catch (e) { ignores = [] }
+            }
+            if (ignores.indexOf(cloudId) < 0) { ignores.push(cloudId) }
+            utils.storageSet('todo_ignore_ids', JSON.stringify(ignores)).then(function () {
+              utils.storageSet('todo_items', JSON.stringify(newItems)).then(afterSave)
+            })
+          })
+          return
+        }
+        // 全部删除：本地删除 + cloudId 记入待删列表（home 页 onShow 执行云端删除）
         if (cloudId) {
           utils.storageGet('todo_pending_delete').then(function (pd) {
             var pending = []
@@ -169,6 +393,12 @@
       })
     },
 
-    goBack () { router.back() }
+    goBack () { router.back() },
+
+    onSwipe (e) {
+      if (e && e.direction === 'right') {
+        router.back()
+      }
+    }
   }
 </script>

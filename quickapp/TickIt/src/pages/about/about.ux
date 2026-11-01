@@ -1,6 +1,8 @@
 <template>
-  <div style="flex-direction:column;width:336px;height:480px;background-color:#000000;">
+  <div style="flex-direction:column;width:336px;height:100%;background-color:#000000;" @swipe="onSwipe">
 
+    <!-- ═══ 矩形屏：原布局 ═══ -->
+    <div if="{{isCircle === false}}" style="flex-direction:column;width:336px;height:100%;">
     <!-- 顶部：返回（与设置页同款）+ 时间 + 标题 -->
     <div static style="position:absolute;left:6px;top:6px;width:72px;height:72px;border-radius:36px;background-color:#262626;border-width:3px;border-color:rgba(255,255,255,0.06);justify-content:center;align-items:center;" onclick="goBack">
       <image static src="../../common/icon-back.png" style="width:16px;height:27px;"></image>
@@ -8,10 +10,10 @@
     <text style="position:absolute;left:105px;top:10px;width:126px;text-align:center;font-size:26px;color:#999999;">{{timeStr}}</text>
     <text static style="position:absolute;left:100px;top:42px;width:136px;text-align:center;font-size:32px;font-weight:700;color:#FFFFFF;">关于</text>
 
-    <!-- 中央大卡（324x194）：TickIt + V2.5.2 + 右下角应用图标 -->
+    <!-- 中央大卡（324x194）：TickIt + V2.5.3 + 右下角应用图标 -->
     <div style="position:absolute;left:6px;top:86px;width:324px;height:194px;border-radius:28px;background-color:#262626;">
       <text static style="position:absolute;left:22px;top:24px;font-size:34px;font-weight:700;color:#FFFFFF;">TickIt</text>
-      <text static style="position:absolute;left:22px;top:80px;font-size:22px;color:#888888;">V2.5.2</text>
+      <text static style="position:absolute;left:22px;top:80px;font-size:22px;color:#888888;">V2.5.3</text>
       <image static src="../../common/logo.png" style="position:absolute;left:246px;top:98px;width:64px;height:64px;"></image>
     </div>
 
@@ -19,24 +21,57 @@
     <text static style="position:absolute;left:24px;top:296px;width:288px;text-align:left;font-size:26px;color:#8E8E93;">参与开发的人员</text>
     <text static style="position:absolute;left:24px;top:338px;width:288px;text-align:left;font-size:28px;font-weight:700;color:#FFFFFF;">@TXCN STUDIO</text>
     <text static style="position:absolute;left:24px;top:378px;width:288px;text-align:left;font-size:28px;font-weight:700;color:#FFFFFF;">@无源流沙</text>
+    </div>
+
+    <!-- ═══ 圆屏：空白胶囊背景（关于背景.png）+ 代码叠字，版本号不再烧进图里 ═══ -->
+    <div if="{{isCircle}}" style="position:absolute;left:0;top:0;width:336px;height:100%;">
+      <scroll scroll-y="true" style="width:336px;height:100%;flex-direction:column;">
+        <div style="width:336px;height:494px;flex-shrink:0;">
+          <image src="../../common/circle-about-bg.png" style="position:absolute;left:0;top:0;width:336px;height:494px;"></image>
+          <!-- 胶囊1（23,111 290×77）：Tickit + 版本号 -->
+          <div style="position:absolute;left:23px;top:111px;width:290px;height:77px;flex-direction:row;justify-content:center;align-items:center;">
+            <text static style="font-size:28px;font-weight:700;color:#FFFFFF;">Tickit</text>
+            <text static style="font-size:24px;color:#888888;margin-left:12px;">V2.5.3</text>
+          </div>
+          <!-- 胶囊2（23,245 290×131）：开发人员 -->
+          <div style="position:absolute;left:23px;top:245px;width:290px;height:131px;flex-direction:column;justify-content:center;align-items:center;">
+            <text static style="font-size:28px;font-weight:700;color:#FFFFFF;">@TXCN STUDIO</text>
+            <text static style="font-size:28px;font-weight:700;color:#FFFFFF;margin-top:16px;">@无源流沙</text>
+          </div>
+        </div>
+        <div static style="height:12px;"></div>
+      </scroll>
+    </div>
 
   </div>
+<!-- endif -->
+<!-- endif -->
 </template>
 
 <script>
   import router from '@system.router'
+  import adapt from '../../common/adapt'
 
   export default {
     private: {
-      timeStr: ''
+      timeStr: '',
+      isCircle: null
+    },
+
+    onInit () {
+      this.isCircle = adapt.isCircleSync()
     },
 
     onShow () {
-      this.updateTime()
+      var that = this
+      that.updateTime()
+      adapt.probe().then(function (info) {
+        if (that.isCircle !== info.isCircle) { that.isCircle = info.isCircle }
+      })
     },
 
     onDestroy () {
-      if (global && global.runGC) {
+      if (typeof global.runGC === "function") {
         global.runGC()
       }
     },
@@ -50,6 +85,12 @@
 
     goBack () {
       router.back()
+    },
+
+    onSwipe (e) {
+      if (e && e.direction === 'right') {
+        router.back()
+      }
     }
   }
 </script>

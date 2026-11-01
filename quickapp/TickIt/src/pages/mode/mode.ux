@@ -1,0 +1,111 @@
+<template>
+  <div style="flex-direction:column;width:336px;height:100%;background-color:#000000;" @swipe="onSwipe">
+<!-- if true: process.env.SHAPE === "RECT" -->
+
+
+    <!-- ═══ 矩形屏 ═══ -->
+    <div if="{{isCircle === false}}" style="flex-direction:column;width:336px;height:100%;">
+      <div static style="position:absolute;left:6px;top:6px;width:72px;height:72px;border-radius:36px;background-color:#262626;border-width:3px;border-color:rgba(255,255,255,0.06);justify-content:center;align-items:center;" onclick="goBack">
+        <image src="../../common/icon-back.png" style="width:16px;height:27px;"></image>
+      </div>
+      <text style="position:absolute;left:105px;top:10px;width:126px;text-align:center;font-size:26px;color:#999999;">{{timeStr}}</text>
+      <text static style="position:absolute;left:100px;top:40px;width:136px;text-align:center;font-size:32px;font-weight:700;color:#FFFFFF;">模式选择</text>
+
+      <div style="position:absolute;left:6px;top:110px;width:324px;height:112px;border-radius:24px;background-color:{{!offline ? '#2E7D32' : '#262626'}};flex-direction:row;align-items:center;padding-left:28px;padding-right:28px;" onclick="selOnline">
+        <text static style="flex:1;font-size:32px;font-weight:700;color:#FFFFFF;">在线模式</text>
+        <text style="font-size:28px;color:{{!offline ? '#FFFFFF' : '#666666'}};">●</text>
+      </div>
+      <div style="position:absolute;left:6px;top:240px;width:324px;height:112px;border-radius:24px;background-color:{{offline ? '#E65100' : '#262626'}};flex-direction:row;align-items:center;padding-left:28px;padding-right:28px;" onclick="selOffline">
+        <text static style="flex:1;font-size:32px;font-weight:700;color:#FFFFFF;">离线模式</text>
+        <text style="font-size:28px;color:{{offline ? '#FFFFFF' : '#666666'}};">●</text>
+      </div>
+    </div>
+<!-- if true: process.env.SHAPE === "CIRCLE" -->
+
+
+    <!-- ═══ 圆屏：480×587 原比例画布，背景与按钮一起滚动 ═══ -->
+    <scroll if="{{isCircle}}" scroll-y="true" style="position:absolute;left:0;top:0;width:336px;height:336px;flex-direction:column;">
+      <div static style="position:relative;width:336px;height:410.9px;min-height:410.9px;flex-shrink:0;">
+        <image src="../../common/circle-mode-bg.png" style="position:absolute;left:0;top:0;width:336px;height:410.9px;object-fit:contain;"></image>
+        <!-- 在线：83=选中，86=未选中。旧 offline-off 文件实际为容器86。 -->
+        <image if="{{!offline}}" src="../../common/circle-mode-online-on.png" style="position:absolute;left:25.9px;top:112px;width:291.2px;height:77px;" onclick="selOnline"></image>
+        <image if="{{offline}}" src="../../common/circle-mode-offline-off.png" style="position:absolute;left:25.9px;top:112px;width:291.2px;height:77px;" onclick="selOnline"></image>
+        <!-- 离线：85=选中，84=未选中。旧 online-off 文件实际为容器84。 -->
+        <image if="{{offline}}" src="../../common/circle-mode-offline-on.png" style="position:absolute;left:25.9px;top:196px;width:291.2px;height:77px;" onclick="selOffline"></image>
+        <image if="{{!offline}}" src="../../common/circle-mode-online-off.png" style="position:absolute;left:25.9px;top:196px;width:291.2px;height:77px;" onclick="selOffline"></image>
+      </div>
+    </scroll>
+
+  </div>
+<!-- endif -->
+<!-- endif -->
+</template>
+
+<script>
+  import router from '@system.router'
+  import storage from '@system.storage'
+  import prompt from '@system.prompt'
+    import adapt from '../../common/adapt'
+
+  const utils = global.utils || {}
+
+  export default {
+    private: {
+      timeStr: '',
+      offline: false,
+      isCircle: null
+    },
+
+    onInit () {
+      this.isCircle = adapt.isCircleSync()
+      utils.init(storage, prompt)
+    },
+
+    onShow () {
+      var that = this
+      that.updateTime()
+      adapt.probe().then(function (info) {
+        if (that.isCircle !== info.isCircle) { that.isCircle = info.isCircle }
+      })
+      utils.loadOffline().then(function (off) {
+        that.offline = off
+      })
+    },
+
+    onDestroy () {
+      if (typeof global.runGC === "function") {
+        global.runGC()
+      }
+    },
+
+    updateTime () {
+      var now = new Date()
+      var h = now.getHours().toString(); if (h.length < 2) h = '0' + h
+      var m = now.getMinutes().toString(); if (m.length < 2) m = '0' + m
+      this.timeStr = h + ':' + m
+    },
+
+    // 选择模式：只切换状态，不退出页面
+    selOnline () {
+      var that = this
+      utils.setOffline(false)
+      that.offline = false
+      utils.toast('已切换在线模式')
+    },
+
+    selOffline () {
+      var that = this
+      utils.setOffline(true)
+      that.offline = true
+      utils.toast('已切换离线模式')
+    },
+
+    goBack () { router.back() },
+
+    onSwipe (e) {
+      if (e && e.direction === 'right') {
+        router.back()
+      }
+    }
+  }
+</script>

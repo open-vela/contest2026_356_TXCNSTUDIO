@@ -128,6 +128,15 @@ function init (s, p, f) {
   if (s) _storage = s
   if (p) _prompt = p
   if (f) _fetch = f
+  // 启动时加载缓存的挑战 cookie，避免每次启动重算 slowAES（约11秒）
+  if (_storage && !_challengeCookie) {
+    _storage.get({ complete: function(){},  complete: function(){}, 
+      key: 'todo_challenge_cookie',
+      success: function (data) {
+        if (data) { _challengeCookie = data }
+      }
+    })
+  }
 }
 
 function setToken (t) { _token = t }
@@ -176,29 +185,24 @@ function solveChallenge () {
       responseType: 'text',
       success: function (res) {
         var html = (res && res.data) ? String(res.data) : ''
-        console.log('challenge html len:', html.length)
-        console.log('challenge head:', html.substring(0, 100))
         var m = html.match(/var a=toNumbers\("([0-9a-f]+)"\),b=toNumbers\("([0-9a-f]+)"\),c=toNumbers\("([0-9a-f]+)"\)/)
         if (!m) {
-          console.log('challenge parse fail, slowAES type:', typeof decrypt)
-          console.log('challenge html:', html)
           reject(new Error('challenge parse fail'))
           return
         }
-        console.log('challenge a/b/c:', m[1].substring(0, 8), m[2].substring(0, 8), m[3].substring(0, 8))
         try {
           var dec = decrypt(toNumbers(m[3]), 2, toNumbers(m[1]), toNumbers(m[2]))
-          console.log('decrypt len:', dec.length, 'slowAES type:', typeof decrypt)
           _challengeCookie = '__test=' + toHex(dec)
-          console.log('challenge solved:', _challengeCookie.substring(0, 15) + '...')
+          // 持久化 cookie，下次启动直接用，不重算 slowAES
+          if (_storage) {
+            _storage.set({ complete: function(){},  complete: function(){},  key: 'todo_challenge_cookie', value: _challengeCookie })
+          }
           resolve(_challengeCookie)
         } catch (e) {
-          console.log('challenge decrypt fail:', e && e.message, 'slowAES type:', typeof decrypt)
           reject(new Error('challenge decrypt fail'))
         }
       },
       fail: function (data, code) {
-        console.log('challenge fetch fail:', code)
         reject(new Error('challenge fetch fail: ' + code))
       }
     })
@@ -259,7 +263,6 @@ function request (options) {
           parsed = d
         }
         res.data = parsed
-        console.log('request success:', url, 'type:', typeof d, 'parsed:', parsed === null ? 'null' : (typeof parsed === 'object' ? 'obj/' + (parsed.length !== undefined ? parsed.length : 'x') : typeof parsed))
         resolve(res)
       },
       fail: function (data, code) {
@@ -355,7 +358,14 @@ function syncPull () {
 }
 
 // 双向合并（按 cloudId）：云端为准更新本地、云端删除则本地删、本地新建（无 cloudId）保留待上传
-function mergeCloudItems (localItems, cloudItems) {
+// skipIds：永不拉回的 cloudId 名单（仅删除本地的忽略名单 + 待删云端队列，防复活）
+function mergeCloudItems (localItems, cloudItems, skipIds) {
+  var skipSet = {}
+  if (skipIds) {
+    for (var s = 0; s < skipIds.length; s++) {
+      if (skipIds[s] !== undefined && skipIds[s] !== null) { skipSet[String(skipIds[s])] = true }
+    }
+  }
   var cloudMap = {}
   var clist = cloudItems || []
   for (var j = 0; j < clist.length; j++) {
@@ -385,6 +395,7 @@ function mergeCloudItems (localItems, cloudItems) {
   }
   for (var k in cloudMap) {
     if (!cloudMap.hasOwnProperty(k)) { continue }
+    if (skipSet[k]) { continue } // 忽略名单/待删队列中的云端项不拉回（防复活）
     var found = false
     for (var m = 0; m < result.length; m++) {
       if (result[m] && String(result[m].cloudId) === k) { found = true; break }
@@ -419,6 +430,7 @@ function syncPush (localItems) {
     for (var j = 0; j < list.length; j++) {
       (function (item) {
         chain = chain.then(function () {
+          if (item && item.localOnly) { return } // 仅删除云端保留的本地项：永不再上传
           var cid = item.cloudId
           if (!cid) {
             pushed++
@@ -461,30 +473,26 @@ function getTheme () {
 function toast (msg) {
   try {
     if (_prompt) { _prompt.showToast({ message: msg, duration: 2000 }) }
-  } catch (e) { console.log('toast err:', e) }
+  } catch (e) { }
 }
 
 function storageGet (key) {
   return new Promise(function (resolve, reject) {
     if (!_storage) {
-      console.log('storageGet: _storage is null')
       resolve(null)
       return
     }
     try {
-      _storage.get({
+      _storage.get({ complete: function(){},  complete: function(){}, 
         key: key,
         success: function (data) {
-          console.log('storageGet success:', key, data)
           resolve(data)
         },
         fail: function (data, code) {
-          console.log('storageGet fail:', key, code)
           resolve(null)
         }
       })
     } catch (e) {
-      console.log('storageGet err:', e)
       resolve(null)
     }
   })
@@ -493,25 +501,21 @@ function storageGet (key) {
 function storageSet (key, val) {
   return new Promise(function (resolve) {
     if (!_storage) {
-      console.log('storageSet: _storage is null')
       resolve(false)
       return
     }
     try {
-      _storage.set({
+      _storage.set({ complete: function(){},  complete: function(){}, 
         key: key,
         value: String(val),
         success: function () {
-          console.log('storageSet success:', key)
           resolve(true)
         },
         fail: function (data, code) {
-          console.log('storageSet fail:', key, code)
           resolve(false)
         }
       })
     } catch (e) {
-      console.log('storageSet err:', e)
       resolve(false)
     }
   })
@@ -521,7 +525,7 @@ function storageDel (key) {
   if (!_storage) return
   try {
     _storage.delete({ key: key })
-  } catch (e) { console.log('storageDel err:', e) }
+  } catch (e) { }
 }
 
 function fmtTime (sec) {
