@@ -21,7 +21,8 @@
           <text static style="flex:1;font-size:24px;font-weight:700;color:#FFFFFF;lines:1;">创建</text>
           <text static style="font-size:24px;color:#FFFFFF;">✓</text>
         </div>
-        <div static style="height:40px;"></div>
+        <!-- 底部留白：随键盘态分流，保证创建胶囊可滚进圆弧安全区（中心 y≤252） -->
+        <div style="height:{{hide ? 50 : 17}}px;"></div>
       </scroll>
     </div>
 
