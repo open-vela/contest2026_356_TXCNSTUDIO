@@ -33,7 +33,8 @@
       <image src="../../common/circle-ctr-89.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;" onclick="onTap('about')"></image>
       <image src="../../common/circle-ctr-90.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;" onclick="onTap('mode')"></image>
       <image src="../../common/circle-ctr-91.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;" onclick="onTap('clearAll')"></image>
-      <div static style="height:12px;"></div>
+      <!-- 底部留白：保证 291 宽胶囊可滚进圆弧安全区（中心 y≤252） -->
+      <div static style="height:112px;"></div>
     </scroll>
 
     <!-- 清空确认已改为跳 pages/confirm 删除确认页（与清单同款），不再用弹窗 -->

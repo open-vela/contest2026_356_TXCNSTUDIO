@@ -56,9 +56,9 @@
     <div if="{{isCircle && descText && (status==='waiting' || status==='connected' || status==='offline' || status==='nobind')}}" style="position:absolute;left:28px;top:230px;width:280px;justify-content:center;align-items:center;">
       <text style="font-size:16px;color:{{descColor}};lines:3;line-height:22px;text-align:center;">{{descText}}</text>
     </div>
-    <!-- 离线/未绑定：叠加标题 -->
-    <div if="{{isCircle && circleTitle}}" style="position:absolute;left:28px;top:225px;width:280px;justify-content:center;align-items:center;">
-      <text style="font-size:20px;font-weight:700;color:#FFFFFF;lines:1;">{{circleTitle}}</text>
+    <!-- 离线/未绑定：wait-bg 胶囊无烘字，状态标题叠进胶囊（同 pillText 槽位），描述独占下方 -->
+    <div if="{{isCircle && circleTitle}}" style="position:absolute;left:22px;top:130px;width:291px;height:76px;justify-content:center;align-items:center;">
+      <text style="font-size:24px;font-weight:700;color:#FFFFFF;lines:1;">{{circleTitle}}</text>
     </div>
 
   </div>
