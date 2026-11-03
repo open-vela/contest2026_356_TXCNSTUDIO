@@ -43,6 +43,9 @@ TickIt 是一款面向小米手环9Pro/10Pro及圆屏手表的清单待办事项
 # 四、项目目录
 
 ```
+web/
+    清单云端（网页端 + 后端 API），见下方说明
+
 quickapp/
 └── TickIt/
     ├── src/
@@ -66,6 +69,21 @@ contest2026_356_TXCNSTUDIO.xml
 ```
 
 项目通过 `contest2026_356_TXCNSTUDIO.xml` 中的 `<linkfile>` 将 `quickapp/TickIt` 自动映射到 openvela 工程，无需手动复制代码。
+
+## web/ — 清单云端（网页端）
+
+`web/` 是 TickIt 云端同步所依托的「TXCN 清单」网页端源码（线上部署于 txcn.top，PHP + MySQL 共享主机），手表端绑定账号后即与该云端同步：
+
+| 文件 | 说明 |
+| --- | --- |
+| `checklist.html` | 网页版清单 SPA（任务 / 便签 / 事件，含手表绑定码发放） |
+| `api.php` | 后端 REST API（账号、验证码、任务与便签增删改查、同步接口） |
+| `config.php` | 配置模板（**已脱敏**：数据库 / 邮件 / 验证码等敏感值以占位符代替） |
+| `proxy.php` | 手表端 API 代理（自适应绕过主机 JS 挑战，手表 API_BASE 指向它） |
+| `account.html` | 账号中心（登录 / 注册 / 头像 / 设备管理） |
+| `index.html` | 站点入口页 |
+
+敏感配置文件与管理后台等不入库；部署时在服务器补齐 `config.php` 真实值即可。
 
 ---
 
