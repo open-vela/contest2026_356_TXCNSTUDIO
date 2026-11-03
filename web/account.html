@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TXCN 账号 | 管理你的账号</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%237c3aed'/><text x='50' y='68' text-anchor='middle' font-size='52' font-weight='900' fill='white' font-family='system-ui'>T</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+<style>
+:root{--ease-emphasized:cubic-bezier(0.2,0,0,1);--ease-emphasized-decel:cubic-bezier(0.05,0.7,0.1,1);--elevation-1:0 1px 2px rgba(0,0,0,.1),0 1px 3px rgba(0,0,0,.08);--elevation-2:0 1px 2px rgba(0,0,0,.1),0 2px 6px rgba(0,0,0,.08);--elevation-3:0 4px 12px rgba(0,0,0,.16),0 2px 4px rgba(0,0,0,.06)}
+html{--primary:#5b5fc7;--on-primary:#fff;--primary-container:#e1dfff;--on-primary-container:#17006b;--secondary:#5d5c72;--on-secondary:#fff;--secondary-container:#e2e0f9;--on-secondary-container:#1a1a2c;--tertiary:#795369;--on-tertiary:#fff;--tertiary-container:#ffd8ec;--on-tertiary-container:#2e1125;--error:#ba1a1a;--on-error:#fff;--error-container:#ffdad6;--on-error-container:#410002;--surface:#fdf8fd;--on-surface:#1c1b1f;--surface-variant:#e6e0ec;--on-surface-variant:#49454e;--surface-container-lowest:#fff;--surface-container-low:#f7f2fa;--surface-container:#f1ecf4;--surface-container-high:#ece7ef;--surface-container-highest:#e6e1e9;--outline:#79757f;--outline-variant:#cac4d0;--inverse-surface:#313033;--inverse-on-surface:#f4eff7;--inverse-primary:#c5c1ff}
+[data-theme="dark"]{--primary:#c5c1ff;--on-primary:#2b2996;--primary-container:#4240ac;--on-primary-container:#e1dfff;--secondary:#c6c4dd;--on-secondary:#2c2b3f;--secondary-container:#434259;--on-secondary-container:#e2e0f9;--tertiary:#e8b9d3;--on-tertiary:#462639;--tertiary-container:#5f3c51;--on-tertiary-container:#ffd8ec;--error:#ffb4ab;--on-error:#690005;--error-container:#93000a;--on-error-container:#ffdad6;--surface:#141316;--on-surface:#e6e1e9;--surface-variant:#49454e;--on-surface-variant:#cac4d0;--surface-container-lowest:#0f0e11;--surface-container-low:#1c1b1f;--surface-container:#201f23;--surface-container-high:#2b292d;--surface-container-highest:#353438;--outline:#938f99;--outline-variant:#49454e;--inverse-surface:#e6e1e9;--inverse-on-surface:#313033;--inverse-primary:#5b5fc7}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-family:'Noto Sans SC','Roboto',system-ui,sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body{background:var(--surface);color:var(--on-surface);min-height:100dvh;display:flex;flex-direction:column}
+button{font-family:inherit}
+.msr{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;font-size:24px;line-height:1;display:inline-block;vertical-align:middle;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--outline-variant);border-radius:4px}::-webkit-scrollbar-track{background:transparent}
+a{color:var(--primary);text-decoration:none}
+/* ===== buttons & fields ===== */
+.btn-filled,.btn-outlined,.btn-text{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;padding:0 20px;border:none;border-radius:19px;font-size:13px;font-weight:600;cursor:pointer;transition:box-shadow .2s,opacity .2s,transform .1s;white-space:nowrap}
+.btn-filled{background:var(--primary);color:var(--on-primary);box-shadow:var(--elevation-1)}
+.btn-filled:active{transform:scale(.98)}
+.btn-filled:disabled{opacity:.5;cursor:not-allowed}
+.btn-filled.danger{background:var(--error);color:var(--on-error)}
+.btn-outlined{border:1px solid var(--outline);background:transparent;color:var(--primary)}
+.btn-outlined.danger{color:var(--error);border-color:var(--error)}
+.btn-text{background:transparent;color:var(--primary);padding:0 12px}
+.btn-text.danger{color:var(--error)}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:none;background:transparent;color:var(--on-surface-variant);display:grid;place-items:center;cursor:pointer}
+.icon-btn:hover{background:color-mix(in srgb,var(--on-surface-variant) 10%,transparent)}
+.tf-filled{position:relative;overflow:hidden;background:var(--surface-container-highest);border-radius:4px 4px 0 0;border-bottom:1px solid var(--on-surface-variant)}
+.tf-filled::after{content:'';position:absolute;bottom:0;left:50%;width:0;height:2px;background:var(--primary);transition:width .25s,left .25s}
+.tf-filled:focus-within::after{width:100%;left:0}
+.tf-filled input{width:100%;height:50px;padding:20px 12px 4px;border:none;background:transparent;color:var(--on-surface);font-size:14px;outline:none}
+.tf-filled .lbl{position:absolute;left:12px;top:6px;font-size:11px;color:var(--on-surface-variant);pointer-events:none;transition:color .2s}
+.tf-filled:focus-within .lbl{color:var(--primary)}
+.cap-box{height:50px;min-width:108px;border-radius:4px;overflow:hidden;cursor:pointer;background:var(--surface-container-high)}
+.cap-box img{width:100%;height:100%;object-fit:cover}
+/* ===== avatar ===== */
+.av{width:64px;height:64px;border-radius:50%;flex-shrink:0;overflow:hidden;background:var(--primary-container);color:var(--on-primary-container);display:grid;place-items:center;user-select:none}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+.av .msr{font-size:32px}
+.av-sm{width:34px;height:34px}.av-sm .msr{font-size:20px}
+.av-lg{width:96px;height:96px}.av-lg .msr{font-size:46px}
+.av-xl{width:132px;height:132px}.av-xl .msr{font-size:60px}
+/* ===== toast ===== */
+#toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{padding:12px 22px;border-radius:14px;font-size:13px;font-weight:500;color:#fff;pointer-events:auto;box-shadow:var(--elevation-3);max-width:340px;text-align:center;animation:slideUp .3s var(--ease-emphasized-decel)}
+.toast-success{background:#2e7d32}.toast-error{background:var(--error)}.toast-default{background:var(--inverse-surface);color:var(--inverse-on-surface)}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+/* ===== auth ===== */
+#auth-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.auth-brand{text-align:center;margin-bottom:28px}
+.auth-brand .brand-logo{width:56px;height:56px;border-radius:18px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font-size:28px;font-weight:900;margin:0 auto 12px;box-shadow:var(--elevation-2)}
+.auth-brand h1{font-size:24px;font-weight:800}
+.auth-brand p{font-size:13px;color:var(--on-surface-variant);margin-top:4px}
+.auth-card{width:100%;max-width:400px;background:var(--surface-container-low);border:1px solid var(--outline-variant);border-radius:24px;padding:24px;box-shadow:var(--elevation-2);animation:scaleIn .35s var(--ease-emphasized-decel)}
+.auth-tabs{display:flex;background:var(--surface-container-highest);border-radius:12px;padding:3px;margin-bottom:18px}
+.auth-tab{flex:1;height:38px;border:none;border-radius:9px;background:transparent;color:var(--on-surface-variant);font-size:13px;font-weight:600;cursor:pointer}
+.auth-tab.active{background:var(--primary);color:var(--on-primary)}
+.auth-form{display:flex;flex-direction:column;gap:13px}
+.auth-link{text-align:center;font-size:12px;color:var(--primary);cursor:pointer;background:none;border:none;padding:2px}
+/* ===== app shell ===== */
+#app-screen{flex:1;display:none;flex-direction:column;min-height:0}
+.app-topbar{display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid var(--outline-variant);position:sticky;top:0;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(12px);z-index:40}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand-logo{width:40px;height:40px;border-radius:12px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font-size:20px;font-weight:900;flex-shrink:0}
+.brand-name{font-size:16px;font-weight:700;line-height:1.2}
+.brand-sub{font-size:11px;color:var(--on-surface-variant)}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:4px}
+.chip-user{display:flex;align-items:center;gap:10px;border:none;background:transparent;cursor:pointer;padding:4px 10px 4px 4px;border-radius:100px;font-family:inherit;color:var(--on-surface)}
+.chip-user:hover{background:var(--surface-container)}
+.chip-user .nm{font-size:13px;font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.layout{display:flex;flex:1;max-width:1180px;width:100%;margin:0 auto;min-height:0}
+/* rail */
+.rail{width:248px;flex-shrink:0;padding:20px 12px 16px;display:flex;flex-direction:column;gap:2px;border-right:1px solid transparent}
+.nav-item{display:flex;align-items:center;gap:14px;width:100%;padding:12px 16px;border:none;background:transparent;color:var(--on-surface);font-size:14px;font-weight:600;border-radius:14px;cursor:pointer;text-align:left;transition:background .15s}
+.nav-item .msr{font-size:22px;color:var(--on-surface-variant)}
+.nav-item:hover{background:var(--surface-container)}
+.nav-item.active{background:var(--secondary-container);color:var(--on-secondary-container)}
+.nav-item.active .msr{color:var(--on-secondary-container)}
+.rail-group{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--on-surface-variant);padding:18px 16px 6px;text-transform:uppercase;opacity:.8}
+.rail-spacer{flex:1}
+.nav-foot{padding:12px 0 0;border-top:1px solid var(--outline-variant);margin-top:12px}
+/* content */
+.content{flex:1;min-width:0;padding:22px 28px 60px;overflow-y:auto}
+.content-hd h1{font-size:22px;font-weight:800;letter-spacing:-.01em}
+.content-hd p{font-size:13px;color:var(--on-surface-variant);margin-top:4px}
+/* cards */
+.card{background:var(--surface-container-low);border:1px solid var(--outline-variant);border-radius:20px;margin-top:18px;overflow:hidden;animation:fadeIn .25s ease}
+.card-hd{padding:18px 22px 0;display:flex;align-items:center;gap:12px}
+.card-hd .msr{font-size:22px;color:var(--primary)}
+.card-hd h3{font-size:15px;font-weight:700;flex:1}
+.card-bd{padding:6px 22px 18px}
+.row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--outline-variant)}
+.row:last-child{border-bottom:none}
+.row .r-ic{width:40px;height:40px;border-radius:12px;background:var(--surface-container-highest);color:var(--on-surface-variant);display:grid;place-items:center;flex-shrink:0}
+.row .r-ic .msr{font-size:22px}
+.row .r-tx{flex:1;min-width:0}
+.row .r-t{font-size:14px;font-weight:600;color:var(--on-surface)}
+.row .r-d{font-size:12px;color:var(--on-surface-variant);margin-top:2px;line-height:1.5}
+.row .r-val{font-size:13px;color:var(--on-surface-variant);text-align:right;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .r-act{font-size:13px;color:var(--primary);font-weight:600;cursor:pointer;background:none;border:none;white-space:nowrap}
+.row .r-act.danger{color:var(--error)}
+.row .r-act:hover{text-decoration:underline}
+/* hero */
+.hero-card{display:flex;align-items:center;gap:22px;padding:28px;background:linear-gradient(135deg,var(--primary-container),var(--surface-container-low));border:1px solid var(--outline-variant);border-radius:24px;margin-top:18px;flex-wrap:wrap;animation:fadeIn .25s ease}
+.hero-card .hc-tx{flex:1;min-width:220px}
+.hero-card h2{font-size:24px;font-weight:800}
+.hero-card .hc-mail{font-size:14px;color:var(--on-surface-variant);margin-top:4px}
+.hero-card .hc-date{font-size:12px;color:var(--on-surface-variant);margin-top:2px;opacity:.85}
+/* quick grid */
+.quick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:18px;animation:fadeIn .3s ease}
+.quick{display:flex;align-items:center;gap:14px;padding:18px;background:var(--surface-container-low);border:1px solid var(--outline-variant);border-radius:18px;cursor:pointer;font-family:inherit;color:var(--on-surface);text-align:left;transition:box-shadow .2s,transform .15s,border-color .2s}
+.quick:hover{box-shadow:var(--elevation-2);transform:translateY(-2px);border-color:var(--primary)}
+.quick .q-ic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;flex-shrink:0;background:var(--primary-container);color:var(--on-primary-container)}
+.quick .q-tx{flex:1;min-width:0}
+.quick .q-t{font-size:14px;font-weight:700}
+.quick .q-d{font-size:12px;color:var(--on-surface-variant);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.quick .msr.chev{color:var(--outline);font-size:20px}
+/* stats */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat-box{background:var(--surface-container-low);border:1px solid var(--outline-variant);border-radius:16px;padding:16px 12px;text-align:center}
+.stat-num{font-size:26px;font-weight:800;color:var(--primary);line-height:1.2}
+.stat-lbl{font-size:11px;color:var(--on-surface-variant);margin-top:4px}
+/* avatar editor */
+.av-edit{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+/* swatches */
+.sw-row{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:34px;height:34px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;box-shadow:0 1px 3px rgba(0,0,0,.12);transition:transform .15s,border-color .15s}
+.sw:hover{transform:scale(1.12)}.sw.on{border-color:var(--on-surface);transform:scale(1.18)}
+.sw-custom{position:relative;width:34px;height:34px;border-radius:50%;background:conic-gradient(red,yellow,lime,aqua,blue,magenta,red);cursor:pointer}
+.sw-custom input{position:absolute;inset:0;opacity:0;cursor:pointer}
+/* dialogs */
+.ovl{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:300;padding:20px;animation:fadeIn .18s}
+.ovl.open{display:flex}
+.dlg{background:var(--surface-container-low);border-radius:20px;max-width:400px;width:100%;box-shadow:var(--elevation-3);overflow:hidden;animation:scaleIn .25s var(--ease-emphasized-decel)}
+.dlg-hd{padding:20px 22px 10px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.dlg-bd{padding:0 22px 8px;font-size:13px;color:var(--on-surface-variant);line-height:1.7}
+.dlg-ft{padding:10px 22px 18px;display:flex;justify-content:flex-end;gap:8px}
+.dlg .tf-filled{margin:8px 0}
+/* spinner */
+.spinner{display:inline-block;width:20px;height:20px;border:2.5px solid var(--outline-variant);border-top-color:var(--primary);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.centered-empty{text-align:center;padding:48px 16px;color:var(--on-surface-variant);font-size:13px}
+.centered-empty .msr{font-size:44px;display:block;margin:0 auto 10px;opacity:.35}
+/* ===== responsive ===== */
+@media(max-width:920px){
+  .rail{width:auto;padding:10px 10px 0;flex-direction:row;overflow-x:auto;gap:6px;border-bottom:1px solid var(--outline-variant)}
+  .rail .rail-group,.rail-spacer,.nav-foot{border:none}
+  .rail-group{display:none}
+  .nav-item{width:auto;flex-direction:column;gap:4px;padding:10px 12px;border-radius:12px;font-size:11px;min-width:64px}
+  .nav-item .msr{font-size:20px}
+  .layout{flex-direction:column}
+  .content{padding:16px 14px 80px;overflow:visible}
+  .app-topbar{padding:10px 14px}
+  .brand-sub{display:none}
+  .chip-user .nm{display:none}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .hero-card{padding:20px}
+}
+@media(max-width:480px){
+  .row .r-val{max-width:36%}
+}
+.mob-logout{display:none}
+@media(max-width:920px){.mob-logout{display:grid}.rail .nav-item{flex-shrink:0;min-width:56px;padding:10px 8px}.rail .nav-item[data-logout]{display:none}.rail-spacer{display:none}.rail .rail-group{display:none}}
+/* ========== 头像拖动裁切 ========== */
+#av-crop{position:relative;width:280px;height:280px;margin:10px auto 6px;overflow:hidden;border-radius:50%;background:#000;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+#av-crop.drag{cursor:grabbing}
+#av-crop .cimg{position:absolute;left:50%;top:50%;will-change:transform;max-width:none}
+#av-crop .cgrid{position:absolute;inset:0;pointer-events:none;border:1px solid rgba(255,255,255,.25);border-radius:50%;box-shadow:0 0 0 999px rgba(0,0,0,.55)}
+.av-zoom{display:flex;align-items:center;gap:10px;justify-content:center;margin:4px 0 12px;font-size:12px;color:var(--on-surface-variant)}
+.av-zoom input[type=range]{flex:1;max-width:180px;accent-color:var(--primary)}
+.crop-hint{font-size:11px;opacity:.6;margin-bottom:10px}
+/* ========== 去掉左上大 T ========== */
+.brand-logo{display:none}
+.brand-name{font-size:17px}
+
+
+.crop-hint{width:100%;max-width:100%;white-space:normal;word-break:break-word;line-height:1.7;padding:0 2px;box-sizing:border-box}
+
+#auth-screen .brand-logo{display:none!important}
+@media(max-width:420px){#av-crop{width:240px;height:240px}.av-zoom input[type=range]{max-width:150px}.dlg{max-width:94vw;border-radius:16px}.dlg-bd{padding:0 14px 12px}.btn-filled,.btn-outlined,.btn-text{font-size:12px}}
+#account-loading{position:fixed;inset:0;z-index:9999;background:var(--surface);display:flex;align-items:center;justify-content:center}
+</style>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7647119581422376"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="account-loading"><span class="spinner"></span></div>
+
+
+<!-- ══════════ 登录 / 注册 ══════════ -->
+<div id="auth-screen">
+  <div class="auth-brand">
+    <div class="brand-logo">T</div>
+    <h1>TXCN 账号</h1>
+    <p>登录以管理你的账号与设备</p>
+  </div>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuth('login')">登录</button>
+      <button class="auth-tab" id="tab-register" onclick="switchAuth('register')">注册</button>
+    </div>
+    <div id="auth-login" class="auth-form">
+      <div class="tf-filled"><input type="text" id="l-user" autocomplete="off"><span class="lbl">用户名</span></div>
+      <div class="tf-filled"><input type="password" id="l-pass" autocomplete="off"><span class="lbl">密码</span></div>
+      <div style="display:flex;justify-content:center;margin:2px 0"><div class="cf-turnstile" data-sitekey="0x4AAAAAAFN8Htkkf1cFx0M7" data-expired-callback="cfReset"></div></div>
+      <button class="btn-filled" onclick="doLogin()" style="width:100%;height:44px;border-radius:22px">登录</button>
+      <button class="auth-link" onclick="switchAuth('forgot')">忘记密码？</button>
+    </div>
+    <div id="auth-register" class="auth-form" style="display:none">
+      <div class="tf-filled"><input type="text" id="r-user" autocomplete="off" maxlength="20"><span class="lbl">用户名（≥3位）</span></div>
+      <div class="tf-filled"><input type="password" id="r-pass" autocomplete="off"><span class="lbl">密码（≥6位）</span></div>
+      <div class="tf-filled"><input type="email" id="r-email" autocomplete="off"><span class="lbl">邮箱</span></div>
+      <div style="display:flex;gap:10px;align-items:stretch">
+        <div class="tf-filled" style="flex:1"><input type="text" id="r-ecode" maxlength="6" inputmode="numeric" autocomplete="off"><span class="lbl">邮箱验证码</span></div>
+        <button class="btn-outlined" id="send-code-btn" onclick="sendCode()" style="height:50px;min-width:76px;font-size:12px;border-radius:4px 4px 0 0">发送</button>
+      </div>
+      <div style="display:flex;justify-content:center;margin:2px 0"><div class="cf-turnstile" data-sitekey="0x4AAAAAAFN8Htkkf1cFx0M7" data-expired-callback="cfReset"></div></div>
+      <button class="btn-filled" onclick="doRegister()" style="width:100%;height:44px;border-radius:22px">注册</button>
+      <button class="auth-link" onclick="switchAuth('login')">已有账户？去登录</button>
+    </div>
+    <div id="auth-forgot" class="auth-form" style="display:none">
+      <div class="tf-filled"><input type="email" id="f-email" autocomplete="off"><span class="lbl">注册邮箱</span></div>
+      <div style="display:flex;gap:10px;align-items:stretch">
+        <div class="tf-filled" style="flex:1"><input type="text" id="f-cap" autocomplete="off"><span class="lbl">验证码</span></div>
+        <div class="cap-box" onclick="refFCap()"><img id="f-cap-img" src="api.php?action=captcha" alt="captcha"></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:stretch">
+        <div class="tf-filled" style="flex:1"><input type="text" id="f-ecode" maxlength="6" inputmode="numeric" autocomplete="off"><span class="lbl">邮箱验证码</span></div>
+        <button class="btn-outlined" id="f-send-code-btn" onclick="sendForgotCode()" style="height:50px;min-width:76px;font-size:12px;border-radius:4px 4px 0 0">发送</button>
+      </div>
+      <div class="tf-filled"><input type="password" id="f-new-pwd" autocomplete="off"><span class="lbl">新密码（≥6位）</span></div>
+      <div class="tf-filled"><input type="password" id="f-cfm-pwd" autocomplete="off"><span class="lbl">确认新密码</span></div>
+      <button class="btn-filled" onclick="doResetPwd()" style="width:100%;height:44px;border-radius:22px">重置密码</button>
+      <button class="auth-link" onclick="switchAuth('login')">返回登录</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 账号管理 ══════════ -->
+<div id="app-screen">
+  <div class="app-topbar">
+    <div class="brand">
+      <div class="brand-logo">T</div>
+      <div>
+        <div class="brand-name">TXCN 账号</div>
+        <div class="brand-sub">云端智能清单 · 账号中心</div>
+      </div>
+    </div>
+    <div class="top-right">
+      <button class="chip-user" onclick="switchSection('home')"><span id="hdr-av"></span><span class="nm" id="hdr-name"></span></button>
+      <a class="icon-btn" href="checklist.html" title="返回清单"><span class="msr">checklist</span></a><button class="icon-btn mob-logout" title="退出登录" onclick="doLogout()"><span class="msr">logout</span></button>
+    </div>
+  </div>
+  <div class="layout">
+    <nav class="rail" id="rail">
+      <div class="rail-group">账号</div>
+      <button class="nav-item" data-section="home" onclick="switchSection('home')"><span class="msr">home</span>主页</button>
+      <button class="nav-item" data-section="info" onclick="switchSection('info')"><span class="msr">person</span>个人信息</button>
+      <button class="nav-item" data-section="privacy" onclick="switchSection('privacy')"><span class="msr">privacy_tip</span>数据与隐私</button>
+      <button class="nav-item" data-section="security" onclick="switchSection('security')"><span class="msr">shield</span>安全性</button>
+      <button class="nav-item" data-section="appearance" onclick="switchSection('appearance')"><span class="msr">palette</span>外观</button>
+      <div class="rail-spacer"></div>
+      <div class="rail-group">更多</div>
+      <button class="nav-item" data-logout onclick="doLogout()"><span class="msr">logout</span>退出登录</button>
+    </nav>
+    <main class="content">
+      <div class="content-hd"><h1 id="sec-title">主页</h1><p id="sec-sub"></p></div>
+      <div id="sec-body"></div>
+    </main>
+  </div>
+</div>
+
+<!-- 修改密码 -->
+<div class="ovl" id="ovl-pwd">
+  <div class="dlg">
+    <div class="dlg-hd"><span class="msr" style="color:var(--primary)">lock</span>修改密码</div>
+    <div class="dlg-bd">
+      <div class="tf-filled"><input type="password" id="cp-old" autocomplete="off"><span class="lbl">当前密码</span></div>
+      <div class="tf-filled"><input type="password" id="cp-new" autocomplete="off"><span class="lbl">新密码（≥6位）</span></div>
+      <div class="tf-filled"><input type="password" id="cp-cfm" autocomplete="off"><span class="lbl">确认新密码</span></div>
+    </div>
+    <div class="dlg-ft"><button class="btn-text" onclick="closeOvl('ovl-pwd')">取消</button><button class="btn-filled" id="cp-btn" onclick="doChangePwd()">确认</button></div>
+  </div>
+</div>
+
+<!-- 头像 -->
+<div class="ovl" id="ovl-av">
+  <div class="dlg" style="max-width:420px">
+    <div class="dlg-hd"><span class="msr" style="color:var(--primary)">account_circle</span>更换头像</div>
+    <div class="dlg-bd" style="text-align:center">
+      <div id="av-preview" class="av av-xl" style="margin:8px auto 16px"></div>
+      <div id="av-stage" style="display:none">
+        <p class="crop-hint">拖动图片调整位置，滑块缩放 · 圆形区域即最终头像</p>
+        <div id="av-crop"><img id="av-cimg" class="cimg" alt=""><div class="cgrid"></div></div>
+        <div class="av-zoom" id="av-zoomrow"><span class="msr" style="font-size:16px">add</span><input type="range" id="av-zoom" min="0" max="300" value="25"><span class="msr" style="font-size:16px">remove</span></div>
+      </div>
+      <p style="font-size:11px;color:var(--on-surface-variant);margin-top:8px">支持 JPG / PNG / GIF / WebP，最大 15MB</p>
+      <input type="file" id="av-file" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none">
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:8px">
+        <button class="btn-outlined" onclick="pickAvatar()">选择图片</button>
+        <button class="btn-filled" id="av-upload-btn" onclick="uploadAvatar()" disabled>上传</button>
+      </div>
+    </div>
+    <div class="dlg-ft" style="justify-content:center"><button class="btn-text" onclick="closeAvatarDlg()">取消</button></div>
+  </div>
+</div>
+
+<!-- 绑定码 -->
+<div class="ovl" id="ovl-code">
+  <div class="dlg" style="max-width:340px;text-align:center">
+    <div class="dlg-hd" style="justify-content:center">手表绑定码</div>
+    <div class="dlg-bd" style="text-align:center">
+      <div style="font-size:12px;opacity:.65">10 分钟内有效 · 在手表「设置 → 云端账号」输入</div>
+      <div id="code-val" style="font-size:34px;font-weight:900;letter-spacing:6px;color:var(--primary);margin:14px 0">------</div>
+    </div>
+    <div class="dlg-ft" style="justify-content:center"><button class="btn-filled" onclick="closeOvl('ovl-code')">关闭</button></div>
+  </div>
+</div>
+
+<!-- 注销账号 -->
+<div class="ovl" id="ovl-del">
+  <div class="dlg">
+    <div class="dlg-hd" style="color:var(--error)"><span class="msr">warning</span>注销账号</div>
+    <div class="dlg-bd">
+      <p style="color:var(--error);font-weight:700;margin-bottom:8px">此操作不可恢复，所有数据将被永久删除：</p>
+      <p>清单任务 · 自定义分类 · 专注记录 · 日历倒数日 · 便签 · 头像</p>
+      <div class="tf-filled"><input type="password" id="da-pwd" autocomplete="off"><span class="lbl">输入密码确认</span></div>
+    </div>
+    <div class="dlg-ft"><button class="btn-text" onclick="closeOvl('ovl-del')">取消</button><button class="btn-filled danger" id="da-btn" onclick="doDeleteAccount()">确认注销</button></div>
+  </div>
+</div>
+
+<!-- 确认 -->
+<div class="ovl" id="ovl-cfm">
+  <div class="dlg" style="max-width:320px">
+    <div class="dlg-bd" style="padding-top:20px;text-align:center" id="cfm-msg">确认操作？</div>
+    <div class="dlg-ft" style="justify-content:center"><button class="btn-text" id="cfm-cancel">取消</button><button class="btn-filled" id="cfm-ok">确认</button></div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+/* ===== TXCN 账号中心 ===== */
+const API='api.php';
+let csrfToken='', ME=null, devList=[], CUR='home';
+let codeTimer=null, fcodeTimer=null, avDataUrl='';
+const AV_TYPES=['image/jpeg','image/png','image/gif','image/webp'];
+const AV_MAX=15*1024*1024;
+
+function esc(t){if(t===null||t===undefined)return'';return String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+function showToast(msg,type,dur){type=type||'default';dur=dur||3000;const c=document.getElementById('toast-container');const t=document.createElement('div');t.className='toast toast-'+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>{if(t.parentNode)t.remove();},dur);}
+async function apiPost(action,data){data=data||{};data.csrf_token=csrfToken;const r=await fetch(API+'?action='+encodeURIComponent(action),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});return r.json();}
+function apiGet(action){const q=action?('?action='+encodeURIComponent(action)):'';return fetch(API+q).then(r=>r.json());}
+function fmtTs(ts){if(!ts)return'';const d=new Date(ts*1000);return(d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function fmtDate(tsSec){if(!tsSec)return'-';const d=new Date(tsSec*1000);return d.getFullYear()+' 年 '+(d.getMonth()+1)+' 月 '+d.getDate()+' 日';}
+function openOvl(id){document.getElementById(id).classList.add('open');}
+function closeOvl(id){document.getElementById(id).classList.remove('open');}
+function showConfirm(msg){return new Promise(resolve=>{const m=document.getElementById('cfm-msg');m.textContent=msg;document.getElementById('ovl-cfm').classList.add('open');const ok=document.getElementById('cfm-ok'),cancel=document.getElementById('cfm-cancel');const cleanup=()=>{document.getElementById('ovl-cfm').classList.remove('open');ok.onclick=cancel.onclick=null;};ok.onclick=()=>{cleanup();resolve(true);};cancel.onclick=()=>{cleanup();resolve(false);};});}
+
+/* ===== 头像渲染 ===== */
+function avHtml(p,cls){const c=cls||'';if(p&&p.avatar)return '<span class="av '+c+'"><img src="'+esc(p.avatar)+'" alt="avatar"></span>';return '<span class="av '+c+'"><span class="msr">person</span></span>';}
+
+/* ===== 主题（Material You）===== */
+const M3VARS=['primary','on-primary','primary-container','on-primary-container','secondary','on-secondary','secondary-container','on-secondary-container','tertiary','on-tertiary','tertiary-container','on-tertiary-container','error','on-error','error-container','on-error-container','surface','on-surface','surface-variant','on-surface-variant','outline','outline-variant','inverse-surface','inverse-on-surface','inverse-primary'];
+async function loadMCU(){if(window.__mcu)return;const m=await import('https://cdn.jsdelivr.net/npm/@material/material-color-utilities@0.3.0/+esm');window.__mcu={argbFromHex:m.argbFromHex,themeFromSourceColor:m.themeFromSourceColor,hexFromArgb:m.hexFromArgb};}
+function applyM3Theme(hex,isDark){const{argbFromHex,themeFromSourceColor,hexFromArgb}=window.__mcu;const theme=themeFromSourceColor(argbFromHex(hex));const scheme=isDark?theme.schemes.dark:theme.schemes.light;const root=document.documentElement;M3VARS.forEach(v=>{const camel=v.replace(/-([a-z])/g,(_,c)=>c.toUpperCase());const val=scheme[camel];if(val!=null)root.style.setProperty('--'+v,hexFromArgb(val));});const neutral=theme.palettes.neutral;root.style.setProperty('--surface-container-lowest',hexFromArgb(neutral.tone(isDark?4:100)));root.style.setProperty('--surface-container-low',hexFromArgb(neutral.tone(isDark?10:96)));root.style.setProperty('--surface-container',hexFromArgb(neutral.tone(isDark?12:94)));root.style.setProperty('--surface-container-high',hexFromArgb(neutral.tone(isDark?17:92)));root.style.setProperty('--surface-container-highest',hexFromArgb(neutral.tone(isDark?22:90)));root.style.setProperty('--outline',hexFromArgb(neutral.tone(isDark?60:50)));root.style.setProperty('--outline-variant',hexFromArgb(neutral.tone(isDark?30:80)));}
+async function initTheme(){const t=localStorage.getItem('todo_theme');if(t==='dark'||(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');await loadMCU();const s=localStorage.getItem('todo_seed_h')||'#7c3aed';applyM3Theme(s,document.documentElement.getAttribute('data-theme')==='dark');document.querySelectorAll('.sw').forEach(el=>{el.classList.remove('on');if(el.dataset.color&&el.dataset.color.toLowerCase()===s.toLowerCase())el.classList.add('on');});}
+function isDarkMode(){return document.documentElement.getAttribute('data-theme')==='dark';}
+function setSeed(hex){localStorage.setItem('todo_seed_h',hex);applyM3Theme(hex,isDarkMode());document.querySelectorAll('.sw').forEach(s=>s.classList.remove('on'));const el=document.querySelector('.sw[data-color="'+hex+'"]');if(el)el.classList.add('on');}
+function toggleTheme(){if(isDarkMode()){document.documentElement.removeAttribute('data-theme');localStorage.setItem('todo_theme','light');}else{document.documentElement.setAttribute('data-theme','dark');localStorage.setItem('todo_theme','dark');}applyM3Theme(localStorage.getItem('todo_seed_h')||'#7c3aed',isDarkMode());if(CUR==='appearance')renderAppearance();}
+
+/* ===== 认证 ===== */
+function refFCap(){document.getElementById('f-cap-img').src=API+'?action=captcha&t='+Math.random();}
+function cfGet(formId){const el=document.querySelector('#'+formId+' [name=cf-turnstile-response]');return el&&el.value?el.value:'';}
+function cfReset(){if(window.turnstile){try{document.querySelectorAll('.cf-turnstile').forEach(function(w){turnstile.reset(w);});}catch(e){}}}
+function switchAuth(m){document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));['auth-login','auth-register','auth-forgot'].forEach(id=>document.getElementById(id).style.display='none');if(m==='login'){document.getElementById('tab-login').classList.add('active');document.getElementById('auth-login').style.display='flex';}else if(m==='register'){document.getElementById('tab-register').classList.add('active');document.getElementById('auth-register').style.display='flex';}else{document.getElementById('auth-forgot').style.display='flex';refFCap();}}
+async function doLogin(){const u=document.getElementById('l-user').value.trim(),p=document.getElementById('l-pass').value.trim();if(!u||!p)return showToast('请完整填写','error');const cft=cfGet('auth-login');if(!cft)return showToast('请完成人机验证','error');try{const d=await apiPost('login',{username:u,password:p,cf_turnstile:cft});if(d.success){csrfToken=d.csrf_token||'';localStorage.setItem('todo_token',d.token);showManager();await refreshProfile();}else{showToast(d.message||'登录失败','error');cfReset();}}catch(e){showToast('请求异常','error');cfReset();}}
+function startCountdown(btn){let s=60;btn.textContent=s+'s';btn.disabled=true;const timer=setInterval(()=>{s--;if(s<=0){clearInterval(timer);btn.textContent='发送';btn.disabled=false;}else btn.textContent=s+'s';},1000);}
+async function sendCode(){const email=document.getElementById('r-email').value.trim();if(!email)return showToast('请填写邮箱','error');const cft=cfGet('auth-register');if(!cft)return showToast('请完成人机验证','error');const btn=document.getElementById('send-code-btn');btn.disabled=true;btn.textContent='...';try{const d=await apiPost('send_email_code',{email,cf_turnstile:cft});if(d.success){showToast(d.message,'success');cfReset();startCountdown(btn);}else{showToast(d.message,'error');cfReset();btn.textContent='发送';btn.disabled=false;}}catch(e){showToast('请求失败','error');cfReset();btn.textContent='发送';btn.disabled=false;}}
+async function doRegister(){const u=document.getElementById('r-user').value.trim(),p=document.getElementById('r-pass').value.trim(),email=document.getElementById('r-email').value.trim(),ecode=document.getElementById('r-ecode').value.trim();if(!u||!p||!email||!ecode)return showToast('请完整填写','error');if(u.length<3)return showToast('用户名至少3位','error');if(p.length<6)return showToast('密码至少6位','error');const cft=cfGet('auth-register');if(!cft)return showToast('请完成人机验证','error');try{const d=await apiPost('register',{username:u,password:p,email,code:ecode,cf_turnstile:cft});if(d.success){showToast(d.message||'注册成功','success');cfReset();setTimeout(()=>switchAuth('login'),900);}else{showToast(d.message,'error');cfReset();}}catch(e){showToast('请求异常','error');cfReset();}}
+async function sendForgotCode(){const email=document.getElementById('f-email').value.trim(),cap=document.getElementById('f-cap').value.trim();if(!email||!cap)return showToast('请填写邮箱和验证码','error');const btn=document.getElementById('f-send-code-btn');btn.disabled=true;btn.textContent='...';try{const d=await apiPost('forgot_password',{email,captcha:cap});if(d.success){showToast(d.message,'success');startCountdown(btn);}else{showToast(d.message,'error');refFCap();btn.textContent='发送';btn.disabled=false;}}catch(e){showToast('请求失败','error');refFCap();btn.textContent='发送';btn.disabled=false;}}
+async function doResetPwd(){const email=document.getElementById('f-email').value.trim(),ecode=document.getElementById('f-ecode').value.trim(),np=document.getElementById('f-new-pwd').value.trim(),cf=document.getElementById('f-cfm-pwd').value.trim();if(!email||!ecode||!np||!cf)return showToast('请完整填写','error');if(np.length<6)return showToast('新密码至少6位','error');if(np!==cf)return showToast('两次密码不一致','error');try{const d=await apiPost('reset_password',{email,code:ecode,new_password:np});if(d.success){showToast(d.message||'密码重置成功','success');setTimeout(()=>switchAuth('login'),900);}else showToast(d.message||'重置失败','error');}catch(e){showToast('请求异常','error');}}
+async function doLogout(){localStorage.removeItem('todo_token');csrfToken='';ME=null;try{await apiPost('logout');}catch(e){}showAuth();}
+
+/* ===== 视图管理 ===== */
+function showAuth(){const lb=document.getElementById('account-loading');if(lb)lb.style.display='none';document.getElementById('auth-screen').style.display='flex';document.getElementById('app-screen').style.display='none';switchAuth('login');}
+function showManager(){const lb=document.getElementById('account-loading');if(lb)lb.style.display='none';document.getElementById('auth-screen').style.display='none';document.getElementById('app-screen').style.display='flex';CUR='home';switchSection('home');}
+async function autoLogin(){const tok=localStorage.getItem('todo_token');if(tok){try{const d=await apiPost('token_login',{token:tok});if(d.success){csrfToken=d.csrf_token||'';showManager();await refreshProfile();return;}}catch(e){}localStorage.removeItem('todo_token');}showAuth();}
+
+/* 刷新用户资料 + 顶栏头像 */
+async function refreshProfile(){try{ME=await apiGet('get_user_profile');if(!ME||!ME.username)throw new Error('bad');}catch(e){ME=null;showAuth();return;}
+  const av=document.getElementById('hdr-av');if(av)av.innerHTML=avHtml(ME,'av-sm');
+  const nm=document.getElementById('hdr-name');if(nm)nm.textContent=ME.username||'';
+  if(document.getElementById('app-screen').style.display!=='none')renderSection(CUR);}
+
+const SEC_META={home:{t:'主页',s:'查看你的账号概览'},info:{t:'个人信息',s:'管理头像与账号资料'},privacy:{t:'数据与隐私',s:'你的数据属于你'},security:{t:'安全性',s:'保护账号与设备安全'},appearance:{t:'外观',s:'深色模式与动态配色'}};
+function switchSection(name){CUR=name;document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.section===name));const meta=SEC_META[name]||SEC_META.home;document.getElementById('sec-title').textContent=meta.t;document.getElementById('sec-sub').textContent=meta.s;renderSection(name);}
+function renderSection(name){const body=document.getElementById('sec-body');if(!body)return;if(name==='home')renderHome(body);else if(name==='info')renderInfo(body);else if(name==='privacy')renderPrivacy(body);else if(name==='security')renderSecurity(body);else if(name==='appearance')renderAppearance();}
+
+/* 主页 */
+function renderHome(body){if(!ME)return;body.innerHTML='<div class="hero-card">'+avHtml(ME,'av-xl')+'<div class="hc-tx"><h2>'+esc(ME.username||'')+'</h2><div class="hc-mail">'+(ME.email?'邮箱 '+esc(ME.email):'未绑定邮箱')+'</div><div class="hc-date">加入于 '+fmtDate(ME.created_ts)+'</div></div><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn-outlined" onclick="switchSection(\'info\')">管理头像与资料</button><a class="btn-filled" style="text-decoration:none" href="checklist.html">打开智能清单</a></div></div><div class="quick-grid">'
+ +quickCard('person','个人信息','头像、用户名、邮箱','info')
+ +quickCard('shield','安全性','密码、已绑定设备','security')
+ +quickCard('privacy_tip','数据与隐私','数据统计、账号注销','privacy')
+ +quickCard('palette','外观','深色模式与配色','appearance')
+ +'</div><div class="card"><div class="card-hd"><span class="msr">bar_chart</span><h3>数据概览</h3></div><div class="card-bd"><div class="stats-row" id="hm-stats"><div class="stat-box" style="grid-column:1/-1"><span class="spinner"></span></div></div></div></div>';
+  loadStats('hm-stats');
+}
+function quickCard(ic,t,d,sec){return '<button class="quick" onclick="switchSection(\''+sec+'\')"><span class="q-ic"><span class="msr">'+ic+'</span></span><span class="q-tx"><span class="q-t">'+t+'</span><span class="q-d">'+d+'</span></span><span class="msr chev">chevron_right</span></button>';}
+async function loadStats(elId){const el=document.getElementById(elId);if(!el)return;let todos=[],fs={};try{const [tl,st]=await Promise.all([apiGet(''),apiGet('get_focus_stats')]);todos=Array.isArray(tl)?tl:[];fs=st||{};}catch(e){}
+  const pending=todos.filter(t=>!t.completed).length,done=todos.filter(t=>t.completed).length;
+  el.innerHTML=box(pending,'未完任务')+box(done,'已完成任务')+box((fs.today_duration||0)+'<span style="font-size:14px">m</span>','今日专注')+box((fs.total_duration||0)+'<span style="font-size:14px">m</span>','历史总专注');
+}
+function box(num,lbl){return '<div class="stat-box"><div class="stat-num">'+num+'</div><div class="stat-lbl">'+lbl+'</div></div>';}
+
+/* 个人信息 */
+function renderInfo(body){if(!ME)return;
+  body.innerHTML='<div class="card"><div class="card-hd"><span class="msr">account_circle</span><h3>头像</h3></div><div class="card-bd"><div class="av-edit">'+avHtml(ME,'av-xl')
+   +'<div style="flex:1;min-width:200px"><p style="font-size:13px;line-height:1.8;color:var(--on-surface-variant)">支持 JPG / PNG / GIF / WebP，最大 15MB。上传后自动居中裁剪为 512×512 并压缩，用于账号与清单「我的」页展示。</p><div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap"><button class="btn-filled" onclick="openAvatarDlg()"><span class="msr" style="font-size:18px">photo_camera</span>更换头像</button>'+(ME.avatar?'<button class="btn-outlined danger" onclick="removeAvatar()">移除头像</button>':'')+'</div></div></div></div></div>'
+   +'<div class="card"><div class="card-hd"><span class="msr">badge</span><h3>基本资料</h3></div><div class="card-bd">'
+   +rowPlain('person','用户名',ME.username||'-')
+   +rowPlain('mail','邮箱',ME.email||'未绑定')
+   +rowPlain('event','加入时间',fmtDate(ME.created_ts))
+   +'</div></div>';
+}
+function rowPlain(ic,t,v){return '<div class="row"><span class="r-ic"><span class="msr">'+ic+'</span></span><span class="r-tx"><span class="r-t">'+t+'</span></span><span class="r-val">'+esc(v)+'</span></div>';}
+
+/* 数据与隐私 */
+function renderPrivacy(body){if(!ME)return;
+  body.innerHTML='<div class="card"><div class="card-hd"><span class="msr">database</span><h3>你的数据</h3></div><div class="card-bd"><p style="font-size:12px;color:var(--on-surface-variant);padding:4px 0 10px;line-height:1.7">你的数据属于你，仅用于提供清单同步服务。注销账号后以下数据将被永久删除，无法恢复。</p>'
+   +rowPlain('checklist','清单任务','多端同步待办')
+   +rowPlain('sticky_note_2','便签','随手记录')
+   +rowPlain('event_note','日历倒数日','重要日子')
+   +rowPlain('hourglass_top','专注记录','番茄钟与计时')
+   +'</div></div><div class="card"><div class="card-hd"><span class="msr">bar_chart</span><h3>数据统计</h3></div><div class="card-bd"><div class="stats-row" id="pv-stats"><div class="stat-box" style="grid-column:1/-1"><span class="spinner"></span></div></div></div></div><div class="card" style="border-color:color-mix(in srgb,var(--error) 40%,transparent)"><div class="card-hd"><span class="msr" style="color:var(--error)">delete_forever</span><h3>危险区</h3></div><div class="card-bd"><div class="row"><span class="r-ic"><span class="msr">person_off</span></span><span class="r-tx"><span class="r-t">注销账号</span><span class="r-d">永久删除账号与全部数据，操作不可恢复</span></span><button class="r-act danger" onclick="openOvl(\'ovl-del\')">注销</button></div></div></div>';
+  loadStats('pv-stats');
+}
+
+/* 安全性 */
+function renderSecurity(body){body.innerHTML='<div class="card"><div class="card-hd"><span class="msr">lock</span><h3>登录</h3></div><div class="card-bd"><div class="row"><span class="r-ic"><span class="msr">key</span></span><span class="r-tx"><span class="r-t">登录密码</span><span class="r-d">建议定期更换，使用强密码</span></span><button class="r-act" onclick="openChangePwd()">修改</button></div></div></div><div class="card"><div class="card-hd"><span class="msr">watch</span><h3>已绑定设备</h3></div><div class="card-bd"><p style="font-size:12px;color:var(--on-surface-variant);padding:4px 0 8px;line-height:1.6">网页登录与手环同步使用的长效凭证。可单独下线设备，或全部下线（所有设备退出登录）。</p><div id="dev-rows"><div style="padding:12px 0;text-align:center"><span class="spinner"></span></div></div><div style="display:flex;gap:10px;flex-wrap:wrap;padding-top:12px"><button class="btn-filled" onclick="bindWatch()"><span class="msr" style="font-size:18px">link</span>生成手表绑定码</button><button class="btn-text danger" onclick="revokeAll()">全部设备下线</button></div></div></div>';
+  loadDevices();
+}
+function dedupDevices(list){const seen=new Set(),out=[];for(const d of(list||[])){const k=d.device_id||('t'+d.token_pre);if(!seen.has(k)){seen.add(k);out.push(d);}}return out;}
+async function loadDevices(){const el=document.getElementById('dev-rows');if(!el)return;let ded=[];try{const r=await apiGet('get_devices');devList=Array.isArray(r)?r:[];ded=dedupDevices(devList);}catch(e){devList=[];}
+  if(!ded.length){el.innerHTML='<div class="centered-empty" style="padding:20px 0"><span class="msr">watch_off</span>暂无已绑定设备</div>';return;}
+  el.innerHTML=ded.map(d=>'<div class="row"><span class="r-ic"><span class="msr">watch</span></span><span class="r-tx"><span class="r-t">'+(d.device_id?'手环 · '+esc(d.device_id.substring(0,8)):'网页端')+'</span><span class="r-d">绑定于 '+fmtTs(d.created_ts)+'</span></span><button class="r-act danger" onclick="revokeDevice('+d.id+')">下线</button></div>').join('');
+}
+async function bindWatch(){try{const d=await apiPost('create_device_code');if(d.success){document.getElementById('code-val').textContent=d.code;openOvl('ovl-code');}else showToast(d.message||'生成失败','error');}catch(e){showToast('请求异常','error');}}
+async function revokeDevice(id){const ok=await showConfirm('确定下线该设备？');if(!ok)return;try{const d=await apiPost('revoke_device',{id});if(!d.success)throw new Error();}catch(e){showToast('请求异常','error');return;}showToast('设备已下线','success');loadDevices();}
+async function revokeAll(){const ok=await showConfirm('确定下线所有设备？所有设备将退出登录');if(!ok)return;try{const d=await apiPost('revoke_all');if(!d.success)throw new Error();}catch(e){showToast('请求异常','error');return;}showToast('所有设备已下线','success');loadDevices();}
+
+/* 修改密码 / 注销 */
+function openChangePwd(){openOvl('ovl-pwd');}
+async function doChangePwd(){const o=document.getElementById('cp-old').value.trim(),n=document.getElementById('cp-new').value.trim(),c=document.getElementById('cp-cfm').value.trim();if(!o||!n||!c)return showToast('请完整填写','error');if(n.length<6)return showToast('新密码至少6位','error');if(n!==c)return showToast('两次密码不一致','error');if(o===n)return showToast('新旧密码不能相同','error');const btn=document.getElementById('cp-btn');btn.disabled=true;btn.textContent='处理中...';try{const d=await apiPost('change_password',{old_password:o,new_password:n});if(d.success){closeOvl('ovl-pwd');showToast('密码已修改，请重新登录','success');localStorage.removeItem('todo_token');ME=null;setTimeout(showAuth,1400);}else showToast(d.message||'修改失败','error');}catch(e){showToast('请求异常','error');}finally{btn.disabled=false;btn.textContent='确认';}}
+async function doDeleteAccount(){const pwd=document.getElementById('da-pwd').value.trim();if(!pwd)return showToast('请输入密码','error');const btn=document.getElementById('da-btn');btn.disabled=true;btn.textContent='处理中...';try{const d=await apiPost('delete_account',{password:pwd});if(d.success){closeOvl('ovl-del');showToast('账号已注销','default');localStorage.removeItem('todo_token');ME=null;setTimeout(showAuth,1400);}else showToast(d.message||'注销失败','error');}catch(e){showToast('请求异常','error');}finally{btn.disabled=false;btn.textContent='确认注销';}}
+
+/* 外观 */
+function renderAppearance(){const body=document.getElementById('sec-body');if(!body)return;body.innerHTML='<div class="card"><div class="card-hd"><span class="msr">dark_mode</span><h3>主题</h3></div><div class="card-bd"><div class="row"><span class="r-tx"><span class="r-t">深色模式</span><span class="r-d">跟随个人偏好切换明暗外观</span></span><button class="btn-outlined" onclick="toggleTheme()">'+(isDarkMode()?'关闭深色':'开启深色')+'</button></div></div></div><div class="card"><div class="card-hd"><span class="msr">palette</span><h3>动态配色</h3></div><div class="card-bd"><p style="font-size:12px;color:var(--on-surface-variant);padding:4px 0 14px">从单一种子色自动生成整套 Material You 色彩。</p><div class="sw-row">'+SWATCHES+'</div></div></div>';
+}
+const SWATCHES='<div class="sw" data-color="#7c3aed" style="background:#7c3aed" onclick="setSeed(\'#7c3aed\')" title="TXCN 紫"></div><div class="sw" data-color="#1976d2" style="background:#1976d2" onclick="setSeed(\'#1976d2\')" title="极冰蓝"></div><div class="sw" data-color="#2e7d32" style="background:#2e7d32" onclick="setSeed(\'#2e7d32\')" title="翡翠绿"></div><div class="sw" data-color="#c62828" style="background:#c62828" onclick="setSeed(\'#c62828\')" title="复古玫瑰"></div><div class="sw" data-color="#00838f" style="background:#00838f" onclick="setSeed(\'#00838f\')" title="极光青"></div><div class="sw" data-color="#512da8" style="background:#512da8" onclick="setSeed(\'#512da8\')" title="深空星云"></div><div class="sw" data-color="#e65100" style="background:#e65100" onclick="setSeed(\'#e65100\')" title="典雅黑金"></div><div class="sw" data-color="#e64a19" style="background:#e64a19" onclick="setSeed(\'#e64a19\')" title="晚霞流光"></div><div class="sw" data-color="#0277bd" style="background:#0277bd" onclick="setSeed(\'#0277bd\')" title="皓月当空"></div><div class="sw-custom"><input type="color" value="#7c3aed" onchange="setSeed(this.value)"></div>';
+
+/* ===== 头像上传（拖动裁切） ===== */
+let CROP = null; // {img,natW,natH,cover,zoom,x,y}
+const FRAME = 280;
+
+function openAvatarDlg() {
+  CROP = null;
+  const pv = document.getElementById('av-preview');
+  if (pv) { pv.style.display = ''; pv.innerHTML = avHtml(ME, 'av-xl'); }
+  hideStage();
+  const btn = document.getElementById('av-upload-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '上传'; }
+  const inp = document.getElementById('av-file');
+  if (inp) inp.value = '';
+  openOvl('ovl-av');
+}
+function pickAvatar() { const inp = document.getElementById('av-file'); if (inp) inp.click(); }
+function hideStage() {
+  const st = document.getElementById('av-stage');
+  if (st) st.style.display = 'none';
+  const pv = document.getElementById('av-preview');
+  if (pv) pv.style.display = '';
+}
+function readFileAsDataURL(file) { return new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(file); }); }
+function loadImage(src) { return new Promise((res, rej) => { const img = new Image(); img.onload = () => res(img); img.onerror = rej; img.src = src; }); }
+async function onAvFile(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (AV_TYPES.indexOf(file.type) < 0) return showToast('仅支持 JPG / PNG / GIF / WebP', 'error');
+  if (file.size > AV_MAX) return showToast('图片不能超过 15MB', 'error');
+  let dataUrl;
+  try { dataUrl = await readFileAsDataURL(file); } catch (err) { return showToast('读取图片失败', 'error'); }
+  let img;
+  try { img = await loadImage(dataUrl); } catch (err) { return showToast('图片解析失败，请换一张', 'error'); }
+  setupCrop(img, dataUrl);
+}
+function setupCrop(img, dataUrl) {
+  const natW = img.naturalWidth || img.width, natH = img.naturalHeight || img.height;
+  if (!natW || !natH) return showToast('图片无效', 'error');
+  const pv = document.getElementById('av-preview');
+  if (pv) pv.style.display = 'none';
+  const st = document.getElementById('av-stage');
+  if (st) st.style.display = 'block';
+  CROP = { img: img, natW: natW, natH: natH, cover: Math.max(FRAME / natW, FRAME / natH), zoom: 1.25, x: 0, y: 0 };
+  const cimg = document.getElementById('av-cimg');
+  if (cimg) cimg.src = dataUrl;
+  const zr = document.getElementById('av-zoom');
+  if (zr) zr.value = Math.round((CROP.zoom - 1) * 100);
+  const btn = document.getElementById('av-upload-btn');
+  if (btn) { btn.disabled = false; btn.textContent = '上传'; }
+  paintCrop();
+}
+function dispW() { return CROP ? CROP.natW * CROP.cover * CROP.zoom : FRAME; }
+function dispH() { return CROP ? CROP.natH * CROP.cover * CROP.zoom : FRAME; }
+function paintCrop() {
+  if (!CROP) return;
+  const dw = dispW(), dh = dispH();
+  const cimg = document.getElementById('av-cimg');
+  if (!cimg) return;
+  cimg.style.width = dw + 'px';
+  cimg.style.height = dh + 'px';
+  cimg.style.transform = 'translate(' + ((FRAME - dw) / 2 + CROP.x) + 'px,' + ((FRAME - dh) / 2 + CROP.y) + 'px)';
+}
+function setPan(px, py) {
+  if (!CROP) return;
+  const maxX = Math.max(0, (dispW() - FRAME) / 2), maxY = Math.max(0, (dispH() - FRAME) / 2);
+  CROP.x = Math.max(-maxX, Math.min(maxX, px));
+  CROP.y = Math.max(-maxY, Math.min(maxY, py));
+  paintCrop();
+}
+function onCropPointer(e) {
+  if (!CROP) return;
+  const wrap = document.getElementById('av-crop');
+  if (!wrap) return;
+  const sx = e.clientX, sy = e.clientY, ox = CROP.x, oy = CROP.y;
+  try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
+  wrap.classList.add('drag');
+  const move = ev => { setPan(ox + (ev.clientX - sx), oy + (ev.clientY - sy)); };
+  const up = () => {
+    wrap.removeEventListener('pointermove', move);
+    wrap.removeEventListener('pointerup', up);
+    wrap.removeEventListener('pointercancel', up);
+    wrap.classList.remove('drag');
+  };
+  wrap.addEventListener('pointermove', move);
+  wrap.addEventListener('pointerup', up);
+  wrap.addEventListener('pointercancel', up);
+}
+function onCropZoom(v) {
+  if (!CROP) return;
+  CROP.zoom = Math.min(4, Math.max(1, 1 + v / 100));
+  CROP.x = 0; CROP.y = 0;
+  paintCrop();
+}
+function cropToDataUrl() {
+  return new Promise((resolve, reject) => {
+    if (!CROP) return reject(new Error('no crop'));
+    const dw = dispW(), dh = dispH();
+    const srcSize = (FRAME / dw) * CROP.natW;
+    const srcX = (dw / 2 - CROP.x) / dw * CROP.natW - srcSize / 2;
+    const srcY = (dh / 2 - CROP.y) / dh * CROP.natH - srcSize / 2;
+    const cv = document.createElement('canvas');
+    cv.width = 512; cv.height = 512;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, 512, 512);
+    ctx.drawImage(CROP.img, srcX, srcY, srcSize, srcSize, 0, 0, 512, 512);
+    resolve(cv.toDataURL('image/jpeg', 0.88));
+  });
+}
+async function uploadAvatar() {
+  if (!CROP) return;
+  const btn = document.getElementById('av-upload-btn');
+  btn.disabled = true; btn.textContent = '处理中...';
+  let out;
+  try { out = await cropToDataUrl(); } catch (e) {
+    showToast('图片处理失败，请重试', 'error'); btn.disabled = false; btn.textContent = '上传'; return;
+  }
+  try {
+    const d = await apiPost('upload_avatar', { avatar: out });
+    if (!d.success) throw new Error(d.message || 'fail');
+  } catch (e) {
+    showToast('上传失败，请重试', 'error'); btn.disabled = false; btn.textContent = '上传'; return;
+  }
+  closeAvatarDlg();
+  showToast('头像已更新', 'success');
+  await refreshProfile();
+}
+function closeAvatarDlg() { closeOvl('ovl-av'); CROP = null; hideStage(); }
+async function removeAvatar() {
+  const ok = await showConfirm('确定移除当前头像？');
+  if (!ok) return;
+  try { const d = await apiPost('remove_avatar'); if (!d.success) throw new Error(); } catch (e) { showToast('操作失败', 'error'); return; }
+  showToast('已移除头像', 'success');
+  await refreshProfile();
+}
+(function bindAvatarUI() {
+  const zc = document.getElementById('av-crop');
+  if (zc) zc.addEventListener('pointerdown', onCropPointer);
+  const zz = document.getElementById('av-zoom');
+  if (zz) zz.addEventListener('input', e => onCropZoom(parseInt(e.target.value || '0', 10)));
+})();
+
+/* ===== 初始化 ===== */
+document.getElementById('av-file').addEventListener('change',onAvFile);
+initTheme();
+autoLogin();
+
+</script>
+</body>
+</html>
