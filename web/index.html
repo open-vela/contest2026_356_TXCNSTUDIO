@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>TXCN STUDIO</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%237c3aed'/><text x='50' y='68' text-anchor='middle' font-size='52' font-weight='900' fill='white' font-family='system-ui'>T</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+<style>
+:root {
+  --seed-h: 270;
+  --primary: hsl(var(--seed-h) 60% 40%);
+  --on-primary: #fff;
+  --primary-container: hsl(var(--seed-h) 55% 92%);
+  --on-primary-container: hsl(var(--seed-h) 50% 12%);
+  --secondary: hsl(calc(var(--seed-h) - 30) 14% 42%);
+  --on-secondary: #fff;
+  --secondary-container: hsl(calc(var(--seed-h) - 30) 18% 92%);
+  --on-secondary-container: hsl(calc(var(--seed-h) - 30) 16% 12%);
+  --tertiary: hsl(calc(var(--seed-h) + 60) 32% 38%);
+  --on-tertiary: #fff;
+  --tertiary-container: hsl(calc(var(--seed-h) + 60) 38% 92%);
+  --on-tertiary-container: hsl(calc(var(--seed-h) + 60) 30% 12%);
+  --error: hsl(0 68% 44%);
+  --on-error: #fff;
+  --error-container: hsl(0 75% 94%);
+  --on-error-container: hsl(0 45% 16%);
+  --surface: hsl(var(--seed-h) 1% 98%);
+  --on-surface: hsl(var(--seed-h) 6% 10%);
+  --surface-variant: hsl(var(--seed-h) 1% 90%);
+  --on-surface-variant: hsl(var(--seed-h) 4% 30%);
+  --surface-container-lowest: #fff;
+  --surface-container-low: hsl(var(--seed-h) 1% 96%);
+  --surface-container: hsl(var(--seed-h) 1% 94%);
+  --surface-container-high: hsl(var(--seed-h) 1% 92%);
+  --surface-container-highest: hsl(var(--seed-h) 1% 90%);
+  --outline: hsl(var(--seed-h) 3% 50%);
+  --outline-variant: hsl(var(--seed-h) 2% 80%);
+  --inverse-surface: hsl(var(--seed-h) 5% 20%);
+  --inverse-on-surface: hsl(var(--seed-h) 1% 95%);
+  --inverse-primary: hsl(var(--seed-h) 55% 82%);
+  --elevation-1: 0 1px 2px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.08);
+  --elevation-2: 0 1px 2px rgba(0,0,0,.1), 0 2px 6px rgba(0,0,0,.08);
+  --elevation-3: 0 1px 3px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.08);
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized-decel: cubic-bezier(0.05, 0.7, 0.1, 1);
+}
+
+[data-theme="dark"] {
+  --primary: hsl(var(--seed-h) 55% 80%);
+  --on-primary: hsl(var(--seed-h) 45% 18%);
+  --primary-container: hsl(var(--seed-h) 45% 28%);
+  --on-primary-container: hsl(var(--seed-h) 55% 92%);
+  --secondary: hsl(calc(var(--seed-h) - 30) 16% 78%);
+  --on-secondary: hsl(calc(var(--seed-h) - 30) 12% 18%);
+  --secondary-container: hsl(calc(var(--seed-h) - 30) 14% 28%);
+  --on-secondary-container: hsl(calc(var(--seed-h) - 30) 18% 88%);
+  --tertiary: hsl(calc(var(--seed-h) + 60) 38% 78%);
+  --on-tertiary: hsl(calc(var(--seed-h) + 60) 28% 18%);
+  --tertiary-container: hsl(calc(var(--seed-h) + 60) 30% 28%);
+  --on-tertiary-container: hsl(calc(var(--seed-h) + 60) 38% 88%);
+  --error: hsl(0 55% 78%);
+  --on-error: hsl(0 40% 20%);
+  --error-container: hsl(0 48% 30%);
+  --on-error-container: hsl(0 65% 88%);
+  --surface: hsl(var(--seed-h) 8% 6%);
+  --on-surface: hsl(var(--seed-h) 1% 90%);
+  --surface-variant: hsl(var(--seed-h) 4% 30%);
+  --on-surface-variant: hsl(var(--seed-h) 2% 80%);
+  --surface-container-lowest: hsl(var(--seed-h) 8% 4%);
+  --surface-container-low: hsl(var(--seed-h) 6% 10%);
+  --surface-container: hsl(var(--seed-h) 6% 12%);
+  --surface-container-high: hsl(var(--seed-h) 5% 17%);
+  --surface-container-highest: hsl(var(--seed-h) 4% 22%);
+  --outline: hsl(var(--seed-h) 2% 60%);
+  --outline-variant: hsl(var(--seed-h) 4% 30%);
+  --inverse-surface: hsl(var(--seed-h) 1% 90%);
+  --inverse-on-surface: hsl(var(--seed-h) 5% 20%);
+  --inverse-primary: hsl(var(--seed-h) 45% 40%);
+  --elevation-1: 0 1px 3px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.45);
+  --elevation-2: 0 2px 6px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.45);
+  --elevation-3: 0 4px 8px rgba(0,0,0,.4), 0 1px 3px rgba(0,0,0,.5);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-family: 'Noto Sans SC', 'Roboto', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--surface);
+  color: var(--on-surface);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.msr {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  display: inline-block;
+  vertical-align: middle;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--outline-variant); border-radius: 3px; }
+
+/* ========= TOP BAR ========= */
+.topbar {
+  width: 100%;
+  max-width: 1120px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px 0;
+}
+
+.topbar-logo {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: var(--on-primary);
+  display: grid; place-items: center;
+  font-size: 20px; font-weight: 900;
+  flex-shrink: 0;
+}
+
+.topbar-title {
+  font-size: 18px;
+  font-weight: 700;
+  flex: 1;
+  color: var(--on-surface);
+}
+
+.topbar-admin {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--on-surface-variant);
+  display: grid; place-items: center;
+  cursor: pointer;
+  transition: background .15s;
+  text-decoration: none;
+}
+.topbar-admin:hover { background: color-mix(in srgb, var(--on-surface-variant) 8%, transparent); }
+
+/* ========= HERO ========= */
+.hero {
+  width: 100%;
+  max-width: 1120px;
+  padding: 48px 24px 32px;
+  text-align: center;
+  animation: fadeInUp .5s var(--ease-emphasized-decel) both;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 100px;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.hero h1 {
+  font-size: clamp(28px, 6vw, 44px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--tertiary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  font-size: 16px;
+  color: var(--on-surface-variant);
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ========= TOOLS GRID ========= */
+.tools-section {
+  width: 100%;
+  max-width: 1120px;
+  padding: 0 24px 48px;
+  animation: fadeInUp .5s .1s var(--ease-emphasized-decel) both;
+}
+
+.tools-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+  padding-left: 4px;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.tool-card {
+  background: var(--surface-container-low);
+  border: 1px solid var(--outline-variant);
+  border-radius: 20px;
+  padding: 24px;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: box-shadow .25s var(--ease-emphasized), transform .25s var(--ease-emphasized), border-color .25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.tool-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--primary);
+  opacity: 0;
+  transition: opacity .25s;
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tool-card:hover {
+    box-shadow: var(--elevation-2);
+    transform: translateY(-2px);
+    border-color: var(--primary);
+  }
+  .tool-card:hover::before { opacity: 0.04; }
+}
+
+.tool-card:active { transform: scale(0.98); }
+
+.tool-card-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  display: grid; place-items: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.tool-card-icon--primary {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+.tool-card-icon--secondary {
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
+}
+
+.tool-card-icon--tertiary {
+  background: var(--tertiary-container);
+  color: var(--on-tertiary-container);
+}
+
+.tool-card-icon--disabled {
+  background: var(--surface-container-highest);
+  color: var(--outline);
+}
+
+.tool-card-body { flex: 1; min-width: 0; }
+
+.tool-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--on-surface);
+}
+
+.tool-card-desc {
+  font-size: 13px;
+  color: var(--on-surface-variant);
+  line-height: 1.5;
+}
+
+.tool-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.tool-card-tag {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-weight: 600;
+}
+
+.tag-ready {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+.tag-coming {
+  background: var(--surface-container-highest);
+  color: var(--outline);
+}
+
+.tool-card-arrow {
+  margin-left: auto;
+  color: var(--outline);
+  font-size: 20px;
+  transition: transform .2s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tool-card:hover .tool-card-arrow { transform: translateX(3px); color: var(--primary); }
+}
+
+.tool-card--disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.tool-card--disabled:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--outline-variant);
+}
+
+/* ========= FOOTER ========= */
+.footer {
+  width: 100%;
+  max-width: 1120px;
+  padding: 24px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--outline);
+  border-top: 1px solid var(--outline-variant);
+  margin-top: auto;
+  animation: fadeInUp .5s .2s var(--ease-emphasized-decel) both;
+}
+
+/* ========= ANIMATIONS ========= */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========= RESPONSIVE ========= */
+@media (max-width: 600px) {
+  .topbar { padding: 16px 16px 0; }
+  .hero { padding: 36px 16px 24px; }
+  .tools-section { padding: 0 16px 36px; }
+  .tools-grid { grid-template-columns: 1fr; }
+  .footer { padding: 20px 16px; }
+}
+</style>
+
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7647119581422376"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-logo">T</div>
+  <div class="topbar-title">TXCN STUDIO</div>
+  <a href="admin.html" class="topbar-admin" title="管理后台">
+    <span class="msr">admin_panel_settings</span>
+  </a>
+  <a href="account.html" class="topbar-admin" title="账号管理">
+    <span class="msr">account_circle</span>
+  </a>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">
+    <span class="msr" style="font-size:16px">auto_awesome</span>
+    效率工具箱
+  </div>
+  <h1 id="hero-title">TXCN STUDIO</h1>
+  <p id="hero-desc">轻量、实用的在线工具集合。持续更新中。</p>
+</div>
+
+<!-- Tools -->
+<div class="tools-section">
+  <div class="tools-section-title">可用工具</div>
+  <div class="tools-grid" id="tools-grid"></div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <span id="footer-text">© 2025 TXCN STUDIO · 更多工具持续上新中</span>
+</div>
+
+<script>
+// ===== 默认工具列表 =====
+const DEFAULT_TOOLS = [
+  {
+    id: 'checklist',
+    name: '云端智能清单',
+    desc: '多端同步的待办清单，支持分类、优先级、日历视图。',
+    icon: 'checklist',
+    iconStyle: 'primary',
+    url: 'checklist.html',
+    tag: '可用',
+    tagStyle: 'ready',
+    enabled: true
+  },
+  {
+    id: 'watchface',
+    name: '表盘预览图生成',
+    desc: '小米手环 / Redmi Watch 表盘展示图合成，支持多款设备。',
+    icon: 'watch',
+    iconStyle: 'tertiary',
+    url: 'tool/12.html',
+    tag: '可用',
+    tagStyle: 'ready',
+    enabled: true
+  },
+  {
+    id: 'coming1',
+    name: '更多工具开发中',
+    desc: '我们正在持续开发新的实用工具，敬请期待。',
+    icon: 'hourglass_empty',
+    iconStyle: 'disabled',
+    url: '#',
+    tag: '敬请期待',
+    tagStyle: 'coming',
+    enabled: false
+  }
+];
+
+// ===== 配置管理 =====
+const API_BASE = 'homepage-api.php';
+let homepageConfig = null;
+
+async function fetchConfig() {
+  try {
+    const r = await fetch(API_BASE + '?action=get');
+    if (r.ok) return await r.json();
+  } catch {}
+  return null;
+}
+
+function applyConfig(config) {
+  if (!config) return;
+  homepageConfig = config;
+
+  // Hero
+  if (config.heroTitle) document.getElementById('hero-title').textContent = config.heroTitle;
+  if (config.heroDesc) document.getElementById('hero-desc').textContent = config.heroDesc;
+
+  // Footer
+  if (config.footerText) document.getElementById('footer-text').textContent = config.footerText;
+
+  // Tools
+  if (config.tools && config.tools.length > 0) {
+    renderTools(config.tools);
+  }
+}
+
+// ===== 渲染工具卡片 =====
+function renderTools(tools) {
+  const grid = document.getElementById('tools-grid');
+  grid.innerHTML = '';
+
+  tools.filter(t => t.enabled !== false).forEach(tool => {
+    const card = document.createElement('a');
+    card.className = 'tool-card' + (tool.enabled === false ? ' tool-card--disabled' : '');
+    card.href = tool.url || '#';
+    if (tool.enabled === false) card.removeAttribute('href');
+
+    const iconClass = 'tool-card-icon tool-card-icon--' + (tool.iconStyle || 'primary');
+    const tagClass = 'tool-card-tag tag-' + (tool.tagStyle || 'ready');
+
+    card.innerHTML = `
+      <div class="${iconClass}">
+        <span class="msr">${tool.icon || 'build'}</span>
+      </div>
+      <div class="tool-card-body">
+        <div class="tool-card-title">${esc(tool.name)}</div>
+        <div class="tool-card-desc">${esc(tool.desc)}</div>
+      </div>
+      <div class="tool-card-footer">
+        <span class="${tagClass}">${esc(tool.tag || '可用')}</span>
+        ${tool.enabled !== false ? '<span class="msr tool-card-arrow">arrow_forward</span>' : ''}
+      </div>
+    `;
+
+    grid.appendChild(card);
+  });
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+// ===== 主题 =====
+function initTheme() {
+  const saved = localStorage.getItem('txcn_theme');
+  if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+}
+
+// ===== 初始化 =====
+initTheme();
+
+(async function() {
+  const config = await fetchConfig();
+  if (config && config.tools) {
+    applyConfig(config);
+  } else {
+    renderTools(DEFAULT_TOOLS);
+  }
+})();
+</script>
+</body>
+</html>
