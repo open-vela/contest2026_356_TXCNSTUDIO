@@ -18,6 +18,6 @@
 | 2026-09-27 ~ 2026-09-28 | 你好（问候） | `2026-09-27/mimocode__ses_ffe5f1ec0abccffew0epgJtEvF.jsonl` |
 | 2026-10-11 ~ 2026-10-30 | 查阅vela开发文档.md继续项目开发 | `2026-10-11/mimocode__ses_ffe5ed6be4240ffeY2vwe0dfNw.jsonl` |
 | 2026-10-16 ~ 2026-10-16 | 简单问候：你好 | `2026-10-16/mimocode__ses_ffe5ebaee2b52ffeFRDsFwX6KK.jsonl` |
-| 2026-10-31 ~ 2026-11-01 | 查看上一对话并阅读vela开发文档.md | `2026-10-31/mimocode__ses_ffe5e6fd5a302ffeZJMvx73ohW.jsonl` |
+| 2026-10-31 ~ 2026-11-01 | 查看上一对话并阅读vela开发文档.md | `2026-10-31/mimocode__ses_ffe5e6fd5a302ffeZJMvx73ohW.md`（完整会话导出） |
 
-各会话详情与事件数见 `manifest.json`。jsonl 事件含 `seq`（递增序号）、`t`（毫秒时间戳）、`kind`（text/thinking/tool）字段。
+各会话详情与事件数见 `manifest.json`。jsonl 事件含 `seq`（递增序号）、`t`（毫秒时间戳）、`kind`（text/thinking/tool）字段；`2026-10-31` 会话为完整对话导出（.md），覆盖此前的中途 jsonl 快照。
