@@ -114,13 +114,14 @@
       "tool": "mimocode",
       "title": "查看上一对话并阅读vela开发文档.md",
       "started_at": "2026-10-31T04:14:17.853Z",
-      "last_event_at": "2026-11-01T15:40:59.637Z",
-      "event_count": 1645,
-      "file_path": "logs/txcn727-coder/2026-10-31/mimocode__ses_ffe5e6fd5a302ffeZJMvx73ohW.jsonl",
-      "size_bytes": 6154316,
+      "last_event_at": "2026-11-01T15:42:05.000Z",
+      "event_count": 100,
+      "file_path": "logs/txcn727-coder/2026-10-31/mimocode__ses_ffe5e6fd5a302ffeZJMvx73ohW.md",
+      "size_bytes": 522346,
       "collection_mode": "export",
-      "health": "ok"
+      "health": "ok",
+      "note": "完整会话导出（mimocode 原生导出格式，全程至会话结束）；覆盖此前轨迹库中途快照 jsonl"
     }
   ],
-  "updated_at": "2026-11-01T15:40:59.637Z"
+  "updated_at": "2026-11-03T04:42:57.707Z"
 }
