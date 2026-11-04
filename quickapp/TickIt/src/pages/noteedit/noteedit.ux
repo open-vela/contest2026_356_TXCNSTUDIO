@@ -37,11 +37,11 @@
           <text style="flex:1;font-size:24px;font-weight:700;color:{{content ? '#FFFFFF' : '#8E8E93'}};">{{content || '请输入内容'}}{{cursorStr}}</text>
         </div>
         <!-- 保存按钮（胶囊 291×77） -->
-        <div style="width:291px;height:77px;margin-left:22px;margin-top:16px;border-radius:38px;background-color:#448AFF;flex-direction:row;align-items:center;padding-left:26px;padding-right:26px;" onclick="save">
+        <div style="width:291px;height:77px;margin-left:22px;margin-top:16px;border-radius:38px;background-color:#448AFF;flex-direction:row;align-items:center;padding-left:26px;padding-right:26px;flex-shrink:0;" onclick="save">
           <text static style="flex:1;font-size:24px;font-weight:700;color:#FFFFFF;lines:1;">保存</text>
           <text static style="font-size:24px;color:#FFFFFF;">✓</text>
         </div>
-        <div static style="height:40px;"></div>
+        <div static style="height:40px;flex-shrink:0;"></div>
       </scroll>
     </div>
 
@@ -163,6 +163,7 @@ var that = this
     },
 
     onDestroy () {
+      if (this._savingTimer) { clearTimeout(this._savingTimer); this._savingTimer = null }
       if (typeof global.runGC === "function") {
         global.runGC()
       }
@@ -223,7 +224,7 @@ var that = this
         return
       }
       that._saving = true
-      setTimeout(function () { that._saving = false }, 3000)
+      that._savingTimer = setTimeout(function () { that._saving = false }, 3000)
       that.content = text
       utils.storageGet('todo_notes').then(function (data) {
         var list = []
@@ -235,11 +236,13 @@ var that = this
           if (list[i] && list[i].id === that.noteId) { item = list[i]; break }
         }
         if (!item) {
-          item = { id: that.noteId, content: text, createdAt: Date.now() }
-          list.push(item)
-        } else {
-          item.content = text
+          // 便签已被删除：不重建（防复活上云），提示并返回
+          utils.toast('该便签已删除')
+          that._saving = false
+          router.back()
+          return
         }
+        item.content = text
         // 本地立即保存完成即回详情（不阻塞蓝牙网络）；云端同步由 notes 页 onShow pending 统一处理
         that.saveLocal(list).then(function () {
           // 仅删云端保留的本地项（localOnly）：永不再上传/更新云端

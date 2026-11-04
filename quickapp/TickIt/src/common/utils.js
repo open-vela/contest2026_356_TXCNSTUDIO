@@ -130,7 +130,7 @@ function init (s, p, f) {
   if (f) _fetch = f
   // 启动时加载缓存的挑战 cookie，避免每次启动重算 slowAES（约11秒）
   if (_storage && !_challengeCookie) {
-    _storage.get({ complete: function(){},  complete: function(){}, 
+    _storage.get({ complete: function () {}, 
       key: 'todo_challenge_cookie',
       success: function (data) {
         if (data) { _challengeCookie = data }
@@ -195,7 +195,7 @@ function solveChallenge () {
           _challengeCookie = '__test=' + toHex(dec)
           // 持久化 cookie，下次启动直接用，不重算 slowAES
           if (_storage) {
-            _storage.set({ complete: function(){},  complete: function(){},  key: 'todo_challenge_cookie', value: _challengeCookie })
+            _storage.set({ complete: function () {},  key: 'todo_challenge_cookie', value: _challengeCookie })
           }
           resolve(_challengeCookie)
         } catch (e) {
@@ -248,8 +248,9 @@ function request (options) {
       responseType: 'text',
       success: function (res) {
         var d = res.data
-        // 若仍返回挑战页（cookie 失效，text/html 时 data 是 HTML 字符串），重解一次再请求
-        if (typeof d === 'string' && d.indexOf('aes.js') >= 0 && d.length < 3000) {
+        // 若仍返回挑战页（cookie 失效，text/html 时 data 是 HTML 字符串），重解一次再请求（仅重试一次防死循环）
+        if (typeof d === 'string' && d.indexOf('aes.js') >= 0 && d.length < 3000 && !options._challengeRetried) {
+          options._challengeRetried = true
           solveChallenge().then(function () {
             request(options).then(resolve).catch(reject)
           }).catch(reject)
@@ -434,7 +435,10 @@ function syncPush (localItems) {
           var cid = item.cloudId
           if (!cid) {
             pushed++
-            return cloudAddTodo(_token, item.text || item.title || '', item.priority || 2)
+            // 回写 cloudId（home 自动同步链同款），防下次同步重复上传
+            return cloudAddTodo(_token, item.text || item.title || '', item.priority || 2).then(function (res) {
+              if (res && res.success && res.id) { item.cloudId = res.id }
+            })
           } else if (cloudMap[String(cid)] && !!(cloudMap[String(cid)].completed) !== !!(item.done)) {
             pushed++
             return cloudToggleTodo(_token, cid, !!item.done)
@@ -483,7 +487,7 @@ function storageGet (key) {
       return
     }
     try {
-      _storage.get({ complete: function(){},  complete: function(){}, 
+      _storage.get({ complete: function () {}, 
         key: key,
         success: function (data) {
           resolve(data)
@@ -505,7 +509,7 @@ function storageSet (key, val) {
       return
     }
     try {
-      _storage.set({ complete: function(){},  complete: function(){}, 
+      _storage.set({ complete: function () {}, 
         key: key,
         value: String(val),
         success: function () {

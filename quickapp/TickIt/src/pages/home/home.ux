@@ -30,7 +30,7 @@
         <text static style="font-size:28px;color:#FFFFFF;margin-top:36px;">没有内容</text>
       </div>
       <scroll if="{{loaded && items.length>0}}" scroll-y="true" onscrollbottom="loadMore" style="flex:1;flex-direction:column;">
-        <div for="{{items}}" style="width:324px;height:112px;margin-left:6px;margin-right:6px;margin-bottom:8px;" onclick="viewItem($item.id)">
+        <div for="{{items}}" style="width:324px;height:112px;margin-left:6px;margin-right:6px;margin-bottom:8px;flex-shrink:0;" onclick="viewItem($item.id)">
           <!-- 卡片背景切图（一比一复刻：6 张按优先级+置顶，JS 预处理 bgIdx；动态 src 不渲染用 if/elif/else 链） -->
           <image if="{{$item.bgIdx===0}}" src="../../common/card-hi-pin.png" style="position:absolute;left:0;top:0;width:324px;height:112px;"></image>
           <image elif="{{$item.bgIdx===1}}" src="../../common/card-hi.png" style="position:absolute;left:0;top:0;width:324px;height:112px;"></image>
@@ -61,10 +61,10 @@
     <!-- 背景图：if/elif/else 确保同一时刻只渲染一张，避免反复解码 -->
     <image if="{{isCircle && loaded && items.length===0}}" src="../../common/circle-home-empty-bg.png" style="position:absolute;left:0;top:0;width:336px;height:336px;"></image>
     <image elif="{{isCircle && loaded}}" src="../../common/circle-home-bg.png" style="position:absolute;left:0;top:0;width:336px;height:336px;"></image>
-    <image elif.static="{{isCircle}}" src="../../common/circle-blank-bg.png" style="position:absolute;left:0;top:0;width:336px;height:336px;"></image>
+    <image elif="{{isCircle}}" src="../../common/circle-blank-bg.png" style="position:absolute;left:0;top:0;width:336px;height:336px;"></image>
 
     <!-- 顶部三点图标 → 设置（480设计 x211 y22 w58 h58 → 336 x148 y15 w41 h41） -->
-    <image if.static="{{isCircle}}" src="../../common/circle-ctr-82.png" style="position:absolute;left:148px;top:15px;width:41px;height:41px;" onclick="showMenu"></image>
+    <image if="{{isCircle}}" src="../../common/circle-ctr-82.png" style="position:absolute;left:148px;top:15px;width:41px;height:41px;" onclick="showMenu"></image>
 
     <!-- 任务卡片列表（480 基准卡 418x140 → 336 约 293x98） -->
     <list if="{{isCircle && loaded && items.length>0}}" scroll-y="true" onscroll="onCircleScroll" onscrollbottom="loadMore" style="position:absolute;left:0;top:110px;width:336px;height:226px;flex-direction:column;">
@@ -134,13 +134,13 @@ this.updateTime()
       var that = this
       if (that._syncing) { return }
       that._syncing = true
-      var syncFailsafe = setTimeout(function () { that._syncing = false }, 45000)
-      setTimeout(function () {
+      that._syncFailsafe = setTimeout(function () { that._syncing = false }, 45000)
+      that._syncTimer = setTimeout(function () {
         that.syncPending().then(function () {
           return that.autoSync()
         }).catch(function () {
         }).then(function () {
-          clearTimeout(syncFailsafe)
+          clearTimeout(that._syncFailsafe)
           that._syncing = false
         })
       }, 600)
@@ -152,6 +152,8 @@ this.updateTime()
 
     onDestroy () {
       this.hideCircleAdd()
+      if (this._syncTimer) { clearTimeout(this._syncTimer); this._syncTimer = null }
+      if (this._syncFailsafe) { clearTimeout(this._syncFailsafe); this._syncFailsafe = null }
       // 页面销毁时及时垃圾回收
       if (typeof global.runGC === "function") {
         global.runGC()
@@ -312,7 +314,7 @@ this.updateTime()
           try {
             var rawItems = JSON.parse(data)
             var now = Date.now()
-            var sliced = rawItems.length > 20 ? rawItems.slice(0, 20) : rawItems
+            var sliced = rawItems
             that._allItems = sliced
             var initial = sliced.slice(0, that.renderedCount)
             var raw = (initial || sliced || rawItems)

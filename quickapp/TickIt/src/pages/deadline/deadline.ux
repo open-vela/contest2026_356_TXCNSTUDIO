@@ -169,6 +169,8 @@
     },
 
     confirmDue () {
+      if (this._confirmed) { return }
+      this._confirmed = true
       var due = 0
       if (this.dateIdx > 0) {
         var now = new Date()

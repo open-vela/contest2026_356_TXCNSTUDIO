@@ -85,7 +85,11 @@ this.updateTime()
     doLogout () {
       var that = this
       // 等 token 清除写入完成再返回，避免主页 autoSync 读到旧 token 继续同步（异步竞态）
-      utils.storageSet('todo_token', 'guest_token').then(function () {
+      utils.storageSet('todo_token', 'guest_token').then(function (ok) {
+        if (!ok) {
+          utils.toast('退出失败，请重试')
+          return
+        }
         utils.setToken('')
         utils.toast('已退出云端账号')
         router.back()

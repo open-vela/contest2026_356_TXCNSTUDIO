@@ -8,7 +8,7 @@
       <!-- 标题 -->
       <text if="{{isCircle}}" style="position:absolute;left:36px;top:67px;width:264px;text-align:center;font-size:28px;font-weight:700;color:#FFFFFF;lines:1;">便签</text>
       <!-- 便签卡片列表 -->
-      <scroll if="{{isCircle && !empty && !loading}}" scroll-y="true" bounces="false" onscroll="onCircleScroll" onscrollbottom="loadMoreNotes" style="position:absolute;left:0;top:110px;width:336px;height:226px;flex-direction:column;">
+      <scroll if="{{isCircle && !empty && !loading}}" scroll-y="true" bounces="false" onscrollbottom="loadMoreNotes" style="position:absolute;left:0;top:110px;width:336px;height:226px;flex-direction:column;">
         <div for="{{shownNotes}}" style="width:291px;min-height:77px;margin-left:22px;margin-bottom:10px;border-radius:24px;background-color:#262626;flex-direction:column;justify-content:center;padding-left:22px;padding-right:22px;" onclick="editNote($item.id)">
           <text style="font-size:22px;color:#FFFFFF;">{{$item.content}}</text>
         </div>
