@@ -52,8 +52,8 @@
       <text style="font-size:20px;color:{{pillColor}};lines:1;text-overflow:ellipsis;">{{pillLeft}}</text>
       <text style="font-size:24px;font-weight:700;color:{{pillColor}};lines:1;">{{pillRight}}</text>
     </div>
-    <!-- 胶囊下方描述文字（flex 居中，仅等待/连接成功/离线/未绑定） -->
-    <div if="{{isCircle && descText && (status==='waiting' || status==='connected' || status==='offline' || status==='nobind')}}" style="position:absolute;left:28px;top:230px;width:280px;justify-content:center;align-items:center;">
+    <!-- 胶囊下方描述文字（flex 居中，等待/连接成功/失败/离线/未绑定） -->
+    <div if="{{isCircle && descText && (status==='waiting' || status==='connected' || status==='fail' || status==='offline' || status==='nobind')}}" style="position:absolute;left:28px;top:230px;width:280px;justify-content:center;align-items:center;">
       <text style="font-size:16px;color:{{descColor}};lines:3;line-height:22px;text-align:center;">{{descText}}</text>
     </div>
     <!-- 离线/未绑定：wait-bg 胶囊无烘字，状态标题叠进胶囊（同 pillText 槽位），描述独占下方 -->
@@ -121,9 +121,8 @@
     },
 
     onDestroy () {
-      if (this._circleAddTimer) { clearTimeout(this._circleAddTimer); this._circleAddTimer = null }
       if (this._syncTimer) { clearTimeout(this._syncTimer); this._syncTimer = null }
-      if (this._chunkTimer) { clearTimeout(this._chunkTimer); this._chunkTimer = null }
+      if (this._chainFailsafe) { clearTimeout(this._chainFailsafe); this._chainFailsafe = null }
       if (typeof global.runGC === "function") {
         global.runGC()
       }
@@ -161,7 +160,11 @@
 
     // 已退出/未绑定时不执行同步，提示去绑定
     checkBindAndSync () {
+      if (this._chainBusy) { return }
+      this._chainBusy = true
       var that = this
+      if (this._chainFailsafe) { clearTimeout(this._chainFailsafe) }
+      this._chainFailsafe = setTimeout(function () { that._chainBusy = false }, 45000)
       utils.storageGet('todo_token').then(function (token) {
         if (!token || token === 'guest_token') {
           that.showNoBind()
@@ -171,7 +174,7 @@
         that.status = 'connected'
         that.descText = ''
         that.refreshCircleBg()
-        setTimeout(function () {
+        that._syncTimer = setTimeout(function () {
           that.startSync()
         }, 600)
       })
@@ -231,6 +234,7 @@
             }
             var merged = utils.mergeCloudItems(localItems, cloudItems, ignores.concat(pendingDel))
             utils.storageSet('todo_items', JSON.stringify(merged)).then(function (ok) {
+              if (!ok) { that.showFail('本地保存失败，请重试'); return }
               that.push(merged)
             })
           })
@@ -244,6 +248,10 @@
       that.syncProgress = '80%'
       that.refreshCircleBg()
       utils.syncPush(items).then(function () {
+        // 回写 cloudId 后持久化本地列表，防下次同步重复上传
+        return utils.storageSet('todo_items', JSON.stringify(items))
+      }).then(function () {
+        that._chainBusy = false
         that.syncProgress = '100%'
         that.status = 'success'
         that.descText = ''
@@ -254,13 +262,16 @@
     },
 
     showFail (msg) {
+      this._chainBusy = false
       this.status = 'fail'
       this.descText = msg || '无法连接服务器，请重试'
       this.descColor = '#FF6B6B'
+      this.syncProgress = ''
       this.refreshCircleBg()
     },
 
     showOffline () {
+      this._chainBusy = false
       this.status = 'offline'
       this.descText = '可前往设置切换在线模式'
       this.descColor = '#999999'
@@ -268,6 +279,7 @@
     },
 
     showNoBind () {
+      this._chainBusy = false
       this.status = 'nobind'
       this.descText = '请到「设置→云端账号」绑定'
       this.descColor = '#999999'

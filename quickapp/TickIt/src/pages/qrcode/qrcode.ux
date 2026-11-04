@@ -11,12 +11,12 @@
     <text  style="position:absolute;left:105px;top:10px;width:126px;text-align:center;font-size:26px;color:#999999;">{{timeStr}}</text>
     <text static style="position:absolute;left:100px;top:40px;width:136px;text-align:center;font-size:32px;font-weight:700;color:#FFFFFF;">分享内容</text>
 
-    <!-- 二维码区；圆屏缩码+上移防底部裁切 -->
-    <div static style="position:absolute;left:0;top:120px;width:336px;flex-direction:column;align-items:center;">
-      <div static style="width:240px;height:240px;border-radius:24px;background-color:#FFFFFF;justify-content:center;align-items:center;padding:20px;">
-        <qrcode value="{{qrContent}}" style="width:200px;height:200px;background-color:#FFFFFF;"></qrcode>
+    <!-- 二维码区；圆屏缩码+上移防底部裁切（200 卡 @top70 落弦宽安全区，方屏原值不变） -->
+    <div style="position:absolute;left:0;top:{{isCircle ? 70 : 120}}px;width:336px;flex-direction:column;align-items:center;">
+      <div style="width:{{isCircle ? 200 : 240}}px;height:{{isCircle ? 200 : 240}}px;border-radius:24px;background-color:#FFFFFF;justify-content:center;align-items:center;padding:{{isCircle ? 15 : 20}}px;">
+        <qrcode value="{{qrContent}}" style="width:{{isCircle ? 170 : 200}}px;height:{{isCircle ? 170 : 200}}px;background-color:#FFFFFF;"></qrcode>
       </div>
-      <text  style="font-size:16px;color:#999999;margin-top:24px;padding-left:40px;padding-right:40px;text-align:center;lines:2;text-overflow:ellipsis;">{{qrContent}}</text>
+      <text  style="font-size:16px;color:#999999;margin-top:{{isCircle ? 12 : 24}}px;padding-left:40px;padding-right:40px;text-align:center;lines:2;text-overflow:ellipsis;">{{qrContent}}</text>
     </div>
 
   </div>

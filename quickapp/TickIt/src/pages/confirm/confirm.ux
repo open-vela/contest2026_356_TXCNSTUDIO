@@ -103,6 +103,7 @@ this.updateTime()
     },
 
     onDestroy () {
+      if (this._deletingTimer) { clearTimeout(this._deletingTimer); this._deletingTimer = null }
       if (typeof global.runGC === "function") {
         global.runGC()
       }
@@ -123,7 +124,7 @@ this.updateTime()
       var that = this
       if (that._deleting) { return }
       that._deleting = true
-      setTimeout(function () { that._deleting = false }, 3000)
+      that._deletingTimer = setTimeout(function () { that._deleting = false }, 3000)
       if (that.type === 'clearAll') {
         that.doClearAll()
       } else if (that.type === 'note') {

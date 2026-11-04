@@ -135,6 +135,7 @@ var that = this
     },
 
     onDestroy () {
+      if (this._bindTimer) { clearTimeout(this._bindTimer); this._bindTimer = null }
       if (typeof global.runGC === "function") {
         global.runGC()
       }
@@ -190,7 +191,7 @@ var that = this
           return
         }
         // 90 秒超时保护（蓝牙网络可能极慢）
-        var timer = setTimeout(function () {
+        that._bindTimer = setTimeout(function () {
           that.binding = false
           that.loginFail = true
           utils.toast('绑定超时，请检查网络后重试')
@@ -198,20 +199,26 @@ var that = this
         utils.getDeviceId().then(function (deviceId) {
           return utils.cloudDeviceBind(that.code, deviceId)
         }).then(function (res) {
-          clearTimeout(timer)
+          clearTimeout(that._bindTimer)
           that.binding = false
           if (res && res.success && res.token) {
-            utils.storageSet('todo_token', res.token)
-            utils.setToken(res.token)
-            that.bound = true
-            that.loginFail = false
-            utils.toast('绑定成功')
+            utils.storageSet('todo_token', res.token).then(function (ok) {
+              if (!ok) {
+                that.loginFail = true
+                utils.toast('绑定保存失败，请重试')
+                return
+              }
+              utils.setToken(res.token)
+              that.bound = true
+              that.loginFail = false
+              utils.toast('绑定成功')
+            })
           } else {
             that.loginFail = true
             utils.toast((res && res.message) || '绑定失败')
           }
         }).catch(function () {
-          clearTimeout(timer)
+          clearTimeout(that._bindTimer)
           that.binding = false
           that.loginFail = true
           utils.toast('绑定失败，请检查网络')

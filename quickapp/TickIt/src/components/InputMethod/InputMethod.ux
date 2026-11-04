@@ -135,7 +135,7 @@
       </div>
       <!-- 方屏67 -->
       <div if="{{screenTypeResolved==='rect'}}" style="width: {{screenWidthRect}}px;height: 255px;flex-direction: column">
-        <div static style="position:absolute;top:-11px;width:{{screenWidthRect}}px;height:276px;justify-content: center">
+        <div style="position:absolute;top:-11px;width:{{screenWidthRect}}px;height:276px;justify-content: center">
           <progress percent="{{percent67}}" style="position:absolute;bottom: 15px;width:80px;color:#ffffff;stroke-width:6px;layer-color:#262626"></progress>
           <scroll id="keyboard67" scroll-x="{{true}}" onscroll="handelScroll" style="width: {{screenWidthRect}}px">
             <div if="{{!numFlag}}" style="left: 6px; flex-direction: column;">
@@ -163,11 +163,11 @@
             </div>
           </scroll>
         </div>
-        <div style="width: {{screenWidthRect}}px; flex-direction: row; justify-content: center；top:6px">
+        <div style="width: {{screenWidthRect}}px; flex-direction: row; justify-content: center;top:6px">
           <image src="./assets/horizontal/cn.png" style="padding: 6px;width: 60px;height: 60px;" @click="onBtnClick('lang')" if="{{downFlag==='' && !numFlag && lang==='cn'}}" />
           <div if="{{lang === 'cn' && !numFlag}}" style="margin-left: 6px;width: 60%;height: 60px;background-color:#262626;border-color: #333333; border-width: 3px; border-radius: 100px;flex-direction: row;align-items:center">
             <scroll id="cvalWaiting" scroll-x="{{true}}" style="position:absolute;width: 85%;height: 42px;">
-              <div static style="position: absolute;left: 0px;height: 42px;padding-left:20px;padding-right:20px">
+              <div style="position: absolute;left: 0px;height: 42px;padding-left:20px;padding-right:20px">
                 <text class="calbtn02" style="padding-right:10px" @click="pushCval">{{cval}}</text>
                 <text for="{{cvalList}}" show="{{resultList.length > $idx}}" class="calbtn02" style="padding-right:10px" @click="onRsSelect(resultList[$idx])">{{resultList[$idx]}}</text>
               </div>
@@ -188,7 +188,7 @@
         <!-- 这里使用show会导致每次输入都会加载全部候选列表，很卡 -->
         <div style="position: absolute;left: 0px;top: 0px;width: {{screenWidthRect}}px;height: 252px;background-color: black; justify-content:center; flex-direction:column; align-items:center" if="{{downFlag==='down'}}">
           <div static class="list67">
-            <list static style="width:100%;height:100%;">
+            <list style="width:100%;height:100%;">
               <list-item type="waitingRows67" class="item67" for="{{itemArray in resultList2}}">
                 <div class="item column center" for="{{item in itemArray}}">
                   <input class="calbtn02" type="button" value="{{item}}" @click="onRsSelect(item)" />
@@ -201,7 +201,7 @@
       </div>
       <!-- 胶囊屏66 -->
       <div if="{{screenTypeResolved==='pill-shaped'}}" style="width: 192px;height: 305px">
-        <div static style="position:absolute;left:0px;top:34px;width:192px;height:276px;">
+        <div style="position:absolute;left:0px;top:34px;width:192px;height:276px;">
           <progress percent="{{30+percent66}}" type="arc" style="start-angle:204deg;total-angle:-48deg;width:188px;height:188px;top:82px;left:2px;position:absolute;color:#ffffff;stroke-width:6px;layer-color:#262626"></progress>
           <scroll id="keyboard66" scroll-x="{{true}}" onscroll="handelScroll">
             <div if="{{!numFlag}}" style="left: 3px; flex-direction: column;">
@@ -248,7 +248,7 @@
         <image src="./assets/arc/del.png" style="position: absolute;left: 135px;top: 0px;width: 48px;height: 42px;" @click="onBtnClick('D')" />
         <!-- 这里使用show会导致每次输入都会加载全部候选列表，很卡 -->
         <div style="position: absolute;left: 0px;top: 47px;width: 192px;height: 263px;background-color: black;" if="{{downFlag==='down'}}">
-          <list static class="list66">
+          <list class="list66">
             <list-item type="waitingRows66" class="item66" for="{{itemArray in resultList2}}">
               <div class="item column center" for="{{item in itemArray}}">
                 <input class="calbtn0" type="button" value="{{item}}" @click="onRsSelect(item)" />
@@ -367,11 +367,13 @@ export default {
             shape = res.screenShape === "circle" ? "circle" : (res.screenShape === "pill-shaped" ? "pill-shaped" : "rect");
           }
           that.screenTypeResolved = shape;
+          if (shape === "rect") { that.adjustScreenWidth(); }
         },
         fail: function () {
           // 异步探测失败时保留 adapt 缓存结果（若有），否则回落 rect
           if (!(typeof global !== "undefined" && global.__adaptInfo)) {
             that.screenTypeResolved = "rect";
+            that.adjustScreenWidth();
           }
         }
       });
@@ -513,7 +515,7 @@ export default {
     this.lastWaitingStr = "";
   },
   resetReslutList() {
-    if (this.screentype != "circle") {
+    if (this.screenTypeResolved !== "circle") {
       const el = this.$element("cvalWaiting");
       if (el) {
         el.scrollTo({
@@ -557,7 +559,7 @@ export default {
   },
   onSelect(num) {
     this.$emit("keyDown", { content: num });
-    if (this.keyboardtype === "T9" && this.screentype === "circle") {
+    if (this.keyboardtype === "T9" && this.screenTypeResolved === "circle") {
       this.onBtnClick(num);
       return;
     }
@@ -611,8 +613,10 @@ export default {
   adjustScreenWidth(){
     device.getInfo({
       success: (data) => {
-        this.screenWidthRect = data.screenWidth;
-      }
+        // 缺字段时保留默认/现值，避免 screenWidthRect 变 undefined 使宽度绑定失效
+        if (data && data.screenWidth) { this.screenWidthRect = data.screenWidth }
+      },
+      fail: () => {}
     })
   }
 };

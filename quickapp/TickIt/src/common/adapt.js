@@ -12,15 +12,11 @@ let pending = null
 
 // 屏幕宽高比决定形状；screenShape 缺失时按宽高比兜底
 function kindOf (w, h, shape) {
-  if (shape === 'circle' || shape === 'pill-shaped') {
-    return shape
-  }
-  if (shape === 'rect') {
-    return 'rect'
-  }
-  // 兜底：等宽等高=圆屏，比例<0.5=胶囊，其余矩形
+  // 宽高优先（与 InputMethod 判型一致，screenShape 误报不致命）：等宽高=圆屏，极窄=胶囊，其余矩形
   if (w === h) return 'circle'
-  return w / h < 0.5 ? 'pill' : 'rect'
+  if (w / h <= 0.55) return 'pill'
+  if (shape === 'circle') return 'circle'
+  return 'rect'
 }
 
 function classify (res) {

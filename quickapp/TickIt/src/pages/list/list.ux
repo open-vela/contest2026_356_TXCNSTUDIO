@@ -12,7 +12,7 @@
 
     <!-- 设置项列表：324x112 卡片 -->
     <scroll scroll-y="true" bounces="false" style="position:absolute;left:6px;top:90px;width:324px;height:380px;flex-direction:column;">
-      <div for="{{settings}}" style="height:112px;margin-bottom:8px;border-radius:24px;background-color:#262626;flex-direction:column;justify-content:center;padding-left:28px;padding-right:28px;" onclick="onTap($item.action)">
+      <div for="{{settings}}" style="height:112px;margin-bottom:8px;flex-shrink:0;border-radius:24px;background-color:#262626;flex-direction:column;justify-content:center;padding-left:28px;padding-right:28px;" onclick="onTap($item.action)">
         <text style="font-size:32px;font-weight:700;color:#FFFFFF;">{{$item.title}}</text>
         <text style="font-size:22px;color:{{$item.action==='offline' ? (offline ? '#FF9800' : '#999999') : '#999999'}};margin-top:10px;">{{$item.action==='offline' ? (offline ? '当前离线模式' : '当前在线模式') : $item.desc}}</text>
       </div>
@@ -27,12 +27,12 @@
 
     <!-- 6 个设置按钮：87=便签 88=云端同步 93=云端账号 89=关于应用 90=模式选择 91=清空所有内容(⚠) -->
     <scroll if="{{isCircle}}" scroll-y="true" style="position:absolute;left:0;top:110px;width:336px;height:300px;flex-direction:column;">
-      <image src="../../common/circle-ctr-87.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;" onclick="onTap('notes')"></image>
-      <image src="../../common/circle-ctr-88.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;" onclick="onTap('sync')"></image>
-      <image src="../../common/circle-ctr-93.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;" onclick="onTap('token')"></image>
-      <image src="../../common/circle-ctr-89.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;" onclick="onTap('about')"></image>
-      <image src="../../common/circle-ctr-90.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;" onclick="onTap('mode')"></image>
-      <image src="../../common/circle-ctr-91.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;" onclick="onTap('clearAll')"></image>
+      <image src="../../common/circle-ctr-87.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;flex-shrink:0;" onclick="onTap('notes')"></image>
+      <image src="../../common/circle-ctr-88.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;flex-shrink:0;" onclick="onTap('sync')"></image>
+      <image src="../../common/circle-ctr-93.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;flex-shrink:0;" onclick="onTap('token')"></image>
+      <image src="../../common/circle-ctr-89.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;flex-shrink:0;" onclick="onTap('about')"></image>
+      <image src="../../common/circle-ctr-90.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;flex-shrink:0;" onclick="onTap('mode')"></image>
+      <image src="../../common/circle-ctr-91.png" style="width:291px;height:77px;margin-left:22px;margin-bottom:12px;flex-shrink:0;" onclick="onTap('clearAll')"></image>
       <!-- 底部留白：保证 291 宽胶囊可滚进圆弧安全区（中心 y≤252） -->
       <div static style="height:112px;"></div>
     </scroll>
