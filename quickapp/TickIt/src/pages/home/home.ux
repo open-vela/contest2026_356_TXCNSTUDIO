@@ -444,9 +444,14 @@ this.updateTime()
       if (e.scrollY > previous) { this.showCircleAdd() }
     },
 
-    // 首页右划不返回；无滚动内容时也能上划唤出新建按钮。
+    // 方屏首页右划 = 退出快应用（@swipe 会吃掉系统手势需显式退）；圆屏首页右划不返回；圆屏上/下划唤出/收起新建按钮。
     onSwipe (e) {
-      if (!this.isCircle || !e) { return }
+      if (!e) { return }
+      if (e.direction === 'right') {
+        if (this.isCircle === false) { this.$app.exit() }
+        return
+      }
+      if (this.isCircle !== true) { return }
       if (e.direction === 'up') { this.showCircleAdd() }
       if (e.direction === 'down') { this.hideCircleAdd() }
     }
