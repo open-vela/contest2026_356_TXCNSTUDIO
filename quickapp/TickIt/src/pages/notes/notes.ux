@@ -333,6 +333,16 @@ var that = this
               break
             }
           }
+          // 兜底 2：仅按内容认领（云端 created_ts = 上传时刻，与本地创建时刻常差数分钟，10s 容差命中不了时防重复）
+          if (!found && c2.content) {
+            for (var n2 = 0; n2 < result.length; n2++) {
+              if (!result[n2].cloudId && result[n2].content === c2.content) {
+                result[n2].cloudId = c2.id
+                found = true
+                break
+              }
+            }
+          }
         }
         if (!found) {
           var c3 = cloudMap[k]
