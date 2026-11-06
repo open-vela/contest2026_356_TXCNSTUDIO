@@ -480,6 +480,7 @@
 
     // 圆屏：截止时间循环切换 无→今天→明天→3天→无
     openDeadline () {
+      utils.storageSet('todo_due_pre', String(this.due || 0))
       router.push({ uri: 'pages/deadline', params: { currentDue: this.due || 0 } })
     },
 
