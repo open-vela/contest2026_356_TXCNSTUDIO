@@ -67,7 +67,6 @@
 
     onInit () {
       this.isCircle = adapt.isCircleSync()
-      this.initPicker()
     },
 
     onShow () {
@@ -75,10 +74,32 @@
       adapt.probe().then(function (info) {
         if (that.isCircle !== info.isCircle) { that.isCircle = info.isCircle }
       })
+      // 路由参数在 onInit 之后才注入 → 回填放 onShow；优先读调用方中转的当前截止（防参数通道不稳）
+      if (!this._inited) {
+        this._inited = true
+        utils.storageGet('todo_due_pre').then(function (v) {
+          var n = parseInt(v, 10)
+          if (n > 0) { that.currentDue = n }
+          utils.storageSet('todo_due_pre', '')
+          that.initPicker()
+          that.syncWheelPos()
+          if (that._wheelTimer) { clearTimeout(that._wheelTimer) }
+          that._wheelTimer = setTimeout(function () { that.syncWheelPos() }, 80)
+        })
+      }
+    },
+
+    // scroll-top 绑定可能只在挂载时生效 → 回填后显式滚动到选中行
+    syncWheelPos () {
+      var dw = this.$element('dateWheel')
+      if (dw && dw.scrollTo) { dw.scrollTo({ top: this.dateIdx * 40, behavior: 'instant' }) }
+      var tw = this.$element('timeWheel')
+      if (tw && tw.scrollTo) { tw.scrollTo({ top: this.timeIdx * 40, behavior: 'instant' }) }
     },
 
     onDestroy () {
       if (this._dtTimer) { clearTimeout(this._dtTimer); this._dtTimer = null }
+      if (this._wheelTimer) { clearTimeout(this._wheelTimer); this._wheelTimer = null }
       if (this._ttTimer) { clearTimeout(this._ttTimer); this._ttTimer = null }
       if (typeof global.runGC === 'function') { global.runGC() }
     },

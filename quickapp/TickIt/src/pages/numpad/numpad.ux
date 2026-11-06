@@ -188,6 +188,7 @@
     },
 
     openDeadline () {
+      utils.storageSet('todo_due_pre', String(this.due || 0))
       router.push({ uri: 'pages/deadline', params: { currentDue: this.due || 0 } })
     },
 
