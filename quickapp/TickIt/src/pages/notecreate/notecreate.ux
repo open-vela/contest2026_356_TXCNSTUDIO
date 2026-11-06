@@ -23,7 +23,7 @@
     </div>
 
     <!-- ═══ 方屏原布局 ═══ -->
-    <div if="{{isCircle === false}}">
+    <div if="{{isCircle === false}}" style="flex-direction:column;width:336px;height:100%;">
 
     <!-- 创建便签：黑框输入 + ✓ 保存 + 键盘 -->
     <div static style="position:absolute;left:6px;top:6px;width:72px;height:72px;border-radius:36px;background-color:#262626;border-width:3px;border-color:rgba(255,255,255,0.06);justify-content:center;align-items:center;" onclick="goBack">

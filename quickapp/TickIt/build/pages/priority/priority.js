@@ -1,1 +1,863 @@
-export default function(t,e,_,i,o){var n,r=$app_require$;t.setTimeout,t.setInterval,t.clearTimeout,t.clearInterval,n=t.$app_require$||r,function(){(()=>{var t,o,r,c={695(t,e,_){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=void 0;var i,o=(i=n("@app-module/system.device"))&&i.__esModule?i:{default:i};let r=null,c=null;function p(t){var e;let _=t&&t.screenWidth?t.screenWidth:336,i=t&&t.screenHeight?t.screenHeight:480,o=t&&t.screenDensity?t.screenDensity:2,n=(e=t&&t.screenShape?t.screenShape:"",_===i?"circle":_/i<=.55?"pill":"circle"===e?"circle":"rect");return{w:_,h:i,dpr:o,kind:n,isCircle:"circle"===n,isPill:"pill"===n,isRect:"rect"===n,designHeight:Math.round(i/_*336),scale:_/336}}e.default={probe:function(){return r?Promise.resolve(r):c||(c=new Promise(function(t){o.default.getInfo({success:function(e){r=p(e),void 0!==_.g&&(_.g.__adaptInfo=r),t(r)},fail:function(){r=p(null),void 0!==_.g&&(_.g.__adaptInfo=r),t(r)}})}))},peek:function(){return r},isCircleSync:function(){return r?r.isCircle:void 0!==_.g&&_.g.__adaptInfo?_.g.__adaptInfo.isCircle:null},DESIGN_WIDTH:336}}},p={};function s(t){var e=p[t];if(void 0!==e)return e.exports;var _=p[t]={exports:{}};return c[t](_,_.exports,s),_.exports}s.g=(()=>{if("object"==typeof e)return e;try{return this||Function("return this")()}catch(t){if("object"==typeof _)return _}})(),s.rv=()=>"1.7.12",s.ruid="bundler=rspack@1.7.12",t=[],o=function(t,e,_){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=void 0;var i=c(_("@app-module/system.router")),o=c(_("@app-module/system.storage")),n=c(_("@app-module/system.prompt")),r=c(s(695));function c(t){return t&&t.__esModule?t:{default:t}}let p=s.g.utils||{};e.default={private:{timeStr:"",priority:2,pinned:!1,isCircle:null},onInit(){this.isCircle=r.default.isCircleSync(),p.init(o.default,n.default)},onShow(){var t=this;t.updateTime(),r.default.probe().then(function(e){t.isCircle!==e.isCircle&&(t.isCircle=e.isCircle)}),p.storageGet("todo_priority_sel").then(function(e){if(e)try{var _=JSON.parse(e);t.priority=_.priority,t.pinned=!!_.pinned}catch(t){}})},onDestroy(){"function"==typeof s.g.runGC&&s.g.runGC()},updateTime(){var t=new Date,e=t.getHours().toString();e.length<2&&(e="0"+e);var _=t.getMinutes().toString();_.length<2&&(_="0"+_),this.timeStr=e+":"+_},sel(t){this.priority=t,this.save()},togglePin(){this.pinned=!this.pinned,this.save()},save(){p.storageSet("todo_priority_sel",JSON.stringify({priority:this.priority,pinned:this.pinned}))},saveAndBack(){this.save(),i.default.back()},goBack(){i.default.back()},onSwipe(t){t&&"right"===t.direction&&i.default.back()}};let l=e.default||t.exports,a=["public","protected","private"];if(l.data&&a.some(function(t){return l[t]}))throw Error('页面VM对象中的属性data不可与"'+a.join(",")+'"同时存在，请使用private替换data名称');l.data||(l.data={},l._descriptor={},a.forEach(function(t){let e=typeof l[t];if("object"===e)for(let e in l.data=Object.assign(l.data,l[t]),l[t])l._descriptor[e]={access:t};else"function"===e&&console.warn("页面VM对象中的属性"+t+"的值不能是函数，请使用对象")}))},r=function(t){let e=t||this;return aiot.__ce__("div",{__vm__:e,__opts__:{style:{flexDirection:"column",width:"336px",height:"100%",backgroundColor:"#000000"},events:{swipe:function(t){return e.onSwipe(t)}}}},[aiot.__ci__({__vm__:e,__opts__:{shown:function(){return e.isCircle}}},function(){return[aiot.__ce__("div",{__vm__:e,__opts__:{style:{position:"absolute",left:0,top:0,width:"336px",height:"336px"}}},[aiot.__ce__("scroll",{__vm__:e,__opts__:{scrollY:"true",bounces:"false",style:{width:"336px",height:"336px",flexDirection:"column"}}},[aiot.__ce__("div",{__vm__:e,__opts__:{style:{width:"336px",height:"580px",minHeight:"580px",flexShrink:0}}},[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-priority.png",style:{position:"absolute",left:0,top:0,width:"336px",height:"548px"}}},[]),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 3===e.priority}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-ctr-71.png",style:{position:"absolute",left:"22px",top:"111px",width:"291px",height:"77px"},events:{click:function(t){return e.sel(3,t)}}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 3!==e.priority}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-ctr-67.png",style:{position:"absolute",left:"22px",top:"111px",width:"291px",height:"77px"},events:{click:function(t){return e.sel(3,t)}}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 2===e.priority}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-ctr-70.png",style:{position:"absolute",left:"22px",top:"197px",width:"291px",height:"77px"},events:{click:function(t){return e.sel(2,t)}}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 2!==e.priority}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-ctr-66.png",style:{position:"absolute",left:"22px",top:"197px",width:"291px",height:"77px"},events:{click:function(t){return e.sel(2,t)}}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 1===e.priority}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-ctr-69.png",style:{position:"absolute",left:"22px",top:"283px",width:"291px",height:"77px"},events:{click:function(t){return e.sel(1,t)}}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 1!==e.priority}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-ctr-65.png",style:{position:"absolute",left:"22px",top:"283px",width:"291px",height:"77px"},events:{click:function(t){return e.sel(1,t)}}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return e.pinned}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-ctr-68.png",style:{position:"absolute",left:"22px",top:"369px",width:"291px",height:"77px"},events:{click:function(t){return e.togglePin(t)}}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return!e.pinned}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-ctr-64.png",style:{position:"absolute",left:"22px",top:"369px",width:"291px",height:"77px"},events:{click:function(t){return e.togglePin(t)}}}},[])]}),aiot.__ce__("div",{__vm__:e,__opts__:{style:{position:"absolute",left:"22px",top:"455px",width:"291px",height:"77px",borderRadius:"38px",backgroundColor:"#448aff",flexDirection:"row",alignItems:"center",paddingLeft:"26px",paddingRight:"26px"},events:{click:function(t){return e.saveAndBack(t)}}}},[aiot.__ce__("text",{__vm__:e,__opts__:{style:{flex:1,fontSize:"24px",fontWeight:700,color:"#ffffff",lines:1},value:"保存"}},[]),aiot.__ce__("text",{__vm__:e,__opts__:{style:{fontSize:"24px",color:"#ffffff"},value:"✓"}},[])])])])])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return!1===e.isCircle}}},function(){return[aiot.__ce__("div",{__vm__:e,__opts__:{style:{flexDirection:"column",width:"336px",height:"100%"}}},[aiot.__ce__("div",{__vm__:e,__opts__:{style:{position:"absolute",left:"6px",top:"6px",width:"72px",height:"72px",borderRadius:"36px",backgroundColor:"#262626",borderTopWidth:"3px",borderRightWidth:"3px",borderBottomWidth:"3px",borderLeftWidth:"3px",borderTopColor:"rgba(255,255,255,0.06)",borderRightColor:"rgba(255,255,255,0.06)",borderBottomColor:"rgba(255,255,255,0.06)",borderLeftColor:"rgba(255,255,255,0.06)",justifyContent:"center",alignItems:"center"},events:{click:function(t){return e.goBack(t)}}}},[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/icon-back.png",style:{width:"16px",height:"27px"}}},[])]),aiot.__ce__("text",{__vm__:e,__opts__:{style:{position:"absolute",left:"105px",top:"10px",width:"126px",textAlign:"center",fontSize:"26px",color:"#999999"},value:function(){return e.timeStr}}},[]),aiot.__ce__("text",{__vm__:e,__opts__:{style:{position:"absolute",left:"100px",top:"40px",width:"136px",textAlign:"center",fontSize:"32px",fontWeight:700,color:"#ffffff"},value:"优先级"}},[]),aiot.__ce__("div",{__vm__:e,__opts__:{style:{position:"absolute",left:"6px",top:"90px",width:"324px",height:"112px",borderRadius:"24px",backgroundColor:"#262626",flexDirection:"row",alignItems:"center",paddingLeft:"28px",paddingRight:"28px"},events:{click:function(t){return e.sel(3,t)}}}},[aiot.__ce__("text",{__vm__:e,__opts__:{style:{flex:1,fontSize:"32px",fontWeight:700,color:"#ffffff"},value:"高优先级"}},[]),aiot.__ce__("text",{__vm__:e,__opts__:{style:function(){return s.g.$translateStyle$("font-size:28px;color:"+(3===e.priority?"#FF6B6B":"#666666")+";")},value:"●"}},[])]),aiot.__ce__("div",{__vm__:e,__opts__:{style:{position:"absolute",left:"6px",top:"210px",width:"324px",height:"112px",borderRadius:"24px",backgroundColor:"#262626",flexDirection:"row",alignItems:"center",paddingLeft:"28px",paddingRight:"28px"},events:{click:function(t){return e.sel(2,t)}}}},[aiot.__ce__("text",{__vm__:e,__opts__:{style:{flex:1,fontSize:"32px",fontWeight:700,color:"#ffffff"},value:"中优先级"}},[]),aiot.__ce__("text",{__vm__:e,__opts__:{style:function(){return s.g.$translateStyle$("font-size:28px;color:"+(2===e.priority?"#4A90D9":"#666666")+";")},value:"●"}},[])]),aiot.__ce__("div",{__vm__:e,__opts__:{style:{position:"absolute",left:"6px",top:"330px",width:"324px",height:"112px",borderRadius:"24px",backgroundColor:"#262626",flexDirection:"row",alignItems:"center",paddingLeft:"28px",paddingRight:"28px"},events:{click:function(t){return e.sel(1,t)}}}},[aiot.__ce__("text",{__vm__:e,__opts__:{style:{flex:1,fontSize:"32px",fontWeight:700,color:"#ffffff"},value:"低优先级"}},[]),aiot.__ce__("text",{__vm__:e,__opts__:{style:function(){return s.g.$translateStyle$("font-size:28px;color:"+(1===e.priority?"#9B59B6":"#666666")+";")},value:"●"}},[])]),aiot.__ce__("div",{__vm__:e,__opts__:{style:{position:"absolute",left:"6px",top:"450px",width:"324px",height:"112px",borderRadius:"24px",backgroundColor:"#262626",flexDirection:"row",alignItems:"center",paddingLeft:"28px",paddingRight:"28px"},events:{click:function(t){return e.togglePin(t)}}}},[aiot.__ce__("text",{__vm__:e,__opts__:{style:{flex:1,fontSize:"32px",fontWeight:700,color:"#ffffff"},value:"置顶"}},[]),aiot.__ce__("text",{__vm__:e,__opts__:{style:function(){return s.g.$translateStyle$("font-size:28px;color:"+(e.pinned?"#FF9800":"#666666")+";")},value:"●"}},[])])])]})])},i.entry=function(e){o({},e,n),e.default.template=r,e.default.style=t}})()}()}
+export default function(global, globalThis, window, $app_exports$, $app_evaluate$) {
+    var org_app_require = $app_require$;
+    (function(global, globalThis, window, $app_exports$, $app_evaluate$) {
+        var setTimeout = global.setTimeout;
+        var setInterval = global.setInterval;
+        var clearTimeout = global.clearTimeout;
+        var clearInterval = global.clearInterval;
+        var $app_require$1 = global.$app_require$ || org_app_require;
+        var createPageHandler = function() {
+            return (()=>{
+                var __webpack_modules__ = {
+                    "./src/common/adapt.js" (__unused_rspack_module, exports, __webpack_require__) {
+                        "use strict";
+                        Object.defineProperty(exports, "__esModule", {
+                            value: true
+                        });
+                        exports["default"] = void 0;
+                        var _system = _interopRequireDefault($app_require$1("@app-module/system.device"));
+                        function _interopRequireDefault(e) {
+                            return e && e.__esModule ? e : {
+                                default: e
+                            };
+                        }
+                        const DESIGN_WIDTH = 336;
+                        let cached = null;
+                        let pending = null;
+                        function kindOf(w, h, shape) {
+                            if (w === h) return 'circle';
+                            if (w / h <= 0.55) return 'pill';
+                            if ('circle' === shape) return 'circle';
+                            return 'rect';
+                        }
+                        function classify(res) {
+                            const w = res && res.screenWidth ? res.screenWidth : 336;
+                            const h = res && res.screenHeight ? res.screenHeight : 480;
+                            const dpr = res && res.screenDensity ? res.screenDensity : 2;
+                            const kind = kindOf(w, h, res && res.screenShape ? res.screenShape : '');
+                            return {
+                                w: w,
+                                h: h,
+                                dpr: dpr,
+                                kind: kind,
+                                isCircle: 'circle' === kind,
+                                isPill: 'pill' === kind,
+                                isRect: 'rect' === kind,
+                                designHeight: Math.round(h / w * DESIGN_WIDTH),
+                                scale: w / DESIGN_WIDTH
+                            };
+                        }
+                        function probe() {
+                            if (cached) return Promise.resolve(cached);
+                            if (pending) return pending;
+                            pending = new Promise(function(resolve) {
+                                _system.default.getInfo({
+                                    success: function(res) {
+                                        cached = classify(res);
+                                        if (void 0 !== __webpack_require__.g) __webpack_require__.g.__adaptInfo = cached;
+                                        resolve(cached);
+                                    },
+                                    fail: function() {
+                                        cached = classify(null);
+                                        if (void 0 !== __webpack_require__.g) __webpack_require__.g.__adaptInfo = cached;
+                                        resolve(cached);
+                                    }
+                                });
+                            });
+                            return pending;
+                        }
+                        function peek() {
+                            return cached;
+                        }
+                        function isCircleSync() {
+                            if (cached) return cached.isCircle;
+                            if (void 0 !== __webpack_require__.g && __webpack_require__.g.__adaptInfo) return __webpack_require__.g.__adaptInfo.isCircle;
+                            return null;
+                        }
+                        var _default = exports["default"] = {
+                            probe: probe,
+                            peek: peek,
+                            isCircleSync: isCircleSync,
+                            DESIGN_WIDTH: DESIGN_WIDTH
+                        };
+                    }
+                };
+                var __webpack_module_cache__ = {};
+                function __webpack_require__(moduleId) {
+                    var cachedModule = __webpack_module_cache__[moduleId];
+                    if (void 0 !== cachedModule) return cachedModule.exports;
+                    var module = __webpack_module_cache__[moduleId] = {
+                        exports: {}
+                    };
+                    __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+                    return module.exports;
+                }
+                (()=>{
+                    __webpack_require__.g = (()=>{
+                        if ('object' == typeof globalThis) return globalThis;
+                        try {
+                            return this || new Function('return this')();
+                        } catch (e) {
+                            if ('object' == typeof window) return window;
+                        }
+                    })();
+                })();
+                (()=>{
+                    __webpack_require__.rv = ()=>"1.7.12";
+                })();
+                (()=>{
+                    __webpack_require__.ruid = "bundler=rspack@1.7.12";
+                })();
+                var __webpack_exports__ = {};
+                (()=>{
+                    var $app_style$ = [];
+                    var $app_script$ = function __scriptModule__(module, exports, $app_require$1) {
+                        "use strict";
+                        Object.defineProperty(exports, "__esModule", {
+                            value: true
+                        });
+                        exports.default = void 0;
+                        var _system = _interopRequireDefault($app_require$1("@app-module/system.router"));
+                        var _system2 = _interopRequireDefault($app_require$1("@app-module/system.storage"));
+                        var _system3 = _interopRequireDefault($app_require$1("@app-module/system.prompt"));
+                        var _adapt = _interopRequireDefault(__webpack_require__("./src/common/adapt.js"));
+                        function _interopRequireDefault(e) {
+                            return e && e.__esModule ? e : {
+                                default: e
+                            };
+                        }
+                        const utils = __webpack_require__.g.utils || {};
+                        var _default = exports.default = {
+                            private: {
+                                timeStr: '',
+                                priority: 2,
+                                pinned: false,
+                                isCircle: null
+                            },
+                            onInit () {
+                                this.isCircle = _adapt.default.isCircleSync();
+                                utils.init(_system2.default, _system3.default);
+                            },
+                            onShow () {
+                                var that = this;
+                                that.updateTime();
+                                _adapt.default.probe().then(function(info) {
+                                    if (that.isCircle !== info.isCircle) that.isCircle = info.isCircle;
+                                });
+                                utils.storageGet('todo_priority_sel').then(function(s) {
+                                    if (s) {
+                                        try {
+                                            var o = JSON.parse(s);
+                                            that.priority = o.priority;
+                                            that.pinned = !!o.pinned;
+                                        } catch (e) {}
+                                    }
+                                });
+                            },
+                            onDestroy () {
+                                if ("function" == typeof __webpack_require__.g.runGC) __webpack_require__.g.runGC();
+                            },
+                            updateTime () {
+                                var now = new Date();
+                                var h = now.getHours().toString();
+                                if (h.length < 2) h = '0' + h;
+                                var m = now.getMinutes().toString();
+                                if (m.length < 2) m = '0' + m;
+                                this.timeStr = h + ':' + m;
+                            },
+                            sel (p) {
+                                this.priority = p;
+                                this.save();
+                            },
+                            togglePin () {
+                                this.pinned = !this.pinned;
+                                this.save();
+                            },
+                            save () {
+                                var that = this;
+                                utils.storageSet('todo_priority_sel', JSON.stringify({
+                                    priority: that.priority,
+                                    pinned: that.pinned
+                                }));
+                            },
+                            saveAndBack () {
+                                this.save();
+                                _system.default.back();
+                            },
+                            goBack () {
+                                _system.default.back();
+                            },
+                            onSwipe (e) {
+                                if (e && 'right' === e.direction) _system.default.back();
+                            }
+                        };
+                        const moduleOwn = exports.default || module.exports;
+                        const accessors = [
+                            'public',
+                            'protected',
+                            'private'
+                        ];
+                        if (moduleOwn.data && accessors.some(function(acc) {
+                            return moduleOwn[acc];
+                        })) throw new Error('页面VM对象中的属性data不可与"' + accessors.join(',') + '"同时存在，请使用private替换data名称');
+                        if (!moduleOwn.data) {
+                            moduleOwn.data = {};
+                            moduleOwn._descriptor = {};
+                            accessors.forEach(function(acc) {
+                                const accType = typeof moduleOwn[acc];
+                                if ('object' === accType) {
+                                    moduleOwn.data = Object.assign(moduleOwn.data, moduleOwn[acc]);
+                                    for(const name in moduleOwn[acc])moduleOwn._descriptor[name] = {
+                                        access: acc
+                                    };
+                                } else if ('function' === accType) console.warn('页面VM对象中的属性' + acc + '的值不能是函数，请使用对象');
+                            });
+                        }
+                    };
+                    var $app_template$ = function(vm) {
+                        const _vm_ = vm || this;
+                        return aiot.__ce__("div", {
+                            __vm__: _vm_,
+                            __opts__: {
+                                style: {
+                                    flexDirection: "column",
+                                    width: "336px",
+                                    height: "100%",
+                                    backgroundColor: "#000000"
+                                },
+                                events: {
+                                    swipe: function(evt) {
+                                        return _vm_.onSwipe(evt);
+                                    }
+                                }
+                            }
+                        }, [
+                            aiot.__ci__({
+                                __vm__: _vm_,
+                                __opts__: {
+                                    shown: function() {
+                                        return _vm_.isCircle;
+                                    }
+                                }
+                            }, function() {
+                                return [
+                                    aiot.__ce__("div", {
+                                        __vm__: _vm_,
+                                        __opts__: {
+                                            style: {
+                                                position: "absolute",
+                                                left: 0,
+                                                top: 0,
+                                                width: "336px",
+                                                height: "336px"
+                                            }
+                                        }
+                                    }, [
+                                        aiot.__ce__("scroll", {
+                                            __vm__: _vm_,
+                                            __opts__: {
+                                                scrollY: "true",
+                                                bounces: "false",
+                                                style: {
+                                                    width: "336px",
+                                                    height: "336px",
+                                                    flexDirection: "column"
+                                                }
+                                            }
+                                        }, [
+                                            aiot.__ce__("div", {
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    style: {
+                                                        width: "336px",
+                                                        height: "580px",
+                                                        minHeight: "580px",
+                                                        flexShrink: 0
+                                                    }
+                                                }
+                                            }, [
+                                                aiot.__ce__("image", {
+                                                    __vm__: _vm_,
+                                                    __opts__: {
+                                                        src: "/common/circle-priority.png",
+                                                        style: {
+                                                            position: "absolute",
+                                                            left: 0,
+                                                            top: 0,
+                                                            width: "336px",
+                                                            height: "548px"
+                                                        }
+                                                    }
+                                                }, []),
+                                                aiot.__ci__({
+                                                    __vm__: _vm_,
+                                                    __opts__: {
+                                                        shown: function() {
+                                                            return 3 === _vm_.priority;
+                                                        }
+                                                    }
+                                                }, function() {
+                                                    return [
+                                                        aiot.__ce__("image", {
+                                                            __vm__: _vm_,
+                                                            __opts__: {
+                                                                src: "/common/circle-ctr-71.png",
+                                                                style: {
+                                                                    position: "absolute",
+                                                                    left: "22px",
+                                                                    top: "111px",
+                                                                    width: "291px",
+                                                                    height: "77px"
+                                                                },
+                                                                events: {
+                                                                    click: function(evt) {
+                                                                        return _vm_.sel(3, evt);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }, [])
+                                                    ];
+                                                }),
+                                                aiot.__ci__({
+                                                    __vm__: _vm_,
+                                                    __opts__: {
+                                                        shown: function() {
+                                                            return 3 !== _vm_.priority;
+                                                        }
+                                                    }
+                                                }, function() {
+                                                    return [
+                                                        aiot.__ce__("image", {
+                                                            __vm__: _vm_,
+                                                            __opts__: {
+                                                                src: "/common/circle-ctr-67.png",
+                                                                style: {
+                                                                    position: "absolute",
+                                                                    left: "22px",
+                                                                    top: "111px",
+                                                                    width: "291px",
+                                                                    height: "77px"
+                                                                },
+                                                                events: {
+                                                                    click: function(evt) {
+                                                                        return _vm_.sel(3, evt);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }, [])
+                                                    ];
+                                                }),
+                                                aiot.__ci__({
+                                                    __vm__: _vm_,
+                                                    __opts__: {
+                                                        shown: function() {
+                                                            return 2 === _vm_.priority;
+                                                        }
+                                                    }
+                                                }, function() {
+                                                    return [
+                                                        aiot.__ce__("image", {
+                                                            __vm__: _vm_,
+                                                            __opts__: {
+                                                                src: "/common/circle-ctr-70.png",
+                                                                style: {
+                                                                    position: "absolute",
+                                                                    left: "22px",
+                                                                    top: "197px",
+                                                                    width: "291px",
+                                                                    height: "77px"
+                                                                },
+                                                                events: {
+                                                                    click: function(evt) {
+                                                                        return _vm_.sel(2, evt);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }, [])
+                                                    ];
+                                                }),
+                                                aiot.__ci__({
+                                                    __vm__: _vm_,
+                                                    __opts__: {
+                                                        shown: function() {
+                                                            return 2 !== _vm_.priority;
+                                                        }
+                                                    }
+                                                }, function() {
+                                                    return [
+                                                        aiot.__ce__("image", {
+                                                            __vm__: _vm_,
+                                                            __opts__: {
+                                                                src: "/common/circle-ctr-66.png",
+                                                                style: {
+                                                                    position: "absolute",
+                                                                    left: "22px",
+                                                                    top: "197px",
+                                                                    width: "291px",
+                                                                    height: "77px"
+                                                                },
+                                                                events: {
+                                                                    click: function(evt) {
+                                                                        return _vm_.sel(2, evt);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }, [])
+                                                    ];
+                                                }),
+                                                aiot.__ci__({
+                                                    __vm__: _vm_,
+                                                    __opts__: {
+                                                        shown: function() {
+                                                            return 1 === _vm_.priority;
+                                                        }
+                                                    }
+                                                }, function() {
+                                                    return [
+                                                        aiot.__ce__("image", {
+                                                            __vm__: _vm_,
+                                                            __opts__: {
+                                                                src: "/common/circle-ctr-69.png",
+                                                                style: {
+                                                                    position: "absolute",
+                                                                    left: "22px",
+                                                                    top: "283px",
+                                                                    width: "291px",
+                                                                    height: "77px"
+                                                                },
+                                                                events: {
+                                                                    click: function(evt) {
+                                                                        return _vm_.sel(1, evt);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }, [])
+                                                    ];
+                                                }),
+                                                aiot.__ci__({
+                                                    __vm__: _vm_,
+                                                    __opts__: {
+                                                        shown: function() {
+                                                            return 1 !== _vm_.priority;
+                                                        }
+                                                    }
+                                                }, function() {
+                                                    return [
+                                                        aiot.__ce__("image", {
+                                                            __vm__: _vm_,
+                                                            __opts__: {
+                                                                src: "/common/circle-ctr-65.png",
+                                                                style: {
+                                                                    position: "absolute",
+                                                                    left: "22px",
+                                                                    top: "283px",
+                                                                    width: "291px",
+                                                                    height: "77px"
+                                                                },
+                                                                events: {
+                                                                    click: function(evt) {
+                                                                        return _vm_.sel(1, evt);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }, [])
+                                                    ];
+                                                }),
+                                                aiot.__ci__({
+                                                    __vm__: _vm_,
+                                                    __opts__: {
+                                                        shown: function() {
+                                                            return _vm_.pinned;
+                                                        }
+                                                    }
+                                                }, function() {
+                                                    return [
+                                                        aiot.__ce__("image", {
+                                                            __vm__: _vm_,
+                                                            __opts__: {
+                                                                src: "/common/circle-ctr-68.png",
+                                                                style: {
+                                                                    position: "absolute",
+                                                                    left: "22px",
+                                                                    top: "369px",
+                                                                    width: "291px",
+                                                                    height: "77px"
+                                                                },
+                                                                events: {
+                                                                    click: function(evt) {
+                                                                        return _vm_.togglePin(evt);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }, [])
+                                                    ];
+                                                }),
+                                                aiot.__ci__({
+                                                    __vm__: _vm_,
+                                                    __opts__: {
+                                                        shown: function() {
+                                                            return !_vm_.pinned;
+                                                        }
+                                                    }
+                                                }, function() {
+                                                    return [
+                                                        aiot.__ce__("image", {
+                                                            __vm__: _vm_,
+                                                            __opts__: {
+                                                                src: "/common/circle-ctr-64.png",
+                                                                style: {
+                                                                    position: "absolute",
+                                                                    left: "22px",
+                                                                    top: "369px",
+                                                                    width: "291px",
+                                                                    height: "77px"
+                                                                },
+                                                                events: {
+                                                                    click: function(evt) {
+                                                                        return _vm_.togglePin(evt);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }, [])
+                                                    ];
+                                                }),
+                                                aiot.__ce__("div", {
+                                                    __vm__: _vm_,
+                                                    __opts__: {
+                                                        style: {
+                                                            position: "absolute",
+                                                            left: "22px",
+                                                            top: "455px",
+                                                            width: "291px",
+                                                            height: "77px",
+                                                            borderRadius: "38px",
+                                                            backgroundColor: "#448aff",
+                                                            flexDirection: "row",
+                                                            alignItems: "center",
+                                                            paddingLeft: "26px",
+                                                            paddingRight: "26px"
+                                                        },
+                                                        events: {
+                                                            click: function(evt) {
+                                                                return _vm_.saveAndBack(evt);
+                                                            }
+                                                        }
+                                                    }
+                                                }, [
+                                                    aiot.__ce__("text", {
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            style: {
+                                                                flex: 1,
+                                                                fontSize: "24px",
+                                                                fontWeight: 700,
+                                                                color: "#ffffff",
+                                                                lines: 1
+                                                            },
+                                                            value: "保存"
+                                                        }
+                                                    }, []),
+                                                    aiot.__ce__("text", {
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            style: {
+                                                                fontSize: "24px",
+                                                                color: "#ffffff"
+                                                            },
+                                                            value: "✓"
+                                                        }
+                                                    }, [])
+                                                ])
+                                            ])
+                                        ])
+                                    ])
+                                ];
+                            }),
+                            aiot.__ci__({
+                                __vm__: _vm_,
+                                __opts__: {
+                                    shown: function() {
+                                        return false === _vm_.isCircle;
+                                    }
+                                }
+                            }, function() {
+                                return [
+                                    aiot.__ce__("div", {
+                                        __vm__: _vm_,
+                                        __opts__: {
+                                            style: {
+                                                flexDirection: "column",
+                                                width: "336px",
+                                                height: "100%"
+                                            }
+                                        }
+                                    }, [
+                                        aiot.__ce__("div", {
+                                            __vm__: _vm_,
+                                            __opts__: {
+                                                style: {
+                                                    position: "absolute",
+                                                    left: "6px",
+                                                    top: "6px",
+                                                    width: "72px",
+                                                    height: "72px",
+                                                    borderRadius: "36px",
+                                                    backgroundColor: "#262626",
+                                                    borderTopWidth: "3px",
+                                                    borderRightWidth: "3px",
+                                                    borderBottomWidth: "3px",
+                                                    borderLeftWidth: "3px",
+                                                    borderTopColor: "rgba(255,255,255,0.06)",
+                                                    borderRightColor: "rgba(255,255,255,0.06)",
+                                                    borderBottomColor: "rgba(255,255,255,0.06)",
+                                                    borderLeftColor: "rgba(255,255,255,0.06)",
+                                                    justifyContent: "center",
+                                                    alignItems: "center"
+                                                },
+                                                events: {
+                                                    click: function(evt) {
+                                                        return _vm_.goBack(evt);
+                                                    }
+                                                }
+                                            }
+                                        }, [
+                                            aiot.__ce__("image", {
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    src: "/common/icon-back.png",
+                                                    style: {
+                                                        width: "16px",
+                                                        height: "27px"
+                                                    }
+                                                }
+                                            }, [])
+                                        ]),
+                                        aiot.__ce__("text", {
+                                            __vm__: _vm_,
+                                            __opts__: {
+                                                style: {
+                                                    position: "absolute",
+                                                    left: "105px",
+                                                    top: "10px",
+                                                    width: "126px",
+                                                    textAlign: "center",
+                                                    fontSize: "26px",
+                                                    color: "#999999"
+                                                },
+                                                value: function() {
+                                                    return _vm_.timeStr;
+                                                }
+                                            }
+                                        }, []),
+                                        aiot.__ce__("text", {
+                                            __vm__: _vm_,
+                                            __opts__: {
+                                                style: {
+                                                    position: "absolute",
+                                                    left: "100px",
+                                                    top: "40px",
+                                                    width: "136px",
+                                                    textAlign: "center",
+                                                    fontSize: "32px",
+                                                    fontWeight: 700,
+                                                    color: "#ffffff"
+                                                },
+                                                value: "优先级"
+                                            }
+                                        }, []),
+                                        aiot.__ce__("div", {
+                                            __vm__: _vm_,
+                                            __opts__: {
+                                                style: {
+                                                    position: "absolute",
+                                                    left: "6px",
+                                                    top: "90px",
+                                                    width: "324px",
+                                                    height: "112px",
+                                                    borderRadius: "24px",
+                                                    backgroundColor: "#262626",
+                                                    flexDirection: "row",
+                                                    alignItems: "center",
+                                                    paddingLeft: "28px",
+                                                    paddingRight: "28px"
+                                                },
+                                                events: {
+                                                    click: function(evt) {
+                                                        return _vm_.sel(3, evt);
+                                                    }
+                                                }
+                                            }
+                                        }, [
+                                            aiot.__ce__("text", {
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    style: {
+                                                        flex: 1,
+                                                        fontSize: "32px",
+                                                        fontWeight: 700,
+                                                        color: "#ffffff"
+                                                    },
+                                                    value: "高优先级"
+                                                }
+                                            }, []),
+                                            aiot.__ce__("text", {
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    style: function() {
+                                                        return __webpack_require__.g.$translateStyle$("font-size:28px;color:" + (3 === _vm_.priority ? "#FF6B6B" : "#666666") + ";");
+                                                    },
+                                                    value: "●"
+                                                }
+                                            }, [])
+                                        ]),
+                                        aiot.__ce__("div", {
+                                            __vm__: _vm_,
+                                            __opts__: {
+                                                style: {
+                                                    position: "absolute",
+                                                    left: "6px",
+                                                    top: "210px",
+                                                    width: "324px",
+                                                    height: "112px",
+                                                    borderRadius: "24px",
+                                                    backgroundColor: "#262626",
+                                                    flexDirection: "row",
+                                                    alignItems: "center",
+                                                    paddingLeft: "28px",
+                                                    paddingRight: "28px"
+                                                },
+                                                events: {
+                                                    click: function(evt) {
+                                                        return _vm_.sel(2, evt);
+                                                    }
+                                                }
+                                            }
+                                        }, [
+                                            aiot.__ce__("text", {
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    style: {
+                                                        flex: 1,
+                                                        fontSize: "32px",
+                                                        fontWeight: 700,
+                                                        color: "#ffffff"
+                                                    },
+                                                    value: "中优先级"
+                                                }
+                                            }, []),
+                                            aiot.__ce__("text", {
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    style: function() {
+                                                        return __webpack_require__.g.$translateStyle$("font-size:28px;color:" + (2 === _vm_.priority ? "#4A90D9" : "#666666") + ";");
+                                                    },
+                                                    value: "●"
+                                                }
+                                            }, [])
+                                        ]),
+                                        aiot.__ce__("div", {
+                                            __vm__: _vm_,
+                                            __opts__: {
+                                                style: {
+                                                    position: "absolute",
+                                                    left: "6px",
+                                                    top: "330px",
+                                                    width: "324px",
+                                                    height: "112px",
+                                                    borderRadius: "24px",
+                                                    backgroundColor: "#262626",
+                                                    flexDirection: "row",
+                                                    alignItems: "center",
+                                                    paddingLeft: "28px",
+                                                    paddingRight: "28px"
+                                                },
+                                                events: {
+                                                    click: function(evt) {
+                                                        return _vm_.sel(1, evt);
+                                                    }
+                                                }
+                                            }
+                                        }, [
+                                            aiot.__ce__("text", {
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    style: {
+                                                        flex: 1,
+                                                        fontSize: "32px",
+                                                        fontWeight: 700,
+                                                        color: "#ffffff"
+                                                    },
+                                                    value: "低优先级"
+                                                }
+                                            }, []),
+                                            aiot.__ce__("text", {
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    style: function() {
+                                                        return __webpack_require__.g.$translateStyle$("font-size:28px;color:" + (1 === _vm_.priority ? "#9B59B6" : "#666666") + ";");
+                                                    },
+                                                    value: "●"
+                                                }
+                                            }, [])
+                                        ]),
+                                        aiot.__ce__("div", {
+                                            __vm__: _vm_,
+                                            __opts__: {
+                                                style: {
+                                                    position: "absolute",
+                                                    left: "6px",
+                                                    top: "450px",
+                                                    width: "324px",
+                                                    height: "112px",
+                                                    borderRadius: "24px",
+                                                    backgroundColor: "#262626",
+                                                    flexDirection: "row",
+                                                    alignItems: "center",
+                                                    paddingLeft: "28px",
+                                                    paddingRight: "28px"
+                                                },
+                                                events: {
+                                                    click: function(evt) {
+                                                        return _vm_.togglePin(evt);
+                                                    }
+                                                }
+                                            }
+                                        }, [
+                                            aiot.__ce__("text", {
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    style: {
+                                                        flex: 1,
+                                                        fontSize: "32px",
+                                                        fontWeight: 700,
+                                                        color: "#ffffff"
+                                                    },
+                                                    value: "置顶"
+                                                }
+                                            }, []),
+                                            aiot.__ce__("text", {
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    style: function() {
+                                                        return __webpack_require__.g.$translateStyle$("font-size:28px;color:" + (_vm_.pinned ? "#FF9800" : "#666666") + ";");
+                                                    },
+                                                    value: "●"
+                                                }
+                                            }, [])
+                                        ])
+                                    ])
+                                ];
+                            })
+                        ]);
+                    };
+                    $app_exports$['entry'] = function($app_exports$) {
+                        $app_script$({}, $app_exports$, $app_require$1);
+                        $app_exports$.default.template = $app_template$;
+                        $app_exports$.default.style = $app_style$;
+                    };
+                })();
+            })();
+        };
+        return createPageHandler();
+    })(global, globalThis, window, $app_exports$, $app_evaluate$);
+}
