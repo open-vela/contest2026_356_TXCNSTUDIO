@@ -1,1 +1,1653 @@
-export default function(t,e,_,i,o){var n,r,s,c=$app_require$;n=t.setTimeout,t.setInterval,r=t.clearTimeout,t.clearInterval,s=t.$app_require$||c,function(){(()=>{var t,o,c,l={695(t,e,_){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=void 0;var i,o=(i=s("@app-module/system.device"))&&i.__esModule?i:{default:i};let n=null,r=null;function c(t){var e;let _=t&&t.screenWidth?t.screenWidth:336,i=t&&t.screenHeight?t.screenHeight:480,o=t&&t.screenDensity?t.screenDensity:2,n=(e=t&&t.screenShape?t.screenShape:"",_===i?"circle":_/i<=.55?"pill":"circle"===e?"circle":"rect");return{w:_,h:i,dpr:o,kind:n,isCircle:"circle"===n,isPill:"pill"===n,isRect:"rect"===n,designHeight:Math.round(i/_*336),scale:_/336}}e.default={probe:function(){return n?Promise.resolve(n):r||(r=new Promise(function(t){o.default.getInfo({success:function(e){n=c(e),void 0!==_.g&&(_.g.__adaptInfo=n),t(n)},fail:function(){n=c(null),void 0!==_.g&&(_.g.__adaptInfo=n),t(n)}})}))},peek:function(){return n},isCircleSync:function(){return n?n.isCircle:void 0!==_.g&&_.g.__adaptInfo?_.g.__adaptInfo.isCircle:null},DESIGN_WIDTH:336}}},u={};function p(t){var e=u[t];if(void 0!==e)return e.exports;var _=u[t]={exports:{}};return l[t](_,_.exports,p),_.exports}p.g=(()=>{if("object"==typeof e)return e;try{return this||Function("return this")()}catch(t){if("object"==typeof _)return _}})(),p.rv=()=>"1.7.12",p.ruid="bundler=rspack@1.7.12",t=[],o=function(t,e,_){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default=void 0;var i=u(_("@app-module/system.router")),o=u(_("@app-module/system.storage")),s=u(_("@app-module/system.prompt")),c=u(_("@app-module/system.fetch")),l=u(p(695));function u(t){return t&&t.__esModule?t:{default:t}}let a=p.g.utils||{};e.default={private:{isCircle:null,circleAddVisible:!1,renderedCount:8,timeStr:"",items:[],loaded:!1},onInit(){this.isCircle=l.default.isCircleSync(),a.init(o.default,s.default,c.default)},onShow(){this.hideCircleAdd(),this._circleScrollY=0;var t=this;l.default.probe().then(function(e){t.isCircle!==e.isCircle&&(t.isCircle=e.isCircle)}),this.updateTime(),this.loadItems();var t=this;t._syncing||(t._syncing=!0,t._syncFailsafe=n(function(){t._syncing=!1},45e3),t._syncTimer=n(function(){t.syncPending().then(function(){return t.autoSync()}).catch(function(){}).then(function(){r(t._syncFailsafe),t._syncing=!1})},600))},onHide(){this.hideCircleAdd()},onDestroy(){this.hideCircleAdd(),this._syncTimer&&(r(this._syncTimer),this._syncTimer=null),this._syncFailsafe&&(r(this._syncFailsafe),this._syncFailsafe=null),"function"==typeof p.g.runGC&&p.g.runGC()},autoSync(){var t=this;return a.loadOffline().then(function(e){if(!e)return a.storageGet("todo_token").then(function(e){if(e&&"guest_token"!==e)return a.setToken(e),a.syncPull().then(function(e){"[object Array]"===Object.prototype.toString.call(e)&&a.storageGet("todo_items").then(function(_){var i=[];if(_)try{i=JSON.parse(_)}catch(t){i=[]}a.storageGet("todo_ignore_ids").then(function(_){var o=[];if(_)try{o=JSON.parse(_)}catch(t){o=[]}a.storageGet("todo_pending_delete").then(function(_){var n=[];if(_)try{n=JSON.parse(_)}catch(t){n=[]}var r=a.mergeCloudItems(i,e,o.concat(n));a.storageSet("todo_items",JSON.stringify(r)).then(function(){t.loadItems()})})})})}).catch(function(t){})})})},syncPending:()=>new Promise(function(t){a.loadOffline().then(function(e){e?t():a.storageGet("todo_token").then(function(e){if(!e||"guest_token"===e)return void t();a.setToken(e);var _=function(){t()};a.storageGet("todo_items").then(function(t){var i=[];if(t)try{i=JSON.parse(t)}catch(t){i=[]}for(var o=[],n=0;n<i.length;n++)!i[n]||i[n].cloudId||i[n].localOnly||o.push(i[n]);for(var r=Promise.resolve(),s=0,c=0;c<o.length;c++)!function(t){r=r.then(function(){return a.cloudAddTodo(e,t.text||t.title||"",t.priority||2,t.due||0,t.is_pinned||0).then(function(e){return e&&e.success&&e.id&&(t.cloudId=e.id,s++),null}).catch(function(){return null})})}(o[c]);r.then(function(){var t=function(){a.storageGet("todo_pending_delete").then(function(t){var i=[];if(t)try{i=JSON.parse(t)}catch(t){i=[]}if(!i.length)return void _();for(var o=Promise.resolve(),n=[],r=0;r<i.length;r++)!function(t){o=o.then(function(){return a.cloudDeleteTodo(e,t).then(function(e){e&&e.success||n.push(t)}).catch(function(){n.push(t)})})}(i[r]);o.then(function(){a.storageSet("todo_pending_delete",JSON.stringify(n)).then(_)})})};s>0?a.storageSet("todo_items",JSON.stringify(i)).then(t):t()})})})})}),updateTime(){var t=new Date,e=t.getHours().toString();e.length<2&&(e="0"+e);var _=t.getMinutes().toString();_.length<2&&(_="0"+_),this.timeStr=e+":"+_},getPriorityColor:t=>3===t?"#FE1E1E":1===t?"#8A1EB6":"#3A74DA",fmtItemTime(t){if(null==t||""===t)return"";if("number"==typeof t){var e;e=new Date(t>1e11?t:1e3*t)}else if("string"==typeof t&&t.indexOf("-")>=0){var _=String(t).split(/[- :]/).map(function(t){return parseInt(t,10)});e=new Date(Date.UTC(_[0],_[1]-1,_[2],_[3]||0,_[4]||0,_[5]||0))}else e=new Date(t);return isNaN(e.getTime())?"":e.getMonth()+1+"."+e.getDate()+" "+(10>e.getHours()?"0"+e.getHours():e.getHours())+":"+(10>e.getMinutes()?"0"+e.getMinutes():e.getMinutes())},loadItems(){var t=this;a.storageGet("todo_items").then(function(e){if(t.loaded=!0,e)try{var _=JSON.parse(e),i=Date.now();t._allItems=_;var o=_.slice(0,t.renderedCount)||_||_;if(t.items.length===o.length)for(var n=0;n<o.length;n++){for(var r=o[n],s=null,c=0;c<t.items.length;c++)if(t.items[c].id===r.id){s=t.items[c];break}if(s){var l=parseInt(r.priority,10);isNaN(l)&&(l=2);var u=r.done||!1,p=parseInt(r.due,10)||0,a=Date.now(),d=!u&&p>0&&p<a,f=1===r.is_pinned,h=3===l?+!f:1===l?f?4:5:f?2:3;s.title=r.text||r.title||"未命名",s.done=u,s.priority=l,s.pinned=f,s.bgIdx=h,s.dueStr=p>0?d?"已逾期":"截止 "+t.fmtItemTime(p):t.fmtItemTime(r.createdAt),s.timeColor=u?"#555555":d?"#FF3B30":"#C9C9C9"}}else t.items=o.map(function(e){var _=parseInt(e.priority,10);isNaN(_)&&(_=2);var o=e.done||!1,n=parseInt(e.due,10)||0,r=!o&&n>0&&n<i,s=1===e.is_pinned,c=3===_?+!s:1===_?s?4:5:s?2:3;return{id:e.id,title:e.text||e.title||"未命名",done:o,priority:_,pinned:s,bgIdx:c,priorityColor:t.getPriorityColor(_),dueStr:n>0?r?"已逾期":"截止 "+t.fmtItemTime(n):t.fmtItemTime(e.createdAt),timeColor:o?"#555555":r?"#FF3B30":"#C9C9C9"}});t.items.sort(function(t,e){return t.done!==e.done?t.done?1:-1:e.pinned!==t.pinned?!!e.pinned-!!t.pinned:e.priority-t.priority})}catch(e){t.items=[]}else t.items=[]}).catch(function(){t.loaded=!0,t.items=[]})},loadMore(){this._allItems&&!(this.renderedCount>=this._allItems.length)&&(this.renderedCount+=8,this.loadItems())},viewItem(t){i.default.push({uri:"pages/viewer",params:{itemId:t}})},addItem(){i.default.push({uri:"pages/numpad"})},showMenu(){i.default.push({uri:"pages/list"})},showCircleAdd(){if(this.isCircle){this.circleAddVisible=!0,this._circleAddTimer&&r(this._circleAddTimer);var t=this;this._circleAddTimer=n(function(){t.circleAddVisible=!1,t._circleAddTimer=null},3e3)}},hideCircleAdd(){this._circleAddTimer&&r(this._circleAddTimer),this._circleAddTimer=null,this.circleAddVisible=!1},onCircleTouchStart(t){this.isCircle&&t&&t.touches&&t.touches.length&&(this._circleTouch={x:t.touches[0].clientX,y:t.touches[0].clientY})},onCircleTouchEnd(t){var e=this._circleTouch;if(this._circleTouch=null,this.isCircle&&e&&t&&t.changedTouches&&t.changedTouches.length){var _=t.changedTouches[0],i=_.clientY-e.y;24>Math.abs(i)||Math.abs(i)<=Math.abs(_.clientX-e.x)||(i<0?this.showCircleAdd():this.hideCircleAdd())}},onCircleScroll(t){if(this.isCircle&&t&&"number"==typeof t.scrollY){var e=Date.now();if(!this._scrollThrottle||!(e-this._scrollThrottle<150)){this._scrollThrottle=e;var _=this._circleScrollY||0;this._circleScrollY=t.scrollY,t.scrollY>_&&this.showCircleAdd()}}},onSwipe(t){if(t){if("right"===t.direction){!1===this.isCircle&&this.$app.exit();return}!0===this.isCircle&&("up"===t.direction&&this.showCircleAdd(),"down"===t.direction&&this.hideCircleAdd())}}};let d=e.default||t.exports,f=["public","protected","private"];if(d.data&&f.some(function(t){return d[t]}))throw Error('页面VM对象中的属性data不可与"'+f.join(",")+'"同时存在，请使用private替换data名称');d.data||(d.data={},d._descriptor={},f.forEach(function(t){let e=typeof d[t];if("object"===e)for(let e in d.data=Object.assign(d.data,d[t]),d[t])d._descriptor[e]={access:t};else"function"===e&&console.warn("页面VM对象中的属性"+t+"的值不能是函数，请使用对象")}))},c=function(t){let e=t||this;return aiot.__ce__("div",{__vm__:e,__opts__:{style:{flexDirection:"column",width:"336px",height:"100%",backgroundColor:"#000000"},events:{swipe:function(t){return e.onSwipe(t)}}}},[aiot.__ci__({__vm__:e,__opts__:{shown:function(){return!1===e.isCircle}}},function(){return[aiot.__ce__("div",{__vm__:e,__opts__:{style:{flexDirection:"column",width:"336px",height:"100%"}}},[aiot.__ce__("div",{__vm__:e,__opts__:{style:{height:"86px"}}},[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/icon-back-home.png",style:{position:"absolute",left:"6px",top:"6px",width:"72px",height:"72px"},events:{click:function(t){return e.showMenu(t)}}}},[]),aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/icon-add.png",style:{position:"absolute",left:"258px",top:"6px",width:"72px",height:"72px"},events:{click:function(t){return e.addItem(t)}}}},[]),aiot.__ce__("text",{__vm__:e,__opts__:{style:{position:"absolute",left:"105px",top:"10px",width:"126px",textAlign:"center",fontSize:"26px",color:"#999999"},value:function(){return e.timeStr}}},[]),aiot.__ce__("text",{__vm__:e,__opts__:{style:{position:"absolute",left:"100px",top:"40px",width:"136px",textAlign:"center",fontSize:"32px",fontWeight:700,color:"#ffffff"},value:"清单"}},[])]),aiot.__ce__("div",{__vm__:e,__opts__:{style:{flex:1,flexDirection:"column"}}},[aiot.__ci__({__vm__:e,__opts__:{shown:function(){return!e.loaded}}},function(){return[aiot.__ce__("div",{__vm__:e,__opts__:{style:{flex:1,justifyContent:"center",alignItems:"center"}}},[aiot.__ce__("text",{__vm__:e,__opts__:{style:{fontSize:"22px",color:"#999999"},value:"加载中..."}},[])])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return e.loaded&&0===e.items.length}}},function(){return[aiot.__ce__("div",{__vm__:e,__opts__:{style:{flex:1,flexDirection:"column",alignItems:"center"}}},[aiot.__ce__("div",{__vm__:e,__opts__:{style:{width:"128px",height:"124px",borderRadius:"42px",backgroundColor:"#262626",justifyContent:"center",alignItems:"center",marginTop:"60px"}}},[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/empty-ico.png",style:{width:"68px",height:"56px"}}},[])]),aiot.__ce__("text",{__vm__:e,__opts__:{style:{fontSize:"28px",color:"#ffffff",marginTop:"36px"},value:"没有内容"}},[])])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return e.loaded&&e.items.length>0}}},function(){return[aiot.__ce__("scroll",{__vm__:e,__opts__:{scrollY:"true",events:{scrollbottom:function(t){return e.loadMore(t)}},style:{flex:1,flexDirection:"column"}}},[aiot.__cf__({__vm__:e,__opts__:{exp:function(){return e.items},key:"$idx",value:"$item"}},function(t,_){return[aiot.__ce__("div",{__vm__:e,__opts__:{style:{width:"324px",height:"112px",marginLeft:"6px",marginRight:"6px",marginBottom:"8px",flexShrink:0},events:{click:function(t){return e.viewItem(_.id,t)}}}},[aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 0===_.bgIdx}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/card-hi-pin.png",style:{position:"absolute",left:0,top:0,width:"324px",height:"112px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 0!==_.bgIdx&&1===_.bgIdx}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/card-hi.png",style:{position:"absolute",left:0,top:0,width:"324px",height:"112px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 1!==_.bgIdx&&0!==_.bgIdx&&2===_.bgIdx}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/card-mid-pin.png",style:{position:"absolute",left:0,top:0,width:"324px",height:"112px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 2!==_.bgIdx&&1!==_.bgIdx&&0!==_.bgIdx&&3===_.bgIdx}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/card-mid.png",style:{position:"absolute",left:0,top:0,width:"324px",height:"112px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 3!==_.bgIdx&&2!==_.bgIdx&&1!==_.bgIdx&&0!==_.bgIdx&&4===_.bgIdx}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/card-lo-pin.png",style:{position:"absolute",left:0,top:0,width:"324px",height:"112px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 4!==_.bgIdx&&3!==_.bgIdx&&2!==_.bgIdx&&1!==_.bgIdx&&0!==_.bgIdx}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/card-lo.png",style:{position:"absolute",left:0,top:0,width:"324px",height:"112px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return _.done}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/icon-check.png",style:{position:"absolute",left:"38px",top:"33px",width:"45px",height:"45px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return _.done}}},function(){return[aiot.__ce__("text",{__vm__:e,__opts__:{style:{position:"absolute",left:"118px",top:"20px",width:"190px",fontSize:"30px",fontWeight:700,color:"#666666",lines:1,textOverflow:"ellipsis"},value:function(){return _.title}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return!_.done&&_.title.length<=5}}},function(){return[aiot.__ce__("text",{__vm__:e,__opts__:{style:{position:"absolute",left:"118px",top:"20px",width:"190px",fontSize:"30px",fontWeight:700,color:"#ffffff",lines:1,textOverflow:"ellipsis"},value:function(){return _.title}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return!(_.title.length<=5)&&!_.done}}},function(){return[aiot.__ce__("marquee",{__vm__:e,__opts__:{style:{position:"absolute",left:"118px",top:"20px",width:"190px",height:"30px",fontSize:"30px",fontWeight:700,color:"#ffffff"},scrollamount:"25",value:function(){return _.title}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return _.done}}},function(){return[aiot.__ce__("div",{__vm__:e,__opts__:{style:{position:"absolute",left:"118px",top:"38px",width:"190px",height:"4px",borderRadius:"2px",backgroundColor:"#666666"}}},[])]}),aiot.__ce__("text",{__vm__:e,__opts__:{style:function(){return p.g.$translateStyle$("position:absolute;left:118px;top:66px;width:190px;font-size:18px;color:"+_.timeColor+";lines:1;text-overflow:ellipsis;")},value:function(){return _.dueStr}}},[]),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return _.done}}},function(){return[aiot.__ce__("div",{__vm__:e,__opts__:{style:{position:"absolute",left:"118px",top:"76px",width:"190px",height:"3px",borderRadius:"2px",backgroundColor:"#444444"}}},[])]})])]}),aiot.__ce__("div",{__vm__:e,__opts__:{style:{height:"12px"}}},[])])]})])])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return e.isCircle&&e.loaded&&0===e.items.length}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-home-empty-bg.png",style:{position:"absolute",left:0,top:0,width:"336px",height:"336px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return!(e.isCircle&&e.loaded&&0===e.items.length)&&e.isCircle&&e.loaded}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-home-bg.png",style:{position:"absolute",left:0,top:0,width:"336px",height:"336px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return!(e.isCircle&&e.loaded)&&!(e.isCircle&&e.loaded&&0===e.items.length)&&e.isCircle}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-blank-bg.png",style:{position:"absolute",left:0,top:0,width:"336px",height:"336px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return e.isCircle}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-ctr-82.png",style:{position:"absolute",left:"148px",top:"15px",width:"41px",height:"41px"},events:{click:function(t){return e.showMenu(t)}}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return e.isCircle&&e.loaded&&e.items.length>0}}},function(){return[aiot.__ce__("list",{__vm__:e,__opts__:{scrollY:"true",events:{scroll:function(t){return e.onCircleScroll(t)},scrollbottom:function(t){return e.loadMore(t)}},style:{position:"absolute",left:0,top:"110px",width:"336px",height:"226px",flexDirection:"column"}}},[aiot.__cf__({__vm__:e,__opts__:{exp:function(){return e.items},key:"$idx",value:"$item"}},function(t,_){return[aiot.__ce__("list-item",{__vm__:e,__opts__:{type:"card",style:{width:"293px",height:"98px",minHeight:"98px",flexShrink:0,marginLeft:"22px",marginBottom:"14px"},events:{click:function(t){return e.viewItem(_.id,t)}}}},[aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 0===_.bgIdx}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-ctr-79.png",style:{position:"absolute",left:0,top:0,width:"293px",height:"98px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 0!==_.bgIdx&&1===_.bgIdx}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-ctr-76.png",style:{position:"absolute",left:0,top:0,width:"293px",height:"98px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 1!==_.bgIdx&&0!==_.bgIdx&&2===_.bgIdx}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-ctr-80.png",style:{position:"absolute",left:0,top:0,width:"293px",height:"98px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 2!==_.bgIdx&&1!==_.bgIdx&&0!==_.bgIdx&&3===_.bgIdx}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-ctr-77.png",style:{position:"absolute",left:0,top:0,width:"293px",height:"98px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 3!==_.bgIdx&&2!==_.bgIdx&&1!==_.bgIdx&&0!==_.bgIdx&&4===_.bgIdx}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-ctr-81.png",style:{position:"absolute",left:0,top:0,width:"293px",height:"98px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return 4!==_.bgIdx&&3!==_.bgIdx&&2!==_.bgIdx&&1!==_.bgIdx&&0!==_.bgIdx}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/circle-ctr-78.png",style:{position:"absolute",left:0,top:0,width:"293px",height:"98px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return _.done}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{src:"/common/icon-check.png",style:{position:"absolute",left:"32px",top:"31px",width:"36px",height:"36px"}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return _.done}}},function(){return[aiot.__ce__("text",{__vm__:e,__opts__:{style:{position:"absolute",left:"110px",top:"15px",width:"140px",fontSize:"26px",fontWeight:700,color:"#666666",lines:1,textOverflow:"ellipsis"},value:function(){return _.title}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return!_.done&&_.title.length<=6}}},function(){return[aiot.__ce__("text",{__vm__:e,__opts__:{style:{position:"absolute",left:"110px",top:"15px",width:"140px",fontSize:"26px",fontWeight:700,color:"#ffffff",lines:1,textOverflow:"ellipsis"},value:function(){return _.title}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return!(_.title.length<=6)&&!_.done}}},function(){return[aiot.__ce__("marquee",{__vm__:e,__opts__:{style:{position:"absolute",left:"110px",top:"15px",width:"140px",height:"28px",fontSize:"26px",fontWeight:700,color:"#ffffff"},scrollamount:"15",value:function(){return _.title}}},[])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return _.done}}},function(){return[aiot.__ce__("div",{__vm__:e,__opts__:{style:{position:"absolute",left:"110px",top:"28px",width:"140px",height:"3px",borderRadius:"2px",backgroundColor:"#666666"}}},[])]}),aiot.__ce__("text",{__vm__:e,__opts__:{style:function(){return p.g.$translateStyle$("position:absolute;left:110px;top:52px;width:140px;font-size:18px;color:"+_.timeColor+";lines:1;text-overflow:ellipsis;")},value:function(){return _.dueStr}}},[]),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return _.done}}},function(){return[aiot.__ce__("div",{__vm__:e,__opts__:{style:{position:"absolute",left:"110px",top:"61px",width:"140px",height:"2px",borderRadius:"1px",backgroundColor:"#444444"}}},[])]})])]}),aiot.__ce__("list-item",{__vm__:e,__opts__:{type:"spacer",style:{height:"84px",minHeight:"84px",flexShrink:0}}},[])])]}),aiot.__ci__({__vm__:e,__opts__:{shown:function(){return e.isCircle}}},function(){return[aiot.__ce__("image",{__vm__:e,__opts__:{show:function(){return e.circleAddVisible},src:"/common/circle-ctr-92.png",style:{position:"absolute",left:"112px",top:"252px",width:"112px",height:"66.5px"},events:{click:function(t){return e.addItem(t)}}}},[])]})])},i.entry=function(e){o({},e,s),e.default.template=c,e.default.style=t}})()}()}
+export default function(global, globalThis, window, $app_exports$, $app_evaluate$) {
+    var org_app_require = $app_require$;
+    (function(global, globalThis, window, $app_exports$, $app_evaluate$) {
+        var setTimeout = global.setTimeout;
+        var setInterval = global.setInterval;
+        var clearTimeout = global.clearTimeout;
+        var clearInterval = global.clearInterval;
+        var $app_require$1 = global.$app_require$ || org_app_require;
+        var createPageHandler = function() {
+            return (()=>{
+                var __webpack_modules__ = {
+                    "./src/common/adapt.js" (__unused_rspack_module, exports, __webpack_require__) {
+                        "use strict";
+                        Object.defineProperty(exports, "__esModule", {
+                            value: true
+                        });
+                        exports["default"] = void 0;
+                        var _system = _interopRequireDefault($app_require$1("@app-module/system.device"));
+                        function _interopRequireDefault(e) {
+                            return e && e.__esModule ? e : {
+                                default: e
+                            };
+                        }
+                        const DESIGN_WIDTH = 336;
+                        let cached = null;
+                        let pending = null;
+                        function kindOf(w, h, shape) {
+                            if (w === h) return 'circle';
+                            if (w / h <= 0.55) return 'pill';
+                            if ('circle' === shape) return 'circle';
+                            return 'rect';
+                        }
+                        function classify(res) {
+                            const w = res && res.screenWidth ? res.screenWidth : 336;
+                            const h = res && res.screenHeight ? res.screenHeight : 480;
+                            const dpr = res && res.screenDensity ? res.screenDensity : 2;
+                            const kind = kindOf(w, h, res && res.screenShape ? res.screenShape : '');
+                            return {
+                                w: w,
+                                h: h,
+                                dpr: dpr,
+                                kind: kind,
+                                isCircle: 'circle' === kind,
+                                isPill: 'pill' === kind,
+                                isRect: 'rect' === kind,
+                                designHeight: Math.round(h / w * DESIGN_WIDTH),
+                                scale: w / DESIGN_WIDTH
+                            };
+                        }
+                        function probe() {
+                            if (cached) return Promise.resolve(cached);
+                            if (pending) return pending;
+                            pending = new Promise(function(resolve) {
+                                _system.default.getInfo({
+                                    success: function(res) {
+                                        cached = classify(res);
+                                        if (void 0 !== __webpack_require__.g) __webpack_require__.g.__adaptInfo = cached;
+                                        resolve(cached);
+                                    },
+                                    fail: function() {
+                                        cached = classify(null);
+                                        if (void 0 !== __webpack_require__.g) __webpack_require__.g.__adaptInfo = cached;
+                                        resolve(cached);
+                                    }
+                                });
+                            });
+                            return pending;
+                        }
+                        function peek() {
+                            return cached;
+                        }
+                        function isCircleSync() {
+                            if (cached) return cached.isCircle;
+                            if (void 0 !== __webpack_require__.g && __webpack_require__.g.__adaptInfo) return __webpack_require__.g.__adaptInfo.isCircle;
+                            return null;
+                        }
+                        var _default = exports["default"] = {
+                            probe: probe,
+                            peek: peek,
+                            isCircleSync: isCircleSync,
+                            DESIGN_WIDTH: DESIGN_WIDTH
+                        };
+                    }
+                };
+                var __webpack_module_cache__ = {};
+                function __webpack_require__(moduleId) {
+                    var cachedModule = __webpack_module_cache__[moduleId];
+                    if (void 0 !== cachedModule) return cachedModule.exports;
+                    var module = __webpack_module_cache__[moduleId] = {
+                        exports: {}
+                    };
+                    __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+                    return module.exports;
+                }
+                (()=>{
+                    __webpack_require__.g = (()=>{
+                        if ('object' == typeof globalThis) return globalThis;
+                        try {
+                            return this || new Function('return this')();
+                        } catch (e) {
+                            if ('object' == typeof window) return window;
+                        }
+                    })();
+                })();
+                (()=>{
+                    __webpack_require__.rv = ()=>"1.7.12";
+                })();
+                (()=>{
+                    __webpack_require__.ruid = "bundler=rspack@1.7.12";
+                })();
+                var __webpack_exports__ = {};
+                (()=>{
+                    var $app_style$ = [];
+                    var $app_script$ = function __scriptModule__(module, exports, $app_require$1) {
+                        "use strict";
+                        Object.defineProperty(exports, "__esModule", {
+                            value: true
+                        });
+                        exports.default = void 0;
+                        var _system = _interopRequireDefault($app_require$1("@app-module/system.router"));
+                        var _system2 = _interopRequireDefault($app_require$1("@app-module/system.storage"));
+                        var _system3 = _interopRequireDefault($app_require$1("@app-module/system.prompt"));
+                        var _system4 = _interopRequireDefault($app_require$1("@app-module/system.fetch"));
+                        var _adapt = _interopRequireDefault(__webpack_require__("./src/common/adapt.js"));
+                        function _interopRequireDefault(e) {
+                            return e && e.__esModule ? e : {
+                                default: e
+                            };
+                        }
+                        const utils = __webpack_require__.g.utils || {};
+                        var _default = exports.default = {
+                            private: {
+                                isCircle: null,
+                                circleAddVisible: false,
+                                renderedCount: 8,
+                                timeStr: '',
+                                items: [],
+                                loaded: false
+                            },
+                            onInit () {
+                                this.isCircle = _adapt.default.isCircleSync();
+                                utils.init(_system2.default, _system3.default, _system4.default);
+                            },
+                            onShow () {
+                                this.hideCircleAdd();
+                                this._circleScrollY = 0;
+                                var that = this;
+                                _adapt.default.probe().then(function(info) {
+                                    if (that.isCircle !== info.isCircle) that.isCircle = info.isCircle;
+                                });
+                                this.updateTime();
+                                this.loadItems();
+                                var that = this;
+                                if (that._syncing) return;
+                                that._syncing = true;
+                                that._syncFailsafe = setTimeout(function() {
+                                    that._syncing = false;
+                                }, 45000);
+                                that._syncTimer = setTimeout(function() {
+                                    that.syncPending().then(function() {
+                                        return that.autoSync();
+                                    }).catch(function() {}).then(function() {
+                                        clearTimeout(that._syncFailsafe);
+                                        that._syncing = false;
+                                    });
+                                }, 600);
+                            },
+                            onHide () {
+                                this.hideCircleAdd();
+                            },
+                            onDestroy () {
+                                this.hideCircleAdd();
+                                if (this._syncTimer) {
+                                    clearTimeout(this._syncTimer);
+                                    this._syncTimer = null;
+                                }
+                                if (this._syncFailsafe) {
+                                    clearTimeout(this._syncFailsafe);
+                                    this._syncFailsafe = null;
+                                }
+                                if ("function" == typeof __webpack_require__.g.runGC) __webpack_require__.g.runGC();
+                            },
+                            autoSync () {
+                                var that = this;
+                                return utils.loadOffline().then(function(off) {
+                                    if (off) return;
+                                    return utils.storageGet('todo_token').then(function(token) {
+                                        if (!token || 'guest_token' === token) return;
+                                        utils.setToken(token);
+                                        return utils.syncPull().then(function(cloudTodos) {
+                                            var isArr = '[object Array]' === Object.prototype.toString.call(cloudTodos);
+                                            if (!isArr) return;
+                                            utils.storageGet('todo_items').then(function(data) {
+                                                var local = [];
+                                                if (data) {
+                                                    try {
+                                                        local = JSON.parse(data);
+                                                    } catch (e) {
+                                                        local = [];
+                                                    }
+                                                }
+                                                utils.storageGet('todo_ignore_ids').then(function(ig) {
+                                                    var ignores = [];
+                                                    if (ig) {
+                                                        try {
+                                                            ignores = JSON.parse(ig);
+                                                        } catch (e) {
+                                                            ignores = [];
+                                                        }
+                                                    }
+                                                    utils.storageGet('todo_pending_delete').then(function(pd) {
+                                                        var pendingDel = [];
+                                                        if (pd) {
+                                                            try {
+                                                                pendingDel = JSON.parse(pd);
+                                                            } catch (e) {
+                                                                pendingDel = [];
+                                                            }
+                                                        }
+                                                        var merged = utils.mergeCloudItems(local, cloudTodos, ignores.concat(pendingDel));
+                                                        utils.storageSet('todo_items', JSON.stringify(merged)).then(function() {
+                                                            that.loadItems();
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        }).catch(function(err) {});
+                                    });
+                                });
+                            },
+                            syncPending () {
+                                var that = this;
+                                return new Promise(function(resolveAll) {
+                                    utils.loadOffline().then(function(off) {
+                                        if (off) return void resolveAll();
+                                        utils.storageGet('todo_token').then(function(token) {
+                                            if (!token || 'guest_token' === token) return void resolveAll();
+                                            utils.setToken(token);
+                                            var done = function() {
+                                                resolveAll();
+                                            };
+                                            utils.storageGet('todo_items').then(function(data) {
+                                                var items = [];
+                                                if (data) {
+                                                    try {
+                                                        items = JSON.parse(data);
+                                                    } catch (e) {
+                                                        items = [];
+                                                    }
+                                                }
+                                                var pending = [];
+                                                for(var i = 0; i < items.length; i++)if (items[i] && !items[i].cloudId && !items[i].localOnly) pending.push(items[i]);
+                                                var chain = Promise.resolve();
+                                                var count = 0;
+                                                for(var j = 0; j < pending.length; j++)(function(item) {
+                                                    chain = chain.then(function() {
+                                                        return utils.cloudAddTodo(token, item.text || item.title || '', item.priority || 2, item.due || 0, item.is_pinned || 0).then(function(res) {
+                                                            if (res && res.success && res.id) {
+                                                                item.cloudId = res.id;
+                                                                count++;
+                                                            }
+                                                            return null;
+                                                        }).catch(function() {
+                                                            return null;
+                                                        });
+                                                    });
+                                                })(pending[j]);
+                                                chain.then(function() {
+                                                    var afterUp = function() {
+                                                        doDeleteChain();
+                                                    };
+                                                    if (count > 0) utils.storageSet('todo_items', JSON.stringify(items)).then(afterUp);
+                                                    else afterUp();
+                                                });
+                                            });
+                                            function doDeleteChain() {
+                                                utils.storageGet('todo_pending_delete').then(function(pd) {
+                                                    var pendingDel = [];
+                                                    if (pd) {
+                                                        try {
+                                                            pendingDel = JSON.parse(pd);
+                                                        } catch (e) {
+                                                            pendingDel = [];
+                                                        }
+                                                    }
+                                                    if (!pendingDel.length) return void done();
+                                                    var dchain = Promise.resolve();
+                                                    var remaining = [];
+                                                    for(var k = 0; k < pendingDel.length; k++)(function(cid) {
+                                                        dchain = dchain.then(function() {
+                                                            return utils.cloudDeleteTodo(token, cid).then(function(res) {
+                                                                if (res && res.success) return;
+                                                                remaining.push(cid);
+                                                            }).catch(function() {
+                                                                remaining.push(cid);
+                                                            });
+                                                        });
+                                                    })(pendingDel[k]);
+                                                    dchain.then(function() {
+                                                        utils.storageSet('todo_pending_delete', JSON.stringify(remaining)).then(done);
+                                                    });
+                                                });
+                                            }
+                                        });
+                                    });
+                                });
+                            },
+                            updateTime () {
+                                var now = new Date();
+                                var h = now.getHours().toString();
+                                if (h.length < 2) h = '0' + h;
+                                var m = now.getMinutes().toString();
+                                if (m.length < 2) m = '0' + m;
+                                this.timeStr = h + ':' + m;
+                            },
+                            getPriorityColor (p) {
+                                if (3 === p) return '#FE1E1E';
+                                if (1 === p) return '#8A1EB6';
+                                return '#3A74DA';
+                            },
+                            fmtItemTime (ts) {
+                                if (null == ts || '' === ts) return '';
+                                var d;
+                                if ('number' == typeof ts) {
+                                    var ms = ts > 100000000000 ? ts : 1000 * ts;
+                                    d = new Date(ms);
+                                } else if ('string' == typeof ts && ts.indexOf('-') >= 0) {
+                                    var p = String(ts).split(/[- :]/).map(function(s) {
+                                        return parseInt(s, 10);
+                                    });
+                                    d = new Date(Date.UTC(p[0], p[1] - 1, p[2], p[3] || 0, p[4] || 0, p[5] || 0));
+                                } else d = new Date(ts);
+                                if (isNaN(d.getTime())) return '';
+                                return d.getMonth() + 1 + '.' + d.getDate() + ' ' + (d.getHours() < 10 ? '0' + d.getHours() : d.getHours()) + ':' + (d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes());
+                            },
+                            loadItems () {
+                                var that = this;
+                                utils.storageGet('todo_items').then(function(data) {
+                                    that.loaded = true;
+                                    if (data) {
+                                        try {
+                                            var rawItems = JSON.parse(data);
+                                            var now = Date.now();
+                                            var sliced = rawItems;
+                                            that._allItems = sliced;
+                                            var initial = sliced.slice(0, that.renderedCount);
+                                            var raw = initial || sliced || rawItems;
+                                            if (that.items.length === raw.length) {
+                                                for(var ii = 0; ii < raw.length; ii++){
+                                                    var item = raw[ii];
+                                                    var target = null;
+                                                    for(var fi = 0; fi < that.items.length; fi++)if (that.items[fi].id === item.id) {
+                                                        target = that.items[fi];
+                                                        break;
+                                                    }
+                                                    if (target) {
+                                                        var p = parseInt(item.priority, 10);
+                                                        if (isNaN(p)) p = 2;
+                                                        var done = item.done || false;
+                                                        var due = parseInt(item.due, 10) || 0;
+                                                        var now2 = Date.now();
+                                                        var overdue = !done && due > 0 && due < now2;
+                                                        var pinned = 1 === item.is_pinned;
+                                                        var bgIdx = 3 === p ? pinned ? 0 : 1 : 1 === p ? pinned ? 4 : 5 : pinned ? 2 : 3;
+                                                        target.title = item.text || item.title || '未命名';
+                                                        target.done = done;
+                                                        target.priority = p;
+                                                        target.pinned = pinned;
+                                                        target.bgIdx = bgIdx;
+                                                        target.dueStr = due > 0 ? overdue ? '已逾期' : '截止 ' + that.fmtItemTime(due) : that.fmtItemTime(item.createdAt);
+                                                        target.timeColor = done ? '#555555' : overdue ? '#FF3B30' : '#C9C9C9';
+                                                    }
+                                                }
+                                            } else that.items = raw.map(function(item) {
+                                                var p = parseInt(item.priority, 10);
+                                                if (isNaN(p)) p = 2;
+                                                var done = item.done || false;
+                                                var due = parseInt(item.due, 10) || 0;
+                                                var overdue = !done && due > 0 && due < now;
+                                                var pinned = 1 === item.is_pinned;
+                                                var bgIdx = 3 === p ? pinned ? 0 : 1 : 1 === p ? pinned ? 4 : 5 : pinned ? 2 : 3;
+                                                return {
+                                                    id: item.id,
+                                                    title: item.text || item.title || '未命名',
+                                                    done: done,
+                                                    priority: p,
+                                                    pinned: pinned,
+                                                    bgIdx: bgIdx,
+                                                    priorityColor: that.getPriorityColor(p),
+                                                    dueStr: due > 0 ? overdue ? '已逾期' : '截止 ' + that.fmtItemTime(due) : that.fmtItemTime(item.createdAt),
+                                                    timeColor: done ? '#555555' : overdue ? '#FF3B30' : '#C9C9C9'
+                                                };
+                                            });
+                                            that.items.sort(function(a, b) {
+                                                if (a.done !== b.done) return a.done ? 1 : -1;
+                                                if (b.pinned !== a.pinned) return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0);
+                                                return b.priority - a.priority;
+                                            });
+                                        } catch (e) {
+                                            that.items = [];
+                                        }
+                                    } else that.items = [];
+                                }).catch(function() {
+                                    that.loaded = true;
+                                    that.items = [];
+                                });
+                            },
+                            loadMore () {
+                                var that = this;
+                                if (!that._allItems || that.renderedCount >= that._allItems.length) return;
+                                that.renderedCount += 8;
+                                that.loadItems();
+                            },
+                            viewItem (id) {
+                                _system.default.push({
+                                    uri: 'pages/viewer',
+                                    params: {
+                                        itemId: id
+                                    }
+                                });
+                            },
+                            addItem () {
+                                _system.default.push({
+                                    uri: 'pages/numpad'
+                                });
+                            },
+                            showMenu () {
+                                _system.default.push({
+                                    uri: 'pages/list'
+                                });
+                            },
+                            showCircleAdd () {
+                                if (!this.isCircle) return;
+                                this.circleAddVisible = true;
+                                if (this._circleAddTimer) clearTimeout(this._circleAddTimer);
+                                var that = this;
+                                this._circleAddTimer = setTimeout(function() {
+                                    that.circleAddVisible = false;
+                                    that._circleAddTimer = null;
+                                }, 3000);
+                            },
+                            hideCircleAdd () {
+                                if (this._circleAddTimer) clearTimeout(this._circleAddTimer);
+                                this._circleAddTimer = null;
+                                this.circleAddVisible = false;
+                            },
+                            onCircleTouchStart (e) {
+                                if (!this.isCircle || !e || !e.touches || !e.touches.length) return;
+                                this._circleTouch = {
+                                    x: e.touches[0].clientX,
+                                    y: e.touches[0].clientY
+                                };
+                            },
+                            onCircleTouchEnd (e) {
+                                var start = this._circleTouch;
+                                this._circleTouch = null;
+                                if (!this.isCircle || !start || !e || !e.changedTouches || !e.changedTouches.length) return;
+                                var touch = e.changedTouches[0];
+                                var dy = touch.clientY - start.y;
+                                if (Math.abs(dy) < 24 || Math.abs(dy) <= Math.abs(touch.clientX - start.x)) return;
+                                if (dy < 0) this.showCircleAdd();
+                                else this.hideCircleAdd();
+                            },
+                            onCircleScroll (e) {
+                                if (!this.isCircle || !e || 'number' != typeof e.scrollY) return;
+                                var now = Date.now();
+                                if (this._scrollThrottle && now - this._scrollThrottle < 150) return;
+                                this._scrollThrottle = now;
+                                var previous = this._circleScrollY || 0;
+                                this._circleScrollY = e.scrollY;
+                                if (e.scrollY > previous) this.showCircleAdd();
+                            },
+                            onSwipe (e) {
+                                if (!e) return;
+                                if ('right' === e.direction) {
+                                    if (false === this.isCircle) this.$app.exit();
+                                    return;
+                                }
+                                if (true !== this.isCircle) return;
+                                if ('up' === e.direction) this.showCircleAdd();
+                                if ('down' === e.direction) this.hideCircleAdd();
+                            }
+                        };
+                        const moduleOwn = exports.default || module.exports;
+                        const accessors = [
+                            'public',
+                            'protected',
+                            'private'
+                        ];
+                        if (moduleOwn.data && accessors.some(function(acc) {
+                            return moduleOwn[acc];
+                        })) throw new Error('页面VM对象中的属性data不可与"' + accessors.join(',') + '"同时存在，请使用private替换data名称');
+                        if (!moduleOwn.data) {
+                            moduleOwn.data = {};
+                            moduleOwn._descriptor = {};
+                            accessors.forEach(function(acc) {
+                                const accType = typeof moduleOwn[acc];
+                                if ('object' === accType) {
+                                    moduleOwn.data = Object.assign(moduleOwn.data, moduleOwn[acc]);
+                                    for(const name in moduleOwn[acc])moduleOwn._descriptor[name] = {
+                                        access: acc
+                                    };
+                                } else if ('function' === accType) console.warn('页面VM对象中的属性' + acc + '的值不能是函数，请使用对象');
+                            });
+                        }
+                    };
+                    var $app_template$ = function(vm) {
+                        const _vm_ = vm || this;
+                        return aiot.__ce__("div", {
+                            __vm__: _vm_,
+                            __opts__: {
+                                style: {
+                                    flexDirection: "column",
+                                    width: "336px",
+                                    height: "100%",
+                                    backgroundColor: "#000000"
+                                },
+                                events: {
+                                    swipe: function(evt) {
+                                        return _vm_.onSwipe(evt);
+                                    }
+                                }
+                            }
+                        }, [
+                            aiot.__ci__({
+                                __vm__: _vm_,
+                                __opts__: {
+                                    shown: function() {
+                                        return false === _vm_.isCircle;
+                                    }
+                                }
+                            }, function() {
+                                return [
+                                    aiot.__ce__("div", {
+                                        __vm__: _vm_,
+                                        __opts__: {
+                                            style: {
+                                                flexDirection: "column",
+                                                width: "336px",
+                                                height: "100%"
+                                            }
+                                        }
+                                    }, [
+                                        aiot.__ce__("div", {
+                                            __vm__: _vm_,
+                                            __opts__: {
+                                                style: {
+                                                    height: "86px"
+                                                }
+                                            }
+                                        }, [
+                                            aiot.__ce__("image", {
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    src: "/common/icon-back-home.png",
+                                                    style: {
+                                                        position: "absolute",
+                                                        left: "6px",
+                                                        top: "6px",
+                                                        width: "72px",
+                                                        height: "72px"
+                                                    },
+                                                    events: {
+                                                        click: function(evt) {
+                                                            return _vm_.showMenu(evt);
+                                                        }
+                                                    }
+                                                }
+                                            }, []),
+                                            aiot.__ce__("image", {
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    src: "/common/icon-add.png",
+                                                    style: {
+                                                        position: "absolute",
+                                                        left: "258px",
+                                                        top: "6px",
+                                                        width: "72px",
+                                                        height: "72px"
+                                                    },
+                                                    events: {
+                                                        click: function(evt) {
+                                                            return _vm_.addItem(evt);
+                                                        }
+                                                    }
+                                                }
+                                            }, []),
+                                            aiot.__ce__("text", {
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    style: {
+                                                        position: "absolute",
+                                                        left: "105px",
+                                                        top: "10px",
+                                                        width: "126px",
+                                                        textAlign: "center",
+                                                        fontSize: "26px",
+                                                        color: "#999999"
+                                                    },
+                                                    value: function() {
+                                                        return _vm_.timeStr;
+                                                    }
+                                                }
+                                            }, []),
+                                            aiot.__ce__("text", {
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    style: {
+                                                        position: "absolute",
+                                                        left: "100px",
+                                                        top: "40px",
+                                                        width: "136px",
+                                                        textAlign: "center",
+                                                        fontSize: "32px",
+                                                        fontWeight: 700,
+                                                        color: "#ffffff"
+                                                    },
+                                                    value: "清单"
+                                                }
+                                            }, [])
+                                        ]),
+                                        aiot.__ce__("div", {
+                                            __vm__: _vm_,
+                                            __opts__: {
+                                                style: {
+                                                    flex: 1,
+                                                    flexDirection: "column"
+                                                }
+                                            }
+                                        }, [
+                                            aiot.__ci__({
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    shown: function() {
+                                                        return !_vm_.loaded;
+                                                    }
+                                                }
+                                            }, function() {
+                                                return [
+                                                    aiot.__ce__("div", {
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            style: {
+                                                                flex: 1,
+                                                                justifyContent: "center",
+                                                                alignItems: "center"
+                                                            }
+                                                        }
+                                                    }, [
+                                                        aiot.__ce__("text", {
+                                                            __vm__: _vm_,
+                                                            __opts__: {
+                                                                style: {
+                                                                    fontSize: "22px",
+                                                                    color: "#999999"
+                                                                },
+                                                                value: "加载中..."
+                                                            }
+                                                        }, [])
+                                                    ])
+                                                ];
+                                            }),
+                                            aiot.__ci__({
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    shown: function() {
+                                                        return _vm_.loaded && 0 === _vm_.items.length;
+                                                    }
+                                                }
+                                            }, function() {
+                                                return [
+                                                    aiot.__ce__("div", {
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            style: {
+                                                                flex: 1,
+                                                                flexDirection: "column",
+                                                                alignItems: "center"
+                                                            }
+                                                        }
+                                                    }, [
+                                                        aiot.__ce__("div", {
+                                                            __vm__: _vm_,
+                                                            __opts__: {
+                                                                style: {
+                                                                    width: "128px",
+                                                                    height: "124px",
+                                                                    borderRadius: "42px",
+                                                                    backgroundColor: "#262626",
+                                                                    justifyContent: "center",
+                                                                    alignItems: "center",
+                                                                    marginTop: "60px"
+                                                                }
+                                                            }
+                                                        }, [
+                                                            aiot.__ce__("image", {
+                                                                __vm__: _vm_,
+                                                                __opts__: {
+                                                                    src: "/common/empty-ico.png",
+                                                                    style: {
+                                                                        width: "68px",
+                                                                        height: "56px"
+                                                                    }
+                                                                }
+                                                            }, [])
+                                                        ]),
+                                                        aiot.__ce__("text", {
+                                                            __vm__: _vm_,
+                                                            __opts__: {
+                                                                style: {
+                                                                    fontSize: "28px",
+                                                                    color: "#ffffff",
+                                                                    marginTop: "36px"
+                                                                },
+                                                                value: "没有内容"
+                                                            }
+                                                        }, [])
+                                                    ])
+                                                ];
+                                            }),
+                                            aiot.__ci__({
+                                                __vm__: _vm_,
+                                                __opts__: {
+                                                    shown: function() {
+                                                        return _vm_.loaded && _vm_.items.length > 0;
+                                                    }
+                                                }
+                                            }, function() {
+                                                return [
+                                                    aiot.__ce__("scroll", {
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            scrollY: "true",
+                                                            events: {
+                                                                scrollbottom: function(evt) {
+                                                                    return _vm_.loadMore(evt);
+                                                                }
+                                                            },
+                                                            style: {
+                                                                flex: 1,
+                                                                flexDirection: "column"
+                                                            }
+                                                        }
+                                                    }, [
+                                                        aiot.__cf__({
+                                                            __vm__: _vm_,
+                                                            __opts__: {
+                                                                exp: function() {
+                                                                    return _vm_.items;
+                                                                },
+                                                                key: "$idx",
+                                                                value: "$item"
+                                                            }
+                                                        }, function($idx, $item) {
+                                                            return [
+                                                                aiot.__ce__("div", {
+                                                                    __vm__: _vm_,
+                                                                    __opts__: {
+                                                                        style: {
+                                                                            width: "324px",
+                                                                            height: "112px",
+                                                                            marginLeft: "6px",
+                                                                            marginRight: "6px",
+                                                                            marginBottom: "8px",
+                                                                            flexShrink: 0
+                                                                        },
+                                                                        events: {
+                                                                            click: function(evt) {
+                                                                                return _vm_.viewItem($item.id, evt);
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }, [
+                                                                    aiot.__ci__({
+                                                                        __vm__: _vm_,
+                                                                        __opts__: {
+                                                                            shown: function() {
+                                                                                return 0 === $item.bgIdx;
+                                                                            }
+                                                                        }
+                                                                    }, function() {
+                                                                        return [
+                                                                            aiot.__ce__("image", {
+                                                                                __vm__: _vm_,
+                                                                                __opts__: {
+                                                                                    src: "/common/card-hi-pin.png",
+                                                                                    style: {
+                                                                                        position: "absolute",
+                                                                                        left: 0,
+                                                                                        top: 0,
+                                                                                        width: "324px",
+                                                                                        height: "112px"
+                                                                                    }
+                                                                                }
+                                                                            }, [])
+                                                                        ];
+                                                                    }),
+                                                                    aiot.__ci__({
+                                                                        __vm__: _vm_,
+                                                                        __opts__: {
+                                                                            shown: function() {
+                                                                                return 0 !== $item.bgIdx && 1 === $item.bgIdx;
+                                                                            }
+                                                                        }
+                                                                    }, function() {
+                                                                        return [
+                                                                            aiot.__ce__("image", {
+                                                                                __vm__: _vm_,
+                                                                                __opts__: {
+                                                                                    src: "/common/card-hi.png",
+                                                                                    style: {
+                                                                                        position: "absolute",
+                                                                                        left: 0,
+                                                                                        top: 0,
+                                                                                        width: "324px",
+                                                                                        height: "112px"
+                                                                                    }
+                                                                                }
+                                                                            }, [])
+                                                                        ];
+                                                                    }),
+                                                                    aiot.__ci__({
+                                                                        __vm__: _vm_,
+                                                                        __opts__: {
+                                                                            shown: function() {
+                                                                                return 1 !== $item.bgIdx && 0 !== $item.bgIdx && 2 === $item.bgIdx;
+                                                                            }
+                                                                        }
+                                                                    }, function() {
+                                                                        return [
+                                                                            aiot.__ce__("image", {
+                                                                                __vm__: _vm_,
+                                                                                __opts__: {
+                                                                                    src: "/common/card-mid-pin.png",
+                                                                                    style: {
+                                                                                        position: "absolute",
+                                                                                        left: 0,
+                                                                                        top: 0,
+                                                                                        width: "324px",
+                                                                                        height: "112px"
+                                                                                    }
+                                                                                }
+                                                                            }, [])
+                                                                        ];
+                                                                    }),
+                                                                    aiot.__ci__({
+                                                                        __vm__: _vm_,
+                                                                        __opts__: {
+                                                                            shown: function() {
+                                                                                return 2 !== $item.bgIdx && 1 !== $item.bgIdx && 0 !== $item.bgIdx && 3 === $item.bgIdx;
+                                                                            }
+                                                                        }
+                                                                    }, function() {
+                                                                        return [
+                                                                            aiot.__ce__("image", {
+                                                                                __vm__: _vm_,
+                                                                                __opts__: {
+                                                                                    src: "/common/card-mid.png",
+                                                                                    style: {
+                                                                                        position: "absolute",
+                                                                                        left: 0,
+                                                                                        top: 0,
+                                                                                        width: "324px",
+                                                                                        height: "112px"
+                                                                                    }
+                                                                                }
+                                                                            }, [])
+                                                                        ];
+                                                                    }),
+                                                                    aiot.__ci__({
+                                                                        __vm__: _vm_,
+                                                                        __opts__: {
+                                                                            shown: function() {
+                                                                                return 3 !== $item.bgIdx && 2 !== $item.bgIdx && 1 !== $item.bgIdx && 0 !== $item.bgIdx && 4 === $item.bgIdx;
+                                                                            }
+                                                                        }
+                                                                    }, function() {
+                                                                        return [
+                                                                            aiot.__ce__("image", {
+                                                                                __vm__: _vm_,
+                                                                                __opts__: {
+                                                                                    src: "/common/card-lo-pin.png",
+                                                                                    style: {
+                                                                                        position: "absolute",
+                                                                                        left: 0,
+                                                                                        top: 0,
+                                                                                        width: "324px",
+                                                                                        height: "112px"
+                                                                                    }
+                                                                                }
+                                                                            }, [])
+                                                                        ];
+                                                                    }),
+                                                                    aiot.__ci__({
+                                                                        __vm__: _vm_,
+                                                                        __opts__: {
+                                                                            shown: function() {
+                                                                                return 4 !== $item.bgIdx && 3 !== $item.bgIdx && 2 !== $item.bgIdx && 1 !== $item.bgIdx && 0 !== $item.bgIdx;
+                                                                            }
+                                                                        }
+                                                                    }, function() {
+                                                                        return [
+                                                                            aiot.__ce__("image", {
+                                                                                __vm__: _vm_,
+                                                                                __opts__: {
+                                                                                    src: "/common/card-lo.png",
+                                                                                    style: {
+                                                                                        position: "absolute",
+                                                                                        left: 0,
+                                                                                        top: 0,
+                                                                                        width: "324px",
+                                                                                        height: "112px"
+                                                                                    }
+                                                                                }
+                                                                            }, [])
+                                                                        ];
+                                                                    }),
+                                                                    aiot.__ci__({
+                                                                        __vm__: _vm_,
+                                                                        __opts__: {
+                                                                            shown: function() {
+                                                                                return $item.done;
+                                                                            }
+                                                                        }
+                                                                    }, function() {
+                                                                        return [
+                                                                            aiot.__ce__("image", {
+                                                                                __vm__: _vm_,
+                                                                                __opts__: {
+                                                                                    src: "/common/icon-check.png",
+                                                                                    style: {
+                                                                                        position: "absolute",
+                                                                                        left: "38px",
+                                                                                        top: "33px",
+                                                                                        width: "45px",
+                                                                                        height: "45px"
+                                                                                    }
+                                                                                }
+                                                                            }, [])
+                                                                        ];
+                                                                    }),
+                                                                    aiot.__ci__({
+                                                                        __vm__: _vm_,
+                                                                        __opts__: {
+                                                                            shown: function() {
+                                                                                return $item.done;
+                                                                            }
+                                                                        }
+                                                                    }, function() {
+                                                                        return [
+                                                                            aiot.__ce__("text", {
+                                                                                __vm__: _vm_,
+                                                                                __opts__: {
+                                                                                    style: {
+                                                                                        position: "absolute",
+                                                                                        left: "118px",
+                                                                                        top: "20px",
+                                                                                        width: "190px",
+                                                                                        fontSize: "30px",
+                                                                                        fontWeight: 700,
+                                                                                        color: "#666666",
+                                                                                        lines: 1,
+                                                                                        textOverflow: "ellipsis"
+                                                                                    },
+                                                                                    value: function() {
+                                                                                        return $item.title;
+                                                                                    }
+                                                                                }
+                                                                            }, [])
+                                                                        ];
+                                                                    }),
+                                                                    aiot.__ci__({
+                                                                        __vm__: _vm_,
+                                                                        __opts__: {
+                                                                            shown: function() {
+                                                                                return !$item.done && $item.title.length <= 5;
+                                                                            }
+                                                                        }
+                                                                    }, function() {
+                                                                        return [
+                                                                            aiot.__ce__("text", {
+                                                                                __vm__: _vm_,
+                                                                                __opts__: {
+                                                                                    style: {
+                                                                                        position: "absolute",
+                                                                                        left: "118px",
+                                                                                        top: "20px",
+                                                                                        width: "190px",
+                                                                                        fontSize: "30px",
+                                                                                        fontWeight: 700,
+                                                                                        color: "#ffffff",
+                                                                                        lines: 1,
+                                                                                        textOverflow: "ellipsis"
+                                                                                    },
+                                                                                    value: function() {
+                                                                                        return $item.title;
+                                                                                    }
+                                                                                }
+                                                                            }, [])
+                                                                        ];
+                                                                    }),
+                                                                    aiot.__ci__({
+                                                                        __vm__: _vm_,
+                                                                        __opts__: {
+                                                                            shown: function() {
+                                                                                return !($item.title.length <= 5) && !$item.done;
+                                                                            }
+                                                                        }
+                                                                    }, function() {
+                                                                        return [
+                                                                            aiot.__ce__("marquee", {
+                                                                                __vm__: _vm_,
+                                                                                __opts__: {
+                                                                                    style: {
+                                                                                        position: "absolute",
+                                                                                        left: "118px",
+                                                                                        top: "20px",
+                                                                                        width: "190px",
+                                                                                        height: "30px",
+                                                                                        fontSize: "30px",
+                                                                                        fontWeight: 700,
+                                                                                        color: "#ffffff"
+                                                                                    },
+                                                                                    scrollamount: "25",
+                                                                                    value: function() {
+                                                                                        return $item.title;
+                                                                                    }
+                                                                                }
+                                                                            }, [])
+                                                                        ];
+                                                                    }),
+                                                                    aiot.__ci__({
+                                                                        __vm__: _vm_,
+                                                                        __opts__: {
+                                                                            shown: function() {
+                                                                                return $item.done;
+                                                                            }
+                                                                        }
+                                                                    }, function() {
+                                                                        return [
+                                                                            aiot.__ce__("div", {
+                                                                                __vm__: _vm_,
+                                                                                __opts__: {
+                                                                                    style: {
+                                                                                        position: "absolute",
+                                                                                        left: "118px",
+                                                                                        top: "38px",
+                                                                                        width: "190px",
+                                                                                        height: "4px",
+                                                                                        borderRadius: "2px",
+                                                                                        backgroundColor: "#666666"
+                                                                                    }
+                                                                                }
+                                                                            }, [])
+                                                                        ];
+                                                                    }),
+                                                                    aiot.__ce__("text", {
+                                                                        __vm__: _vm_,
+                                                                        __opts__: {
+                                                                            style: function() {
+                                                                                return __webpack_require__.g.$translateStyle$("position:absolute;left:118px;top:66px;width:190px;font-size:18px;color:" + $item.timeColor + ";lines:1;text-overflow:ellipsis;");
+                                                                            },
+                                                                            value: function() {
+                                                                                return $item.dueStr;
+                                                                            }
+                                                                        }
+                                                                    }, []),
+                                                                    aiot.__ci__({
+                                                                        __vm__: _vm_,
+                                                                        __opts__: {
+                                                                            shown: function() {
+                                                                                return $item.done;
+                                                                            }
+                                                                        }
+                                                                    }, function() {
+                                                                        return [
+                                                                            aiot.__ce__("div", {
+                                                                                __vm__: _vm_,
+                                                                                __opts__: {
+                                                                                    style: {
+                                                                                        position: "absolute",
+                                                                                        left: "118px",
+                                                                                        top: "76px",
+                                                                                        width: "190px",
+                                                                                        height: "3px",
+                                                                                        borderRadius: "2px",
+                                                                                        backgroundColor: "#444444"
+                                                                                    }
+                                                                                }
+                                                                            }, [])
+                                                                        ];
+                                                                    })
+                                                                ])
+                                                            ];
+                                                        }),
+                                                        aiot.__ce__("div", {
+                                                            __vm__: _vm_,
+                                                            __opts__: {
+                                                                style: {
+                                                                    height: "12px"
+                                                                }
+                                                            }
+                                                        }, [])
+                                                    ])
+                                                ];
+                                            })
+                                        ])
+                                    ])
+                                ];
+                            }),
+                            aiot.__ci__({
+                                __vm__: _vm_,
+                                __opts__: {
+                                    shown: function() {
+                                        return _vm_.isCircle && _vm_.loaded && 0 === _vm_.items.length;
+                                    }
+                                }
+                            }, function() {
+                                return [
+                                    aiot.__ce__("image", {
+                                        __vm__: _vm_,
+                                        __opts__: {
+                                            src: "/common/circle-home-empty-bg.png",
+                                            style: {
+                                                position: "absolute",
+                                                left: 0,
+                                                top: 0,
+                                                width: "336px",
+                                                height: "336px"
+                                            }
+                                        }
+                                    }, [])
+                                ];
+                            }),
+                            aiot.__ci__({
+                                __vm__: _vm_,
+                                __opts__: {
+                                    shown: function() {
+                                        return !(_vm_.isCircle && _vm_.loaded && 0 === _vm_.items.length) && _vm_.isCircle && _vm_.loaded;
+                                    }
+                                }
+                            }, function() {
+                                return [
+                                    aiot.__ce__("image", {
+                                        __vm__: _vm_,
+                                        __opts__: {
+                                            src: "/common/circle-home-bg.png",
+                                            style: {
+                                                position: "absolute",
+                                                left: 0,
+                                                top: 0,
+                                                width: "336px",
+                                                height: "336px"
+                                            }
+                                        }
+                                    }, [])
+                                ];
+                            }),
+                            aiot.__ci__({
+                                __vm__: _vm_,
+                                __opts__: {
+                                    shown: function() {
+                                        return !(_vm_.isCircle && _vm_.loaded) && !(_vm_.isCircle && _vm_.loaded && 0 === _vm_.items.length) && _vm_.isCircle;
+                                    }
+                                }
+                            }, function() {
+                                return [
+                                    aiot.__ce__("image", {
+                                        __vm__: _vm_,
+                                        __opts__: {
+                                            src: "/common/circle-blank-bg.png",
+                                            style: {
+                                                position: "absolute",
+                                                left: 0,
+                                                top: 0,
+                                                width: "336px",
+                                                height: "336px"
+                                            }
+                                        }
+                                    }, [])
+                                ];
+                            }),
+                            aiot.__ci__({
+                                __vm__: _vm_,
+                                __opts__: {
+                                    shown: function() {
+                                        return _vm_.isCircle;
+                                    }
+                                }
+                            }, function() {
+                                return [
+                                    aiot.__ce__("image", {
+                                        __vm__: _vm_,
+                                        __opts__: {
+                                            src: "/common/circle-ctr-82.png",
+                                            style: {
+                                                position: "absolute",
+                                                left: "148px",
+                                                top: "15px",
+                                                width: "41px",
+                                                height: "41px"
+                                            },
+                                            events: {
+                                                click: function(evt) {
+                                                    return _vm_.showMenu(evt);
+                                                }
+                                            }
+                                        }
+                                    }, [])
+                                ];
+                            }),
+                            aiot.__ci__({
+                                __vm__: _vm_,
+                                __opts__: {
+                                    shown: function() {
+                                        return _vm_.isCircle && _vm_.loaded && _vm_.items.length > 0;
+                                    }
+                                }
+                            }, function() {
+                                return [
+                                    aiot.__ce__("list", {
+                                        __vm__: _vm_,
+                                        __opts__: {
+                                            scrollY: "true",
+                                            events: {
+                                                scroll: function(evt) {
+                                                    return _vm_.onCircleScroll(evt);
+                                                },
+                                                scrollbottom: function(evt) {
+                                                    return _vm_.loadMore(evt);
+                                                }
+                                            },
+                                            style: {
+                                                position: "absolute",
+                                                left: 0,
+                                                top: "110px",
+                                                width: "336px",
+                                                height: "226px",
+                                                flexDirection: "column"
+                                            }
+                                        }
+                                    }, [
+                                        aiot.__cf__({
+                                            __vm__: _vm_,
+                                            __opts__: {
+                                                exp: function() {
+                                                    return _vm_.items;
+                                                },
+                                                key: "$idx",
+                                                value: "$item"
+                                            }
+                                        }, function($idx, $item) {
+                                            return [
+                                                aiot.__ce__("list-item", {
+                                                    __vm__: _vm_,
+                                                    __opts__: {
+                                                        type: "card",
+                                                        style: {
+                                                            width: "293px",
+                                                            height: "98px",
+                                                            minHeight: "98px",
+                                                            flexShrink: 0,
+                                                            marginLeft: "22px",
+                                                            marginBottom: "14px"
+                                                        },
+                                                        events: {
+                                                            click: function(evt) {
+                                                                return _vm_.viewItem($item.id, evt);
+                                                            }
+                                                        }
+                                                    }
+                                                }, [
+                                                    aiot.__ci__({
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            shown: function() {
+                                                                return 0 === $item.bgIdx;
+                                                            }
+                                                        }
+                                                    }, function() {
+                                                        return [
+                                                            aiot.__ce__("image", {
+                                                                __vm__: _vm_,
+                                                                __opts__: {
+                                                                    src: "/common/circle-ctr-79.png",
+                                                                    style: {
+                                                                        position: "absolute",
+                                                                        left: 0,
+                                                                        top: 0,
+                                                                        width: "293px",
+                                                                        height: "98px"
+                                                                    }
+                                                                }
+                                                            }, [])
+                                                        ];
+                                                    }),
+                                                    aiot.__ci__({
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            shown: function() {
+                                                                return 0 !== $item.bgIdx && 1 === $item.bgIdx;
+                                                            }
+                                                        }
+                                                    }, function() {
+                                                        return [
+                                                            aiot.__ce__("image", {
+                                                                __vm__: _vm_,
+                                                                __opts__: {
+                                                                    src: "/common/circle-ctr-76.png",
+                                                                    style: {
+                                                                        position: "absolute",
+                                                                        left: 0,
+                                                                        top: 0,
+                                                                        width: "293px",
+                                                                        height: "98px"
+                                                                    }
+                                                                }
+                                                            }, [])
+                                                        ];
+                                                    }),
+                                                    aiot.__ci__({
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            shown: function() {
+                                                                return 1 !== $item.bgIdx && 0 !== $item.bgIdx && 2 === $item.bgIdx;
+                                                            }
+                                                        }
+                                                    }, function() {
+                                                        return [
+                                                            aiot.__ce__("image", {
+                                                                __vm__: _vm_,
+                                                                __opts__: {
+                                                                    src: "/common/circle-ctr-80.png",
+                                                                    style: {
+                                                                        position: "absolute",
+                                                                        left: 0,
+                                                                        top: 0,
+                                                                        width: "293px",
+                                                                        height: "98px"
+                                                                    }
+                                                                }
+                                                            }, [])
+                                                        ];
+                                                    }),
+                                                    aiot.__ci__({
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            shown: function() {
+                                                                return 2 !== $item.bgIdx && 1 !== $item.bgIdx && 0 !== $item.bgIdx && 3 === $item.bgIdx;
+                                                            }
+                                                        }
+                                                    }, function() {
+                                                        return [
+                                                            aiot.__ce__("image", {
+                                                                __vm__: _vm_,
+                                                                __opts__: {
+                                                                    src: "/common/circle-ctr-77.png",
+                                                                    style: {
+                                                                        position: "absolute",
+                                                                        left: 0,
+                                                                        top: 0,
+                                                                        width: "293px",
+                                                                        height: "98px"
+                                                                    }
+                                                                }
+                                                            }, [])
+                                                        ];
+                                                    }),
+                                                    aiot.__ci__({
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            shown: function() {
+                                                                return 3 !== $item.bgIdx && 2 !== $item.bgIdx && 1 !== $item.bgIdx && 0 !== $item.bgIdx && 4 === $item.bgIdx;
+                                                            }
+                                                        }
+                                                    }, function() {
+                                                        return [
+                                                            aiot.__ce__("image", {
+                                                                __vm__: _vm_,
+                                                                __opts__: {
+                                                                    src: "/common/circle-ctr-81.png",
+                                                                    style: {
+                                                                        position: "absolute",
+                                                                        left: 0,
+                                                                        top: 0,
+                                                                        width: "293px",
+                                                                        height: "98px"
+                                                                    }
+                                                                }
+                                                            }, [])
+                                                        ];
+                                                    }),
+                                                    aiot.__ci__({
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            shown: function() {
+                                                                return 4 !== $item.bgIdx && 3 !== $item.bgIdx && 2 !== $item.bgIdx && 1 !== $item.bgIdx && 0 !== $item.bgIdx;
+                                                            }
+                                                        }
+                                                    }, function() {
+                                                        return [
+                                                            aiot.__ce__("image", {
+                                                                __vm__: _vm_,
+                                                                __opts__: {
+                                                                    src: "/common/circle-ctr-78.png",
+                                                                    style: {
+                                                                        position: "absolute",
+                                                                        left: 0,
+                                                                        top: 0,
+                                                                        width: "293px",
+                                                                        height: "98px"
+                                                                    }
+                                                                }
+                                                            }, [])
+                                                        ];
+                                                    }),
+                                                    aiot.__ci__({
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            shown: function() {
+                                                                return $item.done;
+                                                            }
+                                                        }
+                                                    }, function() {
+                                                        return [
+                                                            aiot.__ce__("image", {
+                                                                __vm__: _vm_,
+                                                                __opts__: {
+                                                                    src: "/common/icon-check.png",
+                                                                    style: {
+                                                                        position: "absolute",
+                                                                        left: "32px",
+                                                                        top: "31px",
+                                                                        width: "36px",
+                                                                        height: "36px"
+                                                                    }
+                                                                }
+                                                            }, [])
+                                                        ];
+                                                    }),
+                                                    aiot.__ci__({
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            shown: function() {
+                                                                return $item.done;
+                                                            }
+                                                        }
+                                                    }, function() {
+                                                        return [
+                                                            aiot.__ce__("text", {
+                                                                __vm__: _vm_,
+                                                                __opts__: {
+                                                                    style: {
+                                                                        position: "absolute",
+                                                                        left: "110px",
+                                                                        top: "15px",
+                                                                        width: "140px",
+                                                                        fontSize: "26px",
+                                                                        fontWeight: 700,
+                                                                        color: "#666666",
+                                                                        lines: 1,
+                                                                        textOverflow: "ellipsis"
+                                                                    },
+                                                                    value: function() {
+                                                                        return $item.title;
+                                                                    }
+                                                                }
+                                                            }, [])
+                                                        ];
+                                                    }),
+                                                    aiot.__ci__({
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            shown: function() {
+                                                                return !$item.done && $item.title.length <= 6;
+                                                            }
+                                                        }
+                                                    }, function() {
+                                                        return [
+                                                            aiot.__ce__("text", {
+                                                                __vm__: _vm_,
+                                                                __opts__: {
+                                                                    style: {
+                                                                        position: "absolute",
+                                                                        left: "110px",
+                                                                        top: "15px",
+                                                                        width: "140px",
+                                                                        fontSize: "26px",
+                                                                        fontWeight: 700,
+                                                                        color: "#ffffff",
+                                                                        lines: 1,
+                                                                        textOverflow: "ellipsis"
+                                                                    },
+                                                                    value: function() {
+                                                                        return $item.title;
+                                                                    }
+                                                                }
+                                                            }, [])
+                                                        ];
+                                                    }),
+                                                    aiot.__ci__({
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            shown: function() {
+                                                                return !($item.title.length <= 6) && !$item.done;
+                                                            }
+                                                        }
+                                                    }, function() {
+                                                        return [
+                                                            aiot.__ce__("marquee", {
+                                                                __vm__: _vm_,
+                                                                __opts__: {
+                                                                    style: {
+                                                                        position: "absolute",
+                                                                        left: "110px",
+                                                                        top: "15px",
+                                                                        width: "140px",
+                                                                        height: "28px",
+                                                                        fontSize: "26px",
+                                                                        fontWeight: 700,
+                                                                        color: "#ffffff"
+                                                                    },
+                                                                    scrollamount: "15",
+                                                                    value: function() {
+                                                                        return $item.title;
+                                                                    }
+                                                                }
+                                                            }, [])
+                                                        ];
+                                                    }),
+                                                    aiot.__ci__({
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            shown: function() {
+                                                                return $item.done;
+                                                            }
+                                                        }
+                                                    }, function() {
+                                                        return [
+                                                            aiot.__ce__("div", {
+                                                                __vm__: _vm_,
+                                                                __opts__: {
+                                                                    style: {
+                                                                        position: "absolute",
+                                                                        left: "110px",
+                                                                        top: "28px",
+                                                                        width: "140px",
+                                                                        height: "3px",
+                                                                        borderRadius: "2px",
+                                                                        backgroundColor: "#666666"
+                                                                    }
+                                                                }
+                                                            }, [])
+                                                        ];
+                                                    }),
+                                                    aiot.__ce__("text", {
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            style: function() {
+                                                                return __webpack_require__.g.$translateStyle$("position:absolute;left:110px;top:52px;width:140px;font-size:18px;color:" + $item.timeColor + ";lines:1;text-overflow:ellipsis;");
+                                                            },
+                                                            value: function() {
+                                                                return $item.dueStr;
+                                                            }
+                                                        }
+                                                    }, []),
+                                                    aiot.__ci__({
+                                                        __vm__: _vm_,
+                                                        __opts__: {
+                                                            shown: function() {
+                                                                return $item.done;
+                                                            }
+                                                        }
+                                                    }, function() {
+                                                        return [
+                                                            aiot.__ce__("div", {
+                                                                __vm__: _vm_,
+                                                                __opts__: {
+                                                                    style: {
+                                                                        position: "absolute",
+                                                                        left: "110px",
+                                                                        top: "61px",
+                                                                        width: "140px",
+                                                                        height: "2px",
+                                                                        borderRadius: "1px",
+                                                                        backgroundColor: "#444444"
+                                                                    }
+                                                                }
+                                                            }, [])
+                                                        ];
+                                                    })
+                                                ])
+                                            ];
+                                        }),
+                                        aiot.__ce__("list-item", {
+                                            __vm__: _vm_,
+                                            __opts__: {
+                                                type: "spacer",
+                                                style: {
+                                                    height: "84px",
+                                                    minHeight: "84px",
+                                                    flexShrink: 0
+                                                }
+                                            }
+                                        }, [])
+                                    ])
+                                ];
+                            }),
+                            aiot.__ci__({
+                                __vm__: _vm_,
+                                __opts__: {
+                                    shown: function() {
+                                        return _vm_.isCircle;
+                                    }
+                                }
+                            }, function() {
+                                return [
+                                    aiot.__ce__("image", {
+                                        __vm__: _vm_,
+                                        __opts__: {
+                                            show: function() {
+                                                return _vm_.circleAddVisible;
+                                            },
+                                            src: "/common/circle-ctr-92.png",
+                                            style: {
+                                                position: "absolute",
+                                                left: "112px",
+                                                top: "252px",
+                                                width: "112px",
+                                                height: "66.5px"
+                                            },
+                                            events: {
+                                                click: function(evt) {
+                                                    return _vm_.addItem(evt);
+                                                }
+                                            }
+                                        }
+                                    }, [])
+                                ];
+                            })
+                        ]);
+                    };
+                    $app_exports$['entry'] = function($app_exports$) {
+                        $app_script$({}, $app_exports$, $app_require$1);
+                        $app_exports$.default.template = $app_template$;
+                        $app_exports$.default.style = $app_style$;
+                    };
+                })();
+            })();
+        };
+        return createPageHandler();
+    })(global, globalThis, window, $app_exports$, $app_evaluate$);
+}
