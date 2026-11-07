@@ -82,8 +82,9 @@ contest2026_356_TXCNSTUDIO.xml
 | `proxy.php` | 手表端 API 代理（自适应绕过主机 JS 挑战，手表 API_BASE 指向它） |
 | `account.html` | 账号中心（登录 / 注册 / 头像 / 设备管理） |
 | `index.html` | 站点入口页 |
+| `fonts/` | 自托管图标字体（Material Symbols Rounded 子集，约 116KB），三个页面共用；已不依赖 Google Fonts CDN |
 
-敏感配置文件与管理后台等不入库；部署时在服务器补齐 `config.php` 真实值即可。
+敏感配置文件与管理后台等不入库；部署时在服务器补齐 `config.php` 真实值即可。图标字体需与 HTML 同目录部署（`fonts/material-symbols-rounded.woff2`），否则图标会退化成文字。
 
 ---
 
