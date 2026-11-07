@@ -507,12 +507,16 @@ function startCodeTtl(){
 }
 function closeCodeOvl(){stopCodeTtl();closeOvl('ovl-code');}
 function copyCode(){
-  const raw=(document.getElementById('code-val').textContent||'').replace('-','');
+  const cv=document.getElementById('code-val');
+  const raw=(cv.textContent||'').replace('-','');
   if(!raw||raw==='------')return;
+  if(cv.classList.contains('dead'))return showToast('绑定码已失效，请重新生成','error');
   const ok=function(){showToast('绑定码已复制','success');};
   const fallback=function(){
-    try{const ta=document.createElement('textarea');ta.value=raw;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();ok();}
-    catch(e){showToast('复制失败，请手动输入','error');}
+    var copied=false;
+    try{const ta=document.createElement('textarea');ta.value=raw;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();copied=document.execCommand('copy')===true;ta.remove();}
+    catch(e){copied=false;}
+    if(copied)ok();else showToast('复制失败，请手动输入绑定码','error');
   };
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(raw).then(ok).catch(fallback);}else fallback();
 }
