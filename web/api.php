@@ -18,7 +18,7 @@ if (!is_dir(__DIR__ . '/logs')) { @mkdir(__DIR__ . '/logs', 0750, true); }
 // 设备端（手表）请求带 fmt=text 时返回 text/plain，Vela 的 fetch 才能拿到原始 JSON 文本
 $isDeviceFmt = isset($_GET['fmt']) && $_GET['fmt'] === 'text';
 header("Content-Type: " . ($isDeviceFmt ? 'text/plain' : 'application/json') . "; charset=UTF-8");
-$allowed_origins = ['https://txcn.asia', 'https://www.txcn.asia', 'http://localhost', 'http://localhost:3000', 'http://localhost:5173'];
+$allowed_origins = ['https://txcn.top', 'https://www.txcn.top', 'https://txcn.asia', 'https://www.txcn.asia', 'http://localhost', 'http://localhost:3000', 'http://localhost:5173'];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 header("Access-Control-Allow-Origin: " . (in_array($origin, $allowed_origins) ? $origin : 'https://txcn.asia'));
 header("Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS");
@@ -413,12 +413,19 @@ function verifyPasswordCompat($input, $stored) {
 if ($action === 'send_email_code' && $method === 'POST') {
     $email   = isset($input['email'])   ? trim($input['email'])   : '';
     $captcha = isset($input['captcha']) ? strtolower(trim($input['captcha'])) : '';
+    $cfToken = isset($input['cf_turnstile']) ? trim($input['cf_turnstile']) : '';
 
-    if (empty($_SESSION['captcha_code']) || $captcha !== $_SESSION['captcha_code']) {
-        echo json_encode(["success" => false, "message" => "图片验证码错误或已过期"]);
+    // 注册页使用 Cloudflare Turnstile（与 login/register 一致）；忘记密码页仍走图片验证码
+    if ($cfToken !== '') {
+        if (!verifyTurnstile($cfToken)) {
+            echo json_encode(["success" => false, "message" => "人机验证未通过，请重试"]); exit;
+        }
+    } elseif (empty($_SESSION['captcha_code']) || $captcha !== $_SESSION['captcha_code']) {
+        echo json_encode(["success" => false, "message" => "人机验证失败或已过期"]);
         unset($_SESSION['captcha_code']); exit;
+    } else {
+        unset($_SESSION['captcha_code']);
     }
-    unset($_SESSION['captcha_code']);
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo json_encode(["success" => false, "message" => "邮箱格式不正确"]);
@@ -948,6 +955,13 @@ if ($method === 'POST') {
         // 设备管理：撤销该用户全部设备 token（所有设备下线）
         $stmt = $pdo->prepare("DELETE FROM user_tokens WHERE user_id = ?");
         $stmt->execute([$user_id]); echo json_encode(["success" => true]);
+    }
+    elseif ($action === 'revoke_others') {
+        // 设备管理：只下线其它设备，保留当前网页登录
+        $cur = isset($_SESSION['login_token']) ? $_SESSION['login_token'] : '';
+        if ($cur === '') { echo json_encode(["success" => false, "message" => "无法识别当前设备，请重新登录后再试"]); exit; }
+        $stmt = $pdo->prepare("DELETE FROM user_tokens WHERE user_id = ? AND token <> ?");
+        $stmt->execute([$user_id, $cur]); echo json_encode(["success" => true]);
     }
     elseif ($action === 'clear_completed') {
         $stmt = $pdo->prepare("DELETE FROM todos WHERE completed = 1 AND user_id = ?");
